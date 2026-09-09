@@ -1,6 +1,7 @@
 "use client";
 
-import { ReactNode, useState } from "react";
+import { ReactNode, useEffect, useState } from "react";
+import { usePathname, useSearchParams } from "next/navigation";
 
 type MobileFiltersProps = {
     children: ReactNode;
@@ -11,12 +12,20 @@ export function MobileFilters({
 }: MobileFiltersProps) {
     const [open, setOpen] = useState(false);
 
+    const pathname = usePathname();
+    const searchParams = useSearchParams();
+
+    useEffect(() => {
+        setOpen(false);
+    }, [pathname, searchParams]);
+
     return (
         <div className="border-b border-black md:hidden">
             <button
                 type="button"
                 onClick={() => setOpen(!open)}
                 className="flex w-full items-center justify-between px-4 py-3 uppercase"
+                aria-expanded={open}
             >
                 <span>
                     Filtros
