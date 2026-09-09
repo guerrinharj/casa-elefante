@@ -38,7 +38,13 @@ const formats = [
     "LaserDisc",
 ];
 
-export async function Sidebar() {
+type SidebarProps = {
+    mobile?: boolean;
+};
+
+export async function Sidebar({
+    mobile = false,
+}: SidebarProps) {
     const supabase = await createClient();
 
     const { data: products, error } = await supabase
@@ -93,8 +99,20 @@ export async function Sidebar() {
         .map(Number)
         .sort((a, b) => b - a);
 
+    const filterLinkClassName =
+        "group flex items-center justify-between gap-4";
+
+    const arrowClassName =
+        "mr-0 w-0 -translate-x-2 overflow-hidden opacity-0 transition-all duration-200 ease-out group-hover:mr-2 group-hover:w-3 group-hover:translate-x-0 group-hover:opacity-100";
+
     return (
-        <aside className="w-64 shrink-0 border-r border-black p-6">
+        <aside
+            className={
+                mobile
+                    ? "w-full px-4 pb-6 pt-2"
+                    : "w-64 shrink-0 border-r border-black p-6"
+            }
+        >
             <div className="mb-8">
                 <h2 className="mb-3 font-bold uppercase">
                     Gênero
@@ -105,10 +123,10 @@ export async function Sidebar() {
                         <li key={genre}>
                             <Link
                                 href={`/?genre=${encodeURIComponent(genre)}`}
-                                className="group flex items-center justify-between gap-4"
+                                className={filterLinkClassName}
                             >
-                                <span className="flex items-center">
-                                    <span className="mr-0 w-0 -translate-x-2 overflow-hidden opacity-0 transition-all duration-200 ease-out group-hover:mr-2 group-hover:w-3 group-hover:translate-x-0 group-hover:opacity-100">
+                                <span className="flex min-w-0 items-center">
+                                    <span className={arrowClassName}>
                                         →
                                     </span>
 
@@ -117,7 +135,7 @@ export async function Sidebar() {
                                     </span>
                                 </span>
 
-                                <span>
+                                <span className="shrink-0">
                                     {genreCounts[genre] ?? 0}
                                 </span>
                             </Link>
@@ -136,10 +154,10 @@ export async function Sidebar() {
                         <li key={format}>
                             <Link
                                 href={`/?format=${encodeURIComponent(format)}`}
-                                className="group flex items-center justify-between gap-4"
+                                className={filterLinkClassName}
                             >
-                                <span className="flex items-center">
-                                    <span className="mr-0 w-0 -translate-x-2 overflow-hidden opacity-0 transition-all duration-200 ease-out group-hover:mr-2 group-hover:w-3 group-hover:translate-x-0 group-hover:opacity-100">
+                                <span className="flex min-w-0 items-center">
+                                    <span className={arrowClassName}>
                                         →
                                     </span>
 
@@ -148,7 +166,7 @@ export async function Sidebar() {
                                     </span>
                                 </span>
 
-                                <span>
+                                <span className="shrink-0">
                                     {formatCounts[format] ?? 0}
                                 </span>
                             </Link>
@@ -172,10 +190,10 @@ export async function Sidebar() {
                             <li key={year}>
                                 <Link
                                     href={`/?year=${year}`}
-                                    className="group flex items-center justify-between gap-4"
+                                    className={filterLinkClassName}
                                 >
-                                    <span className="flex items-center">
-                                        <span className="mr-0 w-0 -translate-x-2 overflow-hidden opacity-0 transition-all duration-200 ease-out group-hover:mr-2 group-hover:w-3 group-hover:translate-x-0 group-hover:opacity-100">
+                                    <span className="flex min-w-0 items-center">
+                                        <span className={arrowClassName}>
                                             →
                                         </span>
 
@@ -184,7 +202,7 @@ export async function Sidebar() {
                                         </span>
                                     </span>
 
-                                    <span>
+                                    <span className="shrink-0">
                                         {yearCounts[String(year)] ?? 0}
                                     </span>
                                 </Link>
