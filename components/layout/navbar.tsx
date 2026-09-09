@@ -11,7 +11,7 @@ export function Navbar() {
                 <nav>
                     <ul className="flex gap-6">
                         <li>
-                            <Link href="/loja">Loja</Link>
+                            <Link href="/">Loja</Link>
                         </li>
 
                         <li>

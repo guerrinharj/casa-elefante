@@ -43,7 +43,7 @@ export function Sidebar() {
                     {genres.map((genre) => (
                         <li key={genre}>
                             <Link
-                                href={`/loja?genre=${encodeURIComponent(genre)}`}
+                                href={`/?genre=${encodeURIComponent(genre)}`}
                             >
                                 {genre}
                             </Link>
@@ -61,7 +61,7 @@ export function Sidebar() {
                     {formats.map((format) => (
                         <li key={format}>
                             <Link
-                                href={`/loja?format=${encodeURIComponent(format)}`}
+                                href={`/?format=${encodeURIComponent(format)}`}
                             >
                                 {format}
                             </Link>
