@@ -45,6 +45,14 @@ export async function Sidebar() {
         .from("products")
         .select("genre, format, year");
 
+    if (error) {
+        console.error("Sidebar Supabase error:", {
+            message: error.message,
+            details: error.details,
+            hint: error.hint,
+            code: error.code,
+        });
+    }
 
     const genreCounts = products?.reduce<Record<string, number>>(
         (acc, product) => {
@@ -97,10 +105,16 @@ export async function Sidebar() {
                         <li key={genre}>
                             <Link
                                 href={`/?genre=${encodeURIComponent(genre)}`}
-                                className="flex justify-between gap-4"
+                                className="group flex items-center justify-between gap-4"
                             >
-                                <span>
-                                    {genre}
+                                <span className="flex items-center">
+                                    <span className="mr-0 w-0 -translate-x-2 overflow-hidden opacity-0 transition-all duration-200 ease-out group-hover:mr-2 group-hover:w-3 group-hover:translate-x-0 group-hover:opacity-100">
+                                        →
+                                    </span>
+
+                                    <span>
+                                        {genre}
+                                    </span>
                                 </span>
 
                                 <span>
@@ -122,10 +136,16 @@ export async function Sidebar() {
                         <li key={format}>
                             <Link
                                 href={`/?format=${encodeURIComponent(format)}`}
-                                className="flex justify-between gap-4"
+                                className="group flex items-center justify-between gap-4"
                             >
-                                <span>
-                                    {format}
+                                <span className="flex items-center">
+                                    <span className="mr-0 w-0 -translate-x-2 overflow-hidden opacity-0 transition-all duration-200 ease-out group-hover:mr-2 group-hover:w-3 group-hover:translate-x-0 group-hover:opacity-100">
+                                        →
+                                    </span>
+
+                                    <span>
+                                        {format}
+                                    </span>
                                 </span>
 
                                 <span>
@@ -152,10 +172,16 @@ export async function Sidebar() {
                             <li key={year}>
                                 <Link
                                     href={`/?year=${year}`}
-                                    className="flex justify-between gap-4"
+                                    className="group flex items-center justify-between gap-4"
                                 >
-                                    <span>
-                                        {year}
+                                    <span className="flex items-center">
+                                        <span className="mr-0 w-0 -translate-x-2 overflow-hidden opacity-0 transition-all duration-200 ease-out group-hover:mr-2 group-hover:w-3 group-hover:translate-x-0 group-hover:opacity-100">
+                                            →
+                                        </span>
+
+                                        <span>
+                                            {year}
+                                        </span>
                                     </span>
 
                                     <span>
