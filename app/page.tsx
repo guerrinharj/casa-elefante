@@ -1,7 +1,7 @@
 import { Suspense } from "react";
 
 import { Sidebar } from "@/components/layout/sidebar";
-import { FilteredProducts } from "@/components/products/filtered-products";
+import { ProductsSection } from "@/components/products/products-section";
 
 type HomePageProps = {
     searchParams: Promise<{
@@ -18,11 +18,15 @@ export default function HomePage({
 }: HomePageProps) {
     return (
         <div className="flex">
-            <Sidebar />
+            <Suspense fallback={<aside className="w-64" />}>
+                <Sidebar />
+            </Suspense>
 
             <section className="flex-1 p-6">
                 <Suspense fallback={<p>Carregando produtos...</p>}>
-                    <FilteredProducts searchParams={searchParams} />
+                    <ProductsSection
+                        searchParams={searchParams}
+                    />
                 </Suspense>
             </section>
         </div>

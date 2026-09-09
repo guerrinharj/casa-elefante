@@ -1,20 +1,20 @@
 import { createClient } from "@/lib/supabase/server";
 
-type ProductFilters = {
-    genre?: string;
-    format?: string;
-    year?: string;
-    artist?: string;
-    label?: string;
+type ProductsSectionProps = {
+    searchParams: Promise<{
+        genre?: string;
+        format?: string;
+        year?: string;
+        artist?: string;
+        label?: string;
+    }>;
 };
 
-type ProductListProps = {
-    filters: ProductFilters;
-};
+export async function ProductsSection({
+    searchParams,
+}: ProductsSectionProps) {
+    const filters = await searchParams;
 
-export async function ProductList({
-    filters,
-}: ProductListProps) {
     const supabase = await createClient();
 
     let query = supabase
@@ -31,7 +31,10 @@ export async function ProductList({
     }
 
     if (filters.year) {
-        query = query.eq("year", Number(filters.year));
+        query = query.eq(
+            "year",
+            Number(filters.year)
+        );
     }
 
     if (filters.artist) {
@@ -53,16 +56,24 @@ export async function ProductList({
     if (error) {
         console.error(error);
 
-        return <p>Erro ao carregar produtos.</p>;
+        return (
+            <p>
+                Erro ao carregar produtos.
+            </p>
+        );
     }
 
-    const title =
-        filters.genre ||
-        filters.format ||
-        filters.year ||
-        filters.artist ||
-        filters.label ||
-        "Loja";
+    const activeFilters = [
+        filters.genre,
+        filters.format,
+        filters.year,
+        filters.artist,
+        filters.label,
+    ].filter(Boolean);
+
+    const title = activeFilters.length > 0
+        ? activeFilters.join(" / ")
+        : "Loja";
 
     return (
         <>
@@ -77,7 +88,9 @@ export async function ProductList({
             </div>
 
             {products.length === 0 ? (
-                <p>Nenhum produto encontrado.</p>
+                <p>
+                    Nenhum produto encontrado.
+                </p>
             ) : (
                 <pre className="text-xs">
                     {JSON.stringify(products, null, 2)}
