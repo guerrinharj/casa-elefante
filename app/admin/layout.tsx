@@ -1,5 +1,8 @@
-import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
+
+import { createClient } from "@/lib/supabase/server";
+
+export const instant = false;
 
 export default async function AdminLayout({
     children,
@@ -8,11 +11,17 @@ export default async function AdminLayout({
 }) {
     const supabase = await createClient();
 
-    const { data, error } = await supabase.auth.getClaims();
+    const {
+        data: { user },
+    } = await supabase.auth.getUser();
 
-    if (error || !data?.claims) {
+    if (!user) {
         redirect("/login");
     }
 
-    return children;
+    return (
+        <>
+            {children}
+        </>
+    );
 }

@@ -2,41 +2,12 @@ import Link from "next/link";
 
 import { createClient } from "@/lib/supabase/server";
 
-const genres = [
-    "LATINOS",
-    "REGGAE",
-    "BLUES",
-    "DISCO",
-    "SOUL / FUNK / R&B",
-    "HUMOR",
-    "RAP / HIP HOP",
-    "NOVELAS",
-    "MPB",
-    "SAMBA / PAGODE / CARNAVAL / BATUCADA",
-    "ORQUESTRAS NACIONAIS",
-    "AXÉ",
-    "JOVEM GUARDA",
-    "BOSSA NOVA",
-    "REGIONAIS",
-    "VELHA GUARDA",
-    "FORRÓ",
-    "CHOROS",
-    "ROCK",
-    "HARD ROCK / HEAVY METAL",
-    "POP / ALTERNATIVO",
-    "JAZZ",
-    "HOUSE / DANCE",
-    "AMBIENT / NEW AGE",
-];
+import {
+    PRODUCT_FORMATS,
+    PRODUCT_GENRES,
+} from "@/lib/products";
 
-const formats = [
-    "Vinil 12",
-    "Compacto 7",
-    "CD",
-    "Cassette",
-    "VHS",
-    "LaserDisc",
-];
+
 
 type SidebarProps = {
     mobile?: boolean;
@@ -119,7 +90,7 @@ export async function Sidebar({
                 </h2>
 
                 <ul className="space-y-1 text-sm">
-                    {genres.map((genre) => (
+                    {PRODUCT_GENRES.map((genre) => (
                         <li key={genre}>
                             <Link
                                 href={`/?genre=${encodeURIComponent(genre)}`}
@@ -150,7 +121,7 @@ export async function Sidebar({
                 </h2>
 
                 <ul className="space-y-1 text-sm">
-                    {formats.map((format) => (
+                    {PRODUCT_FORMATS.map((format) => (
                         <li key={format}>
                             <Link
                                 href={`/?format=${encodeURIComponent(format)}`}
