@@ -36,7 +36,6 @@ export function InfiniteProductList({
     filters,
 }: InfiniteProductListProps) {
     const [products, setProducts] = useState(initialProducts);
-    const [page, setPage] = useState(1);
 
     const [hasMore, setHasMore] = useState(
         initialProducts.length === PRODUCTS_PER_PAGE,
@@ -46,14 +45,29 @@ export function InfiniteProductList({
 
     const sentinelRef = useRef<HTMLDivElement>(null);
 
+    const pageRef = useRef(1);
+    const loadingRef = useRef(false);
+    const hasMoreRef = useRef(
+        initialProducts.length === PRODUCTS_PER_PAGE,
+    );
+
+    const filtersRef = useRef(filters);
+
     useEffect(() => {
+        filtersRef.current = filters;
+
         setProducts(initialProducts);
-        setPage(1);
 
-        setHasMore(
-            initialProducts.length === PRODUCTS_PER_PAGE,
-        );
+        pageRef.current = 1;
 
+        const newHasMore =
+            initialProducts.length === PRODUCTS_PER_PAGE;
+
+        hasMoreRef.current = newHasMore;
+
+        setHasMore(newHasMore);
+
+        loadingRef.current = false;
         setLoading(false);
     }, [
         initialProducts,
@@ -66,39 +80,66 @@ export function InfiniteProductList({
     ]);
 
     async function loadMore() {
-        if (loading || !hasMore) {
+        if (
+            loadingRef.current ||
+            !hasMoreRef.current
+        ) {
             return;
         }
 
+        loadingRef.current = true;
         setLoading(true);
 
         try {
+            const filters = filtersRef.current;
+
             const params = new URLSearchParams();
 
-            params.set("page", String(page));
+            params.set(
+                "page",
+                String(pageRef.current),
+            );
 
             if (filters.genre) {
-                params.set("genre", filters.genre);
+                params.set(
+                    "genre",
+                    filters.genre,
+                );
             }
 
             if (filters.format) {
-                params.set("format", filters.format);
+                params.set(
+                    "format",
+                    filters.format,
+                );
             }
 
             if (filters.year) {
-                params.set("year", filters.year);
+                params.set(
+                    "year",
+                    filters.year,
+                );
             }
 
             if (filters.artist) {
-                params.set("artist", filters.artist);
+                params.set(
+                    "artist",
+                    filters.artist,
+                );
             }
 
             if (filters.label) {
-                params.set("label", filters.label);
+                params.set(
+                    "label",
+                    filters.label,
+                );
             }
 
             if (filters.search) {
-                params.set("search", filters.search);
+                params.set(
+                    "search",
+                    filters.search,
+                );
             }
 
             const response = await fetch(
@@ -107,29 +148,50 @@ export function InfiniteProductList({
 
             if (!response.ok) {
                 throw new Error(
-                    "Erro ao carregar mais produtos.",
+                    "Erro ao carregar produtos.",
                 );
             }
 
             const nextProducts: Product[] =
                 await response.json();
 
-            setProducts((currentProducts) => [
-                ...currentProducts,
-                ...nextProducts,
-            ]);
+            setProducts((currentProducts) => {
+                const existingIds = new Set(
+                    currentProducts.map(
+                        (product) => product.id,
+                    ),
+                );
 
-            setPage((currentPage) => currentPage + 1);
+                const uniqueProducts =
+                    nextProducts.filter(
+                        (product) =>
+                            !existingIds.has(
+                                product.id,
+                            ),
+                    );
 
-            setHasMore(
-                nextProducts.length === PRODUCTS_PER_PAGE,
-            );
+                return [
+                    ...currentProducts,
+                    ...uniqueProducts,
+                ];
+            });
+
+            pageRef.current += 1;
+
+            const newHasMore =
+                nextProducts.length ===
+                PRODUCTS_PER_PAGE;
+
+            hasMoreRef.current = newHasMore;
+
+            setHasMore(newHasMore);
         } catch (error) {
             console.error(
-                "Erro ao carregar mais produtos:",
+                "Erro ao carregar produtos:",
                 error,
             );
         } finally {
+            loadingRef.current = false;
             setLoading(false);
         }
     }
@@ -141,28 +203,28 @@ export function InfiniteProductList({
             return;
         }
 
-        const observer = new IntersectionObserver(
-            ([entry]) => {
-                if (entry.isIntersecting) {
-                    loadMore();
-                }
-            },
-            {
-                rootMargin: "300px",
-            },
-        );
+        const observer =
+            new IntersectionObserver(
+                ([entry]) => {
+                    if (
+                        entry.isIntersecting &&
+                        !loadingRef.current &&
+                        hasMoreRef.current
+                    ) {
+                        loadMore();
+                    }
+                },
+                {
+                    rootMargin: "300px",
+                },
+            );
 
         observer.observe(sentinel);
 
         return () => {
             observer.disconnect();
         };
-    }, [
-        page,
-        hasMore,
-        loading,
-        filters,
-    ]);
+    }, []);
 
     return (
         <>

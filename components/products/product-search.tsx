@@ -2,38 +2,61 @@
 
 import { useEffect, useState } from "react";
 
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import {
+    usePathname,
+    useRouter,
+    useSearchParams,
+} from "next/navigation";
 
 export function ProductSearch() {
     const router = useRouter();
     const pathname = usePathname();
     const searchParams = useSearchParams();
 
-    const currentSearch = searchParams.get("search") ?? "";
+    const currentSearch =
+        searchParams.get("search") ?? "";
 
-    const [search, setSearch] = useState(currentSearch);
+    const [search, setSearch] = useState(
+        currentSearch,
+    );
 
     useEffect(() => {
+        if (search.trim() === currentSearch) {
+            return;
+        }
+
         const timeout = setTimeout(() => {
-            const params = new URLSearchParams(searchParams.toString());
+            const params = new URLSearchParams(
+                searchParams.toString(),
+            );
 
             if (search.trim()) {
-                params.set("search", search.trim());
+                params.set(
+                    "search",
+                    search.trim(),
+                );
             } else {
                 params.delete("search");
             }
 
+            const query = params.toString();
+
             router.replace(
-                `${pathname}?${params.toString()}`,
+                query
+                    ? `${pathname}?${query}`
+                    : pathname,
                 {
                     scroll: false,
                 },
             );
         }, 300);
 
-        return () => clearTimeout(timeout);
+        return () => {
+            clearTimeout(timeout);
+        };
     }, [
         search,
+        currentSearch,
         pathname,
         router,
         searchParams,
@@ -43,7 +66,9 @@ export function ProductSearch() {
         <input
             type="search"
             value={search}
-            onChange={(event) => setSearch(event.target.value)}
+            onChange={(event) =>
+                setSearch(event.target.value)
+            }
             placeholder="Pesquisar"
             className="
                 w-48
