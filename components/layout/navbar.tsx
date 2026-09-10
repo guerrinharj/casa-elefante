@@ -21,7 +21,7 @@ export async function Navbar() {
             <div className="flex items-center justify-between px-4 py-4 md:px-6">
                 <Link
                     href="/"
-                    className="font-grotesque text-2xl font-bold uppercase"
+                    className="font-grotesque text-4xl font-bold uppercase"
                 >
                     Casa Elefante
                 </Link>
