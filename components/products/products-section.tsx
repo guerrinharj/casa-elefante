@@ -1,3 +1,4 @@
+import { ProductCard } from "@/components/products/product-card";
 import { createClient } from "@/lib/supabase/server";
 
 type ProductsSectionProps = {
@@ -19,42 +20,65 @@ export async function ProductsSection({
 
     let query = supabase
         .from("products")
-        .select("*")
-        .order("created_at", { ascending: false });
+        .select(`
+            id,
+            name,
+            slug,
+            artist,
+            price,
+            year,
+            format,
+            images
+        `)
+        .order("created_at", {
+            ascending: false,
+        });
 
     if (filters.genre) {
-        query = query.eq("genre", filters.genre);
+        query = query.eq(
+            "genre",
+            filters.genre,
+        );
     }
 
     if (filters.format) {
-        query = query.eq("format", filters.format);
+        query = query.eq(
+            "format",
+            filters.format,
+        );
     }
 
     if (filters.year) {
         query = query.eq(
             "year",
-            Number(filters.year)
+            Number(filters.year),
         );
     }
 
     if (filters.artist) {
         query = query.ilike(
             "artist",
-            `%${filters.artist}%`
+            `%${filters.artist}%`,
         );
     }
 
     if (filters.label) {
         query = query.ilike(
             "label",
-            `%${filters.label}%`
+            `%${filters.label}%`,
         );
     }
 
-    const { data: products, error } = await query;
+    const {
+        data: products,
+        error,
+    } = await query;
 
     if (error) {
-        console.error(error);
+        console.error(
+            "Erro ao carregar produtos:",
+            error,
+        );
 
         return (
             <p>
@@ -71,14 +95,15 @@ export async function ProductsSection({
         filters.label,
     ].filter(Boolean);
 
-    const title = activeFilters.length > 0
-        ? activeFilters.join(" / ")
-        : "Loja";
+    const title =
+        activeFilters.length > 0
+            ? activeFilters.join(" / ")
+            : "Loja";
 
     return (
         <>
             <div className="mb-8 flex items-center justify-between">
-                <h1 className="text-4xl font-bold uppercase font-grotesque">
+                <h1 className="font-grotesque text-4xl font-bold uppercase">
                     {title}
                 </h1>
 
@@ -92,9 +117,14 @@ export async function ProductsSection({
                     Nenhum produto encontrado.
                 </p>
             ) : (
-                <pre className="text-xs">
-                    {JSON.stringify(products, null, 2)}
-                </pre>
+                <div className="grid grid-cols-2 gap-x-4 gap-y-8 md:grid-cols-3 xl:grid-cols-4">
+                    {products.map((product) => (
+                        <ProductCard
+                            key={product.id}
+                            product={product}
+                        />
+                    ))}
+                </div>
             )}
         </>
     );
