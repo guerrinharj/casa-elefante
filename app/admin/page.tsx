@@ -1,7 +1,6 @@
 import Link from "next/link";
 
 import { createClient } from "@/lib/supabase/server";
-import { LogoutButton } from "@/components/logout-button";
 
 export default async function AdminPage() {
     const supabase = await createClient();
@@ -36,6 +35,19 @@ export default async function AdminPage() {
 
                         <p className="mt-2 text-sm">
                             Adicionar, editar e remover produtos.
+                        </p>
+                    </Link>
+
+                    <Link
+                        href="/admin/pedidos"
+                        className="border border-black p-6 transition-opacity hover:opacity-60"
+                    >
+                        <h2 className="text-xl">
+                            Pedidos
+                        </h2>
+
+                        <p className="mt-2 text-sm">
+                            Visualizar e gerenciar pedidos.
                         </p>
                     </Link>
                 </div>
