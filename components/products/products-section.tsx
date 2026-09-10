@@ -25,25 +25,28 @@ export async function ProductsSection({
     const supabase = await createClient();
 
     let query = supabase
-        .from("products")
-        .select(
-            `
-                id,
-                name,
-                slug,
-                artist,
-                price,
-                year,
-                format,
-                images
-            `,
-            {
-                count: "exact",
-            },
-        )
-        .order("created_at", {
+    .from("products")
+    .select(`
+        id,
+        name,
+        slug,
+        artist,
+        price,
+        year,
+        format,
+        images,
+        stock
+    `)
+    .gt(
+        "stock",
+        0,
+    )
+    .order(
+        "created_at",
+        {
             ascending: false,
-        });
+        },
+    );
 
     if (filters.genre) {
         query = query.eq(
