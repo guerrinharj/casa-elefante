@@ -1,11 +1,26 @@
 import Link from "next/link";
 
+import { AdminInfiniteProductList } from "@/components/admin/admin-infinite-product-list";
+import { AdminProductSearch } from "@/components/admin/admin-product-search";
+
 import { createClient } from "@/lib/supabase/server";
 
-export default async function AdminProductsPage() {
+const PRODUCTS_PER_PAGE = 24;
+
+type AdminProductsPageProps = {
+    searchParams: Promise<{
+        search?: string;
+    }>;
+};
+
+export default async function AdminProductsPage({
+    searchParams,
+}: AdminProductsPageProps) {
+    const filters = await searchParams;
+
     const supabase = await createClient();
 
-    const { data: products, error } = await supabase
+    let query = supabase
         .from("products")
         .select(`
             id,
@@ -22,6 +37,17 @@ export default async function AdminProductsPage() {
         .order("created_at", {
             ascending: false,
         });
+
+    if (filters.search) {
+        query = query.or(
+            `name.ilike.%${filters.search}%,artist.ilike.%${filters.search}%`,
+        );
+    }
+
+    const { data: products, error } = await query.range(
+        0,
+        PRODUCTS_PER_PAGE - 1,
+    );
 
     if (error) {
         console.error(
@@ -52,83 +78,20 @@ export default async function AdminProductsPage() {
                     </Link>
                 </div>
 
-                <div className="border-t border-black">
-                    {!products || products.length === 0 ? (
+                <AdminProductSearch />
+
+                {!products || products.length === 0 ? (
+                    <div className="border-t border-black">
                         <p className="py-6 text-sm">
-                            Nenhum produto cadastrado ainda.
+                            Nenhum produto encontrado.
                         </p>
-                    ) : (
-                        <div>
-                            {products.map((product) => (
-                                <Link
-                                    key={product.id}
-                                    href={`/admin/produtos/${product.id}/editar`}
-                                    className="grid grid-cols-[80px_1fr_auto] items-center gap-4 border-b border-black py-4 transition-opacity hover:opacity-60"
-                                >
-                                    <div className="aspect-square overflow-hidden bg-neutral-100">
-                                        {product.images?.[0] ? (
-                                            <img
-                                                src={product.images[0]}
-                                                alt={product.name}
-                                                className="h-full w-full object-cover"
-                                            />
-                                        ) : (
-                                            <div className="flex h-full w-full items-center justify-center text-xs">
-                                                Sem imagem
-                                            </div>
-                                        )}
-                                    </div>
-
-                                    <div className="min-w-0">
-                                        <h2 className="truncate font-medium">
-                                            {product.name}
-                                        </h2>
-
-                                        <p className="truncate text-sm">
-                                            {product.artist}
-                                        </p>
-
-                                        <div className="mt-1 flex flex-wrap gap-x-3 text-xs">
-                                            {product.format && (
-                                                <span>
-                                                    {product.format}
-                                                </span>
-                                            )}
-
-                                            {product.year && (
-                                                <span>
-                                                    {product.year}
-                                                </span>
-                                            )}
-
-                                            <span>
-                                                Estoque: {product.stock ?? 0}
-                                            </span>
-                                        </div>
-                                    </div>
-
-                                    <div className="text-right">
-                                        <p>
-                                            {Number(
-                                                product.price,
-                                            ).toLocaleString(
-                                                "pt-BR",
-                                                {
-                                                    style: "currency",
-                                                    currency: "BRL",
-                                                },
-                                            )}
-                                        </p>
-
-                                        <span className="text-xs underline">
-                                            Editar
-                                        </span>
-                                    </div>
-                                </Link>
-                            ))}
-                        </div>
-                    )}
-                </div>
+                    </div>
+                ) : (
+                    <AdminInfiniteProductList
+                        initialProducts={products}
+                        search={filters.search}
+                    />
+                )}
             </div>
         </main>
     );
