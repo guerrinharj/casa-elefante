@@ -19,23 +19,53 @@ type AddToCartButtonProps = {
 export function AddToCartButton({
     product,
 }: AddToCartButtonProps) {
-    const router = useRouter();
-    const { addItem } = useCart();
+    const router =
+        useRouter();
+
+    const {
+        addItem,
+    } = useCart();
+
+    /*
+     * Produto sem estoque.
+     */
+
+    const soldOut =
+        product.stock <= 0;
+
+    /*
+     * Adiciona o produto
+     * ao carrinho.
+     */
 
     function handleAddToCart() {
-        addItem(product);
+        if (soldOut) {
+            return;
+        }
 
-        router.push("/carrinho");
+        addItem(
+            product,
+        );
+
+        router.push(
+            "/carrinho",
+        );
     }
 
     return (
         <button
             type="button"
-            disabled={product.stock <= 0}
-            onClick={handleAddToCart}
-            className="border border-black px-6 py-3 uppercase transition-colors hover:bg-black hover:text-white disabled:cursor-not-allowed disabled:opacity-40"
+            onClick={
+                handleAddToCart
+            }
+            disabled={
+                soldOut
+            }
+            className="w-full border border-black px-6 py-4 uppercase transition-colors hover:bg-black hover:text-white disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-transparent disabled:hover:text-black"
         >
-            Adicionar ao carrinho
+            {soldOut
+                ? "Esgotado"
+                : "Adicionar ao carrinho"}
         </button>
     );
 }

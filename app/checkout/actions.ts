@@ -545,6 +545,8 @@ export async function createOrder(
         .select("id")
         .single();
 
+
+
     /*
      * Erro ao criar
      * o pedido.
@@ -658,6 +660,60 @@ export async function createOrder(
             success: false,
             error: "Não foi possível processar o pagamento.",
         };
+    }
+
+    /*
+    * Atualiza o estoque
+    * depois do pagamento aprovado.
+    */
+
+    for (const item of orderItems) {
+        const product =
+            productsMap.get(
+                item.product_id,
+            );
+
+        if (!product) {
+            continue;
+        }
+
+        /*
+        * Calcula o novo estoque.
+        */
+
+        const newStock =
+            product.stock -
+            item.quantity;
+
+        /*
+        * Atualiza o produto
+        * no banco.
+        */
+
+        const {
+            error: stockError,
+        } = await supabase
+            .from("products")
+            .update({
+                stock:
+                    newStock,
+            })
+            .eq(
+                "id",
+                item.product_id,
+            );
+
+        /*
+        * Se houver erro,
+        * registramos no servidor.
+        */
+
+        if (stockError) {
+            console.error(
+                "Erro ao atualizar estoque:",
+                stockError,
+            );
+        }
     }
 
     /*
