@@ -1,12 +1,16 @@
 import type { Metadata } from "next";
 
 import { Suspense } from "react";
+
 import localFont from "next/font/local";
 
 import "./globals.css";
 
+import { CartProvider } from "@/components/cart/cart-provider";
 import { Footer } from "@/components/layout/footer";
 import { Navbar } from "@/components/layout/navbar";
+
+import { OrderConfirmedBanner } from "@/components/orders/order-confirmed-banner";
 
 const grotesque = localFont({
     src: "./fonts/Grotesque.ttf",
@@ -36,21 +40,27 @@ export default function RootLayout({
             className={`${grotesque.variable} ${gillSans.variable}`}
         >
             <body>
-                <Suspense
-                    fallback={
-                        <header className="border-b border-black">
-                            <div className="h-[65px]" />
-                        </header>
-                    }
-                >
-                    <Navbar />
-                </Suspense>
+                <CartProvider>
+                    <Suspense
+                        fallback={
+                            <header className="border-b border-black">
+                                <div className="h-[65px]" />
+                            </header>
+                        }
+                    >
+                        <Navbar />
+                    </Suspense>
 
-                <main>
-                    {children}
-                </main>
+                    <Suspense fallback={null}>
+                        <OrderConfirmedBanner />
+                    </Suspense>
 
-                <Footer />
+                    <main>
+                        {children}
+                    </main>
+
+                    <Footer />
+                </CartProvider>
             </body>
         </html>
     );

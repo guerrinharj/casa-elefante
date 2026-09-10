@@ -1,0 +1,182 @@
+"use client";
+
+import Link from "next/link";
+
+import { useCart } from "@/components/cart/cart-provider";
+
+export default function CartPage() {
+    const {
+        items,
+        removeItem,
+        updateQuantity,
+        subtotal,
+    } = useCart();
+
+    if (items.length === 0) {
+        return (
+            <main className="p-4 md:p-6">
+                <div className="mx-auto max-w-5xl">
+                    <h1 className="font-grotesque text-4xl font-bold uppercase">
+                        Carrinho
+                    </h1>
+
+                    <p className="mt-8">
+                        Seu carrinho está vazio.
+                    </p>
+
+                    <Link
+                        href="/"
+                        className="mt-6 inline-block border border-black px-6 py-3 uppercase transition-colors hover:bg-black hover:text-white"
+                    >
+                        Continuar comprando
+                    </Link>
+                </div>
+            </main>
+        );
+    }
+
+    return (
+        <main className="p-4 md:p-6">
+            <div className="mx-auto max-w-5xl">
+                <h1 className="font-grotesque text-4xl font-bold uppercase">
+                    Carrinho
+                </h1>
+
+                <div className="mt-8 flex flex-col gap-6">
+                    {items.map((item) => (
+                        <div
+                            key={item.id}
+                            className="grid grid-cols-[100px_1fr] gap-4 border-b border-black pb-6 md:grid-cols-[120px_1fr_auto]"
+                        >
+                            <div className="aspect-square overflow-hidden bg-neutral-100">
+                                {item.image ? (
+                                    <img
+                                        src={item.image}
+                                        alt={item.name}
+                                        className="h-full w-full object-cover"
+                                    />
+                                ) : (
+                                    <div className="flex h-full items-center justify-center text-xs">
+                                        Sem imagem
+                                    </div>
+                                )}
+                            </div>
+
+                            <div className="flex flex-col justify-between">
+                                <div>
+                                    <Link
+                                        href={`/produtos/${item.slug}`}
+                                        className="font-grotesque text-xl font-bold uppercase"
+                                    >
+                                        {item.name}
+                                    </Link>
+
+                                    <p className="mt-1">
+                                        {item.artist}
+                                    </p>
+
+                                    <p className="mt-2">
+                                        {item.price.toLocaleString(
+                                            "pt-BR",
+                                            {
+                                                style: "currency",
+                                                currency: "BRL",
+                                            },
+                                        )}
+                                    </p>
+                                </div>
+
+                                <button
+                                    type="button"
+                                    onClick={() =>
+                                        removeItem(
+                                            item.id,
+                                        )
+                                    }
+                                    className="mt-4 w-fit text-sm underline"
+                                >
+                                    Remover
+                                </button>
+                            </div>
+
+                            <div className="col-span-2 flex items-center justify-between md:col-span-1 md:flex-col md:items-end">
+                                <div className="flex items-center border border-black">
+                                    <button
+                                        type="button"
+                                        onClick={() =>
+                                            updateQuantity(
+                                                item.id,
+                                                item.quantity -
+                                                    1,
+                                            )
+                                        }
+                                        className="px-3 py-2"
+                                    >
+                                        −
+                                    </button>
+
+                                    <span className="min-w-10 text-center">
+                                        {item.quantity}
+                                    </span>
+
+                                    <button
+                                        type="button"
+                                        onClick={() =>
+                                            updateQuantity(
+                                                item.id,
+                                                item.quantity +
+                                                    1,
+                                            )
+                                        }
+                                        className="px-3 py-2"
+                                    >
+                                        +
+                                    </button>
+                                </div>
+
+                                <p className="mt-4 text-lg">
+                                    {(
+                                        item.price *
+                                        item.quantity
+                                    ).toLocaleString(
+                                        "pt-BR",
+                                        {
+                                            style: "currency",
+                                            currency:
+                                                "BRL",
+                                        },
+                                    )}
+                                </p>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+
+                <div className="mt-8 ml-auto max-w-sm">
+                    <div className="flex items-center justify-between border-b border-black pb-4">
+                        <span className="uppercase">
+                            Subtotal
+                        </span>
+
+                        <span className="text-xl">
+                            {subtotal.toLocaleString(
+                                "pt-BR",
+                                {
+                                    style: "currency",
+                                    currency: "BRL",
+                                },
+                            )}
+                        </span>
+                    </div>
+
+                    <Link
+                        href="/checkout"
+                        className="mt-6 block border border-black px-6 py-3 text-center uppercase transition-colors hover:bg-black hover:text-white"
+                    >
+                        Finalizar compra
+                    </Link>
+                </div>
+            </div>
+        </main>
+    );
+}
