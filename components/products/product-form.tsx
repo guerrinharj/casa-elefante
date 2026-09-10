@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { slugify } from "@/lib/utils";
 
 import {
     PRODUCT_FORMATS,
@@ -66,10 +67,14 @@ export function ProductForm() {
             const priceValue = formData.get("price");
             const stockValue = formData.get("stock");
 
+            const name = String(formData.get("name") ?? "");
+            const slug = slugify(name);
+
             const { error: insertError } = await supabase
                 .from("products")
                 .insert({
                     name: formData.get("name"),
+                    slug,
                     artist: formData.get("artist"),
                     label: formData.get("label") || null,
                     year: yearValue
