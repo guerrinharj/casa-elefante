@@ -142,6 +142,7 @@ export async function ProductsSection({
                 </p>
             ) : (
                 <InfiniteProductList
+                    key={JSON.stringify(filters)}
                     initialProducts={products}
                     filters={filters}
                 />

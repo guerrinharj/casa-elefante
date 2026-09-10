@@ -23,6 +23,7 @@ type Filters = {
     year?: string;
     artist?: string;
     label?: string;
+    search?: string;
 };
 
 type InfiniteProductListProps = {
@@ -35,7 +36,6 @@ export function InfiniteProductList({
     filters,
 }: InfiniteProductListProps) {
     const [products, setProducts] = useState(initialProducts);
-
     const [page, setPage] = useState(1);
 
     const [hasMore, setHasMore] = useState(
@@ -45,6 +45,25 @@ export function InfiniteProductList({
     const [loading, setLoading] = useState(false);
 
     const sentinelRef = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        setProducts(initialProducts);
+        setPage(1);
+
+        setHasMore(
+            initialProducts.length === PRODUCTS_PER_PAGE,
+        );
+
+        setLoading(false);
+    }, [
+        initialProducts,
+        filters.genre,
+        filters.format,
+        filters.year,
+        filters.artist,
+        filters.label,
+        filters.search,
+    ]);
 
     async function loadMore() {
         if (loading || !hasMore) {
@@ -76,6 +95,10 @@ export function InfiniteProductList({
 
             if (filters.label) {
                 params.set("label", filters.label);
+            }
+
+            if (filters.search) {
+                params.set("search", filters.search);
             }
 
             const response = await fetch(
@@ -134,7 +157,12 @@ export function InfiniteProductList({
         return () => {
             observer.disconnect();
         };
-    }, [page, hasMore, loading]);
+    }, [
+        page,
+        hasMore,
+        loading,
+        filters,
+    ]);
 
     return (
         <>
