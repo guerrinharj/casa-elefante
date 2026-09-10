@@ -422,16 +422,8 @@ export function CheckoutForm() {
 
             const result =
                 await createOrder({
-                    /*
-                     * Dados do cliente.
-                     */
-
                     customerName,
                     customerEmail,
-
-                    /*
-                     * Endereço de entrega.
-                     */
 
                     shippingAddress: {
                         postalCode:
@@ -448,9 +440,22 @@ export function CheckoutForm() {
                         state,
                     },
 
-                    /*
-                     * Produtos do pedido.
-                     */
+                    shipping: {
+                        id:
+                            selectedShipping.id,
+
+                        company:
+                            selectedShipping.company,
+
+                        name:
+                            selectedShipping.name,
+
+                        price:
+                            selectedShipping.price,
+
+                        deliveryTime:
+                            selectedShipping.deliveryTime,
+                    },
 
                     items:
                         items.map(
@@ -463,7 +468,6 @@ export function CheckoutForm() {
                             }),
                         ),
                 });
-
             /*
              * Erro retornado
              * ao criar o pedido.

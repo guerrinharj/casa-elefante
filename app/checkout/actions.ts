@@ -20,16 +20,8 @@ type CheckoutItem = {
  */
 
 type CreateOrderInput = {
-    /*
-     * Dados pessoais
-     */
-
     customerName: string;
     customerEmail: string;
-
-    /*
-     * Endereço de entrega
-     */
 
     shippingAddress: {
         postalCode: string;
@@ -41,11 +33,18 @@ type CreateOrderInput = {
         state: string;
     };
 
-    /*
-     * Produtos do carrinho
-     */
+    shipping: {
+        id: string | number;
+        company: string;
+        name: string;
+        price: number;
+        deliveryTime: number;
+    };
 
-    items: CheckoutItem[];
+    items: {
+        productId: string;
+        quantity: number;
+    }[];
 };
 
 /*
@@ -462,14 +461,39 @@ export async function createOrder(
      * no Melhor Envio.
      */
 
-    const shipping = 0;
-
     /*
-     * Total do pedido.
-     */
+ * Frete selecionado
+ * pelo cliente.
+ */
 
-    const total =
-        subtotal + shipping;
+    const shipping =
+        Number(
+            input.shipping.price,
+        );
+
+        /*
+        * Validação do valor
+        * do frete.
+        */
+
+        if (
+            !Number.isFinite(
+                shipping,
+            ) ||
+            shipping < 0
+        ) {
+            return {
+                success: false,
+                error: "Frete inválido.",
+            };
+        }
+
+        /*
+        * Total do pedido.
+        */
+
+        const total =
+            subtotal + shipping;
 
     /*
      * Cria o pedido
@@ -482,64 +506,28 @@ export async function createOrder(
     } = await supabase
         .from("orders")
         .insert({
-            /*
-             * Cliente
-             */
-
             customer_name:
                 customerName,
 
             customer_email:
                 customerEmail,
 
-            /*
-             * Endereço
-             */
+            shipping_address:
+                shippingAddress,
 
-            postal_code:
-                shippingAddress.postalCode,
+            shipping,
 
-            street:
-                shippingAddress.street,
+            shipping_service:
+                input.shipping.name,
 
-            address_number:
-                shippingAddress.number,
+            shipping_company:
+                input.shipping.company,
 
-            complement:
-                shippingAddress.complement ||
-                null,
-
-            neighborhood:
-                shippingAddress.neighborhood,
-
-            city:
-                shippingAddress.city,
-
-            state:
-                shippingAddress.state,
-
-            /*
-             * Pedido
-             */
-
-            status: "pending",
-
-            /*
-             * Pagamento dummy
-             */
-
-            payment_provider:
-                "dummy",
-
-            payment_id:
-                null,
-
-            /*
-             * Valores
-             */
+            shipping_delivery_time:
+                input.shipping.deliveryTime,
 
             subtotal,
-            shipping,
+
             total,
         })
         .select("id")
