@@ -1,5 +1,8 @@
-import { ProductCard } from "@/components/products/product-card";
+import { InfiniteProductList } from "@/components/products/infinite-product-list";
+
 import { createClient } from "@/lib/supabase/server";
+
+const PRODUCTS_PER_PAGE = 24;
 
 type ProductsSectionProps = {
     searchParams: Promise<{
@@ -20,16 +23,21 @@ export async function ProductsSection({
 
     let query = supabase
         .from("products")
-        .select(`
-            id,
-            name,
-            slug,
-            artist,
-            price,
-            year,
-            format,
-            images
-        `)
+        .select(
+            `
+                id,
+                name,
+                slug,
+                artist,
+                price,
+                year,
+                format,
+                images
+            `,
+            {
+                count: "exact",
+            },
+        )
         .order("created_at", {
             ascending: false,
         });
@@ -72,7 +80,11 @@ export async function ProductsSection({
     const {
         data: products,
         error,
-    } = await query;
+        count,
+    } = await query.range(
+        0,
+        PRODUCTS_PER_PAGE - 1,
+    );
 
     if (error) {
         console.error(
@@ -108,7 +120,7 @@ export async function ProductsSection({
                 </h1>
 
                 <span className="text-sm">
-                    {products.length} produtos
+                    {count ?? 0} produtos
                 </span>
             </div>
 
@@ -117,14 +129,10 @@ export async function ProductsSection({
                     Nenhum produto encontrado.
                 </p>
             ) : (
-                <div className="grid grid-cols-2 gap-x-4 gap-y-8 md:grid-cols-3 xl:grid-cols-4">
-                    {products.map((product) => (
-                        <ProductCard
-                            key={product.id}
-                            product={product}
-                        />
-                    ))}
-                </div>
+                <InfiniteProductList
+                    initialProducts={products}
+                    filters={filters}
+                />
             )}
         </>
     );
