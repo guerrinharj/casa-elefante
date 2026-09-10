@@ -72,9 +72,9 @@ export function CheckoutForm() {
 
             clearCart();
 
-            router.push(
-                `/pedido/${result.orderId}`,
-            );
+            router.push("/");
+            router.refresh();
+            
         } catch (error) {
             console.error(error);
 

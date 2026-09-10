@@ -2,6 +2,10 @@
 
 import { createAdminClient } from "@/lib/supabase/admin";
 
+import { orderPaidEmail } from "@/lib/emails/order-paid";
+
+import { resend } from "@/lib/resend";
+
 type CheckoutItem = {
     productId: string;
     quantity: number;
@@ -81,7 +85,7 @@ export async function createOrder(
     ];
 
     const supabase =
-        await createAdminClient();
+        createAdminClient();
 
     const {
         data: products,
@@ -183,6 +187,10 @@ export async function createOrder(
     const total =
         subtotal + shipping;
 
+    /*
+     * Cria o pedido.
+     */
+
     const {
         data: order,
         error: orderError,
@@ -216,6 +224,10 @@ export async function createOrder(
         };
     }
 
+    /*
+     * Cria os itens do pedido.
+     */
+
     const {
         error: itemsError,
     } = await supabase
@@ -245,6 +257,87 @@ export async function createOrder(
             success: false,
             error: "Não foi possível salvar os itens do pedido.",
         };
+    }
+
+    /*
+     * Pagamento dummy.
+     *
+     * Por enquanto consideramos que todo
+     * pagamento foi aprovado.
+     */
+
+    const paymentId =
+        `dummy_${order.id}`;
+
+    const {
+        error: paymentError,
+    } = await supabase
+        .from("orders")
+        .update({
+            status: "paid",
+            payment_provider:
+                "dummy",
+            payment_id:
+                paymentId,
+        })
+        .eq("id", order.id);
+
+    if (paymentError) {
+        console.error(
+            "Erro ao processar pagamento:",
+            paymentError,
+        );
+
+        return {
+            success: false,
+            error: "Não foi possível processar o pagamento.",
+        };
+    }
+
+    /*
+     * Envia o e-mail de confirmação.
+     *
+     * Se o e-mail falhar, não consideramos
+     * o pedido como falho, pois o pagamento
+     * já foi processado.
+     */
+
+    try {
+        const {
+            error: emailError,
+        } = await resend.emails.send(
+            {
+                from:
+                    process.env
+                        .RESEND_FROM_EMAIL!,
+                to: customerEmail,
+                subject:
+                    "Seu pedido Casa Elefante foi confirmado",
+                html: orderPaidEmail({
+                    customerName,
+                    orderId:
+                        order.id,
+                    total,
+                    items: orderItems,
+                }),
+            },
+            {
+                idempotencyKey:
+                    `order-paid/${order.id}`,
+            },
+        );
+
+        if (emailError) {
+            console.error(
+                "Erro ao enviar e-mail:",
+                emailError,
+            );
+        }
+    } catch (emailError) {
+        console.error(
+            "Erro inesperado ao enviar e-mail:",
+            emailError,
+        );
     }
 
     return {
