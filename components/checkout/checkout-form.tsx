@@ -72,7 +72,7 @@ export function CheckoutForm() {
 
             clearCart();
 
-            router.push("/");
+            router.push("/?pedido=confirmado");
             router.refresh();
             
         } catch (error) {

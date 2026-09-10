@@ -10,6 +10,8 @@ import { CartProvider } from "@/components/cart/cart-provider";
 import { Footer } from "@/components/layout/footer";
 import { Navbar } from "@/components/layout/navbar";
 
+import { OrderConfirmedBanner } from "@/components/orders/order-confirmed-banner";
+
 const grotesque = localFont({
     src: "./fonts/Grotesque.ttf",
     variable: "--font-grotesque",
@@ -47,6 +49,10 @@ export default function RootLayout({
                         }
                     >
                         <Navbar />
+                    </Suspense>
+
+                    <Suspense fallback={null}>
+                        <OrderConfirmedBanner />
                     </Suspense>
 
                     <main>
