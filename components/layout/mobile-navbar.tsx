@@ -3,7 +3,13 @@
 import Link from "next/link";
 import { useState } from "react";
 
-export function MobileNavbar() {
+import { LogoutButton } from "@/components/logout-button";
+
+export function MobileNavbar({
+    isLoggedIn,
+}: {
+    isLoggedIn: boolean;
+}) {
     const [open, setOpen] = useState(false);
 
     function closeMenu() {
@@ -98,6 +104,22 @@ export function MobileNavbar() {
                                 Carrinho
                             </Link>
                         </li>
+
+                        {isLoggedIn && (
+                        <li className="text-blue-400">
+                            <Link
+                                href="/admin"
+                            >
+                                Admin
+                            </Link>
+                        </li>
+                    )}
+
+                        {isLoggedIn && (
+                            <li>
+                                <LogoutButton />
+                            </li>
+                        )}
                     </ul>
                 </nav>
             </div>
