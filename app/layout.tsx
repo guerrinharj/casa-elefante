@@ -1,10 +1,12 @@
 import type { Metadata } from "next";
 
 import { Suspense } from "react";
+
 import localFont from "next/font/local";
 
 import "./globals.css";
 
+import { CartProvider } from "@/components/cart/cart-provider";
 import { Footer } from "@/components/layout/footer";
 import { Navbar } from "@/components/layout/navbar";
 
@@ -36,21 +38,23 @@ export default function RootLayout({
             className={`${grotesque.variable} ${gillSans.variable}`}
         >
             <body>
-                <Suspense
-                    fallback={
-                        <header className="border-b border-black">
-                            <div className="h-[65px]" />
-                        </header>
-                    }
-                >
-                    <Navbar />
-                </Suspense>
+                <CartProvider>
+                    <Suspense
+                        fallback={
+                            <header className="border-b border-black">
+                                <div className="h-[65px]" />
+                            </header>
+                        }
+                    >
+                        <Navbar />
+                    </Suspense>
 
-                <main>
-                    {children}
-                </main>
+                    <main>
+                        {children}
+                    </main>
 
-                <Footer />
+                    <Footer />
+                </CartProvider>
             </body>
         </html>
     );
