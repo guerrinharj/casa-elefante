@@ -114,7 +114,7 @@ export async function Sidebar({
             }
         >
             <div className="mb-8">
-                <h2 className="mb-3 font-bold uppercase">
+                <h2 className="mb-3 text-2xl font-bold uppercase font-grotesque">
                     Gênero
                 </h2>
 
@@ -145,7 +145,7 @@ export async function Sidebar({
             </div>
 
             <div className="mb-8">
-                <h2 className="mb-3 font-bold uppercase">
+                <h2 className="mb-3 text-2xl font-bold uppercase font-grotesque">
                     Formato
                 </h2>
 
@@ -176,7 +176,7 @@ export async function Sidebar({
             </div>
 
             <div>
-                <h2 className="mb-3 font-bold uppercase">
+                <h2 className="mb-3 text-2xl font-bold uppercase font-grotesque">
                     Ano
                 </h2>
 

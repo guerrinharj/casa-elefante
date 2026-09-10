@@ -11,7 +11,7 @@ export function Navbar() {
             <div className="flex items-center justify-between px-4 py-4 md:px-6">
                 <Link
                     href="/"
-                    className="text-xl font-bold uppercase"
+                    className="text-2xl font-bold uppercase font-grotesque"
                 >
                     Casa Elefante
                 </Link>

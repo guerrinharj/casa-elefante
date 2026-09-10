@@ -1,8 +1,22 @@
 import type { Metadata } from "next";
+import localFont from "next/font/local";
+
 import "./globals.css";
 
-import { Navbar } from "@/components/layout/navbar";
 import { Footer } from "@/components/layout/footer";
+import { Navbar } from "@/components/layout/navbar";
+
+const grotesque = localFont({
+    src: "./fonts/Grotesque.ttf",
+    variable: "--font-grotesque",
+    display: "swap",
+});
+
+const gillSans = localFont({
+    src: "./fonts/GillSans.otf",
+    variable: "--font-gill-sans",
+    display: "swap",
+});
 
 export const metadata: Metadata = {
     title: "Casa Elefante",
@@ -15,7 +29,10 @@ export default function RootLayout({
     children: React.ReactNode;
 }>) {
     return (
-        <html lang="pt-BR">
+      <html
+          lang="pt-BR"
+          className={`${grotesque.variable} ${gillSans.variable}`}
+      >
             <body>
                 <Navbar />
 

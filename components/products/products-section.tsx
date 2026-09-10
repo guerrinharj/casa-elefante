@@ -78,7 +78,7 @@ export async function ProductsSection({
     return (
         <>
             <div className="mb-8 flex items-center justify-between">
-                <h1 className="text-4xl font-bold uppercase">
+                <h1 className="text-4xl font-bold uppercase font-grotesque">
                     {title}
                 </h1>
 
