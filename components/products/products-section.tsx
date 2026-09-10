@@ -1,4 +1,5 @@
 import { InfiniteProductList } from "@/components/products/infinite-product-list";
+import { ProductSearch } from "@/components/products/product-search";
 
 import { createClient } from "@/lib/supabase/server";
 
@@ -11,6 +12,7 @@ type ProductsSectionProps = {
         year?: string;
         artist?: string;
         label?: string;
+        search?: string;
     }>;
 };
 
@@ -77,6 +79,12 @@ export async function ProductsSection({
         );
     }
 
+    if (filters.search) {
+        query = query.or(
+            `name.ilike.%${filters.search}%,artist.ilike.%${filters.search}%`,
+        );
+    }
+
     const {
         data: products,
         error,
@@ -114,12 +122,16 @@ export async function ProductsSection({
 
     return (
         <>
-            <div className="mb-8 flex items-center justify-between">
-                <h1 className="font-grotesque text-4xl font-bold uppercase">
-                    {title}
-                </h1>
+            <div className="mb-8 flex items-center justify-between gap-8">
+                <div className="flex flex-1 items-center gap-8">
+                    <h1 className="font-grotesque shrink-0 text-4xl font-bold uppercase">
+                        {title}
+                    </h1>
 
-                <span className="text-sm">
+                    <ProductSearch />
+                </div>
+
+                <span className="shrink-0 text-sm">
                     {count ?? 0} produtos
                 </span>
             </div>
@@ -130,6 +142,7 @@ export async function ProductsSection({
                 </p>
             ) : (
                 <InfiniteProductList
+                    key={JSON.stringify(filters)}
                     initialProducts={products}
                     filters={filters}
                 />
