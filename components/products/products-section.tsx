@@ -1,6 +1,7 @@
+import Link from "next/link";
+
 import { InfiniteProductList } from "@/components/products/infinite-product-list";
 import { ProductSearch } from "@/components/products/product-search";
-
 import { createClient } from "@/lib/supabase/server";
 
 const PRODUCTS_PER_PAGE = 24;
@@ -107,7 +108,7 @@ export async function ProductsSection({
         );
     }
 
-    const activeFilters = [
+    const titleFilters = [
         filters.genre,
         filters.format,
         filters.year,
@@ -116,17 +117,38 @@ export async function ProductsSection({
     ].filter(Boolean);
 
     const title =
-        activeFilters.length > 0
-            ? activeFilters.join(" / ")
+        titleFilters.length > 0
+            ? titleFilters.join(" / ")
             : "Loja";
+
+    const hasActiveFilters = Boolean(
+        filters.genre ||
+        filters.format ||
+        filters.year ||
+        filters.artist ||
+        filters.label ||
+        filters.search
+    );
 
     return (
         <>
             <div className="mb-8 flex items-center justify-between gap-8">
                 <div className="flex flex-1 items-center gap-8">
-                    <h1 className="font-grotesque shrink-0 text-4xl font-bold uppercase">
-                        {title}
-                    </h1>
+                    <div className="flex items-center gap-3">
+                        {hasActiveFilters && (
+                            <Link
+                                href="/"
+                                aria-label="Voltar para Loja"
+                                className="text-3xl transition-transform hover:-translate-x-1"
+                            >
+                                ←
+                            </Link>
+                        )}
+
+                        <h1 className="font-grotesque shrink-0 text-4xl font-bold uppercase">
+                            {title}
+                        </h1>
+                    </div>
 
                     <ProductSearch />
                 </div>
