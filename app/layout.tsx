@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+
+import { Suspense } from "react";
 import localFont from "next/font/local";
 
 import "./globals.css";
@@ -29,12 +31,20 @@ export default function RootLayout({
     children: React.ReactNode;
 }>) {
     return (
-      <html
-          lang="pt-BR"
-          className={`${grotesque.variable} ${gillSans.variable}`}
-      >
+        <html
+            lang="pt-BR"
+            className={`${grotesque.variable} ${gillSans.variable}`}
+        >
             <body>
-                <Navbar />
+                <Suspense
+                    fallback={
+                        <header className="border-b border-black">
+                            <div className="h-[65px]" />
+                        </header>
+                    }
+                >
+                    <Navbar />
+                </Suspense>
 
                 <main>
                     {children}
