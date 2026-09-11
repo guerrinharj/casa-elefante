@@ -9,8 +9,6 @@ import {
     PRODUCT_GENRES,
 } from "@/lib/products";
 
-
-
 type SidebarProps = {
     mobile?: boolean;
 };
@@ -33,61 +31,97 @@ export async function Sidebar({
         });
     }
 
-    const genreCounts = products?.reduce<Record<string, number>>(
-        (acc, product) => {
-            if (product.genre) {
-                acc[product.genre] = (acc[product.genre] ?? 0) + 1;
-            }
+    // Conta quantos produtos existem em cada gênero.
+    const genreCounts =
+        products?.reduce<Record<string, number>>(
+            (acc, product) => {
+                if (product.genre) {
+                    acc[product.genre] =
+                        (acc[product.genre] ?? 0) + 1;
+                }
 
-            return acc;
-        },
-        {}
-    ) ?? {};
+                return acc;
+            },
+            {}
+        ) ?? {};
 
-    const formatCounts = products?.reduce<Record<string, number>>(
-        (acc, product) => {
-            if (product.format) {
-                acc[product.format] = (acc[product.format] ?? 0) + 1;
-            }
+    // Conta quantos produtos existem em cada formato.
+    const formatCounts =
+        products?.reduce<Record<string, number>>(
+            (acc, product) => {
+                if (product.format) {
+                    acc[product.format] =
+                        (acc[product.format] ?? 0) + 1;
+                }
 
-            return acc;
-        },
-        {}
-    ) ?? {};
+                return acc;
+            },
+            {}
+        ) ?? {};
 
-    const yearCounts = products?.reduce<Record<string, number>>(
-        (acc, product) => {
-            if (product.year) {
-                const year = String(product.year);
+    // Conta quantos produtos existem em cada ano.
+    const yearCounts =
+        products?.reduce<Record<string, number>>(
+            (acc, product) => {
+                if (product.year) {
+                    const year = String(product.year);
 
-                acc[year] = (acc[year] ?? 0) + 1;
-            }
+                    acc[year] =
+                        (acc[year] ?? 0) + 1;
+                }
 
-            return acc;
-        },
-        {}
-    ) ?? {};
+                return acc;
+            },
+            {}
+        ) ?? {};
 
+    // Ordena os anos do mais recente para o mais antigo.
     const years = Object.keys(yearCounts)
         .map(Number)
         .sort((a, b) => b - a);
 
+    /*
+     * Usamos um named group ("group/link") para que
+     * o hover da seta responda apenas ao Link.
+     *
+     * Isso evita conflito com o hover usado pelo
+     * container da sidebar no desktop.
+     */
     const filterLinkClassName =
-        "group flex items-center justify-between gap-4";
+        "group/link flex items-center justify-between gap-4";
 
+    /*
+     * A seta começa escondida e deslocada para a esquerda.
+     * Quando fazemos hover no link correspondente,
+     * ela aparece suavemente.
+     */
     const arrowClassName =
-        "mr-0 w-0 -translate-x-2 overflow-hidden opacity-0 transition-all duration-200 ease-out group-hover:mr-2 group-hover:w-3 group-hover:translate-x-0 group-hover:opacity-100";
+        "mr-0 w-0 -translate-x-2 overflow-hidden opacity-0 " +
+        "transition-all duration-200 ease-out " +
+        "group-hover/link:mr-2 " +
+        "group-hover/link:w-3 " +
+        "group-hover/link:translate-x-0 " +
+        "group-hover/link:opacity-100";
 
     return (
         <aside
             className={
                 mobile
                     ? "animate-sidebar-in w-full px-4 pb-6 pt-2"
-                    : "animate-sidebar-in w-64 shrink-0 border-r border-black p-6"
+                    : `
+                        h-[calc(100vh-64px)]
+                        w-64
+                        overflow-y-auto
+                        border-r
+                        border-black
+                        bg-[#f8f7ef]
+                        p-6
+                    `
             }
         >
+            {/* GÊNERO */}
             <div className="mb-8">
-                <h2 className="mb-3 text-2xl font-bold uppercase font-grotesque">
+                <h2 className="mb-3 font-grotesque text-2xl font-bold uppercase">
                     Gênero
                 </h2>
 
@@ -110,7 +144,9 @@ export async function Sidebar({
 
                                 <span className="shrink-0">
                                     <AnimatedCount
-                                        value={genreCounts[genre] ?? 0}
+                                        value={
+                                            genreCounts[genre] ?? 0
+                                        }
                                     />
                                 </span>
                             </Link>
@@ -119,8 +155,9 @@ export async function Sidebar({
                 </ul>
             </div>
 
+            {/* FORMATO */}
             <div className="mb-8">
-                <h2 className="mb-3 text-2xl font-bold uppercase font-grotesque">
+                <h2 className="mb-3 font-grotesque text-2xl font-bold uppercase">
                     Formato
                 </h2>
 
@@ -143,7 +180,9 @@ export async function Sidebar({
 
                                 <span className="shrink-0">
                                     <AnimatedCount
-                                        value={formatCounts[format] ?? 0}
+                                        value={
+                                            formatCounts[format] ?? 0
+                                        }
                                     />
                                 </span>
                             </Link>
@@ -152,8 +191,9 @@ export async function Sidebar({
                 </ul>
             </div>
 
+            {/* ANO */}
             <div>
-                <h2 className="mb-3 text-2xl font-bold uppercase font-grotesque">
+                <h2 className="mb-3 font-grotesque text-2xl font-bold uppercase">
                     Ano
                 </h2>
 
@@ -181,7 +221,9 @@ export async function Sidebar({
 
                                     <span className="shrink-0">
                                         <AnimatedCount
-                                            value={yearCounts[year] ?? 0}
+                                            value={
+                                                yearCounts[year] ?? 0
+                                            }
                                         />
                                     </span>
                                 </Link>
