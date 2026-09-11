@@ -80,8 +80,8 @@ export async function Sidebar({
         <aside
             className={
                 mobile
-                    ? "w-full px-4 pb-6 pt-2"
-                    : "w-64 shrink-0 border-r border-black p-6"
+                    ? "animate-sidebar-in w-full px-4 pb-6 pt-2"
+                    : "animate-sidebar-in w-64 shrink-0 border-r border-black p-6"
             }
         >
             <div className="mb-8">
