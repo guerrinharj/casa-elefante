@@ -16,6 +16,55 @@ import {
     type ShippingOption,
 } from "@/app/checkout/shipping-actions";
 
+/*
+ * Classe visual compartilhada
+ * pelos botões do checkout.
+ *
+ * Mantém a mesma linguagem:
+ * fundo branco,
+ * borda arredondada,
+ * borda preta
+ * e sombra fixa.
+ */
+const buttonClassName = `
+    rounded-xl
+    border
+    border-black
+    bg-white
+    px-6
+    py-4
+    uppercase
+    shadow-[6px_6px_0_0_#000]
+    transition-all
+    duration-200
+    ease-out
+    hover:-translate-x-1
+    hover:-translate-y-1
+    hover:shadow-[10px_10px_0_0_#000]
+    disabled:cursor-not-allowed
+    disabled:opacity-40
+    disabled:hover:translate-x-0
+    disabled:hover:translate-y-0
+    disabled:hover:shadow-[6px_6px_0_0_#000]
+`;
+
+/*
+ * Classe compartilhada
+ * pelos inputs.
+ */
+const inputClassName = `
+    rounded-lg
+    border
+    border-black
+    bg-white
+    px-4
+    py-3
+    outline-none
+    transition-shadow
+    duration-200
+    focus:shadow-[3px_3px_0_0_#000]
+`;
+
 export function CheckoutForm() {
     const router =
         useRouter();
@@ -23,7 +72,6 @@ export function CheckoutForm() {
     /*
      * Dados e funções do carrinho.
      */
-
     const {
         items,
         subtotal,
@@ -31,19 +79,12 @@ export function CheckoutForm() {
     } = useCart();
 
     /*
-     * Campo:
-     * Nome do cliente.
+     * Dados pessoais.
      */
-
     const [
         customerName,
         setCustomerName,
     ] = useState("");
-
-    /*
-     * Campo:
-     * E-mail do cliente.
-     */
 
     const [
         customerEmail,
@@ -51,69 +92,37 @@ export function CheckoutForm() {
     ] = useState("");
 
     /*
-     * Campo:
-     * CEP do endereço de entrega.
+     * Endereço.
      */
-
     const [
         postalCode,
         setPostalCode,
     ] = useState("");
-
-    /*
-     * Campo:
-     * Rua do endereço de entrega.
-     */
 
     const [
         street,
         setStreet,
     ] = useState("");
 
-    /*
-     * Campo:
-     * Número do endereço.
-     */
-
     const [
         number,
         setNumber,
     ] = useState("");
-
-    /*
-     * Campo:
-     * Complemento do endereço.
-     */
 
     const [
         complement,
         setComplement,
     ] = useState("");
 
-    /*
-     * Campo:
-     * Bairro.
-     */
-
     const [
         neighborhood,
         setNeighborhood,
     ] = useState("");
 
-    /*
-     * Campo:
-     * Cidade.
-     */
-
     const [
         city,
         setCity,
     ] = useState("");
-
-    /*
-     * Campo:
-     * Estado.
-     */
 
     const [
         state,
@@ -124,7 +133,6 @@ export function CheckoutForm() {
      * Opções de frete retornadas
      * pelo Melhor Envio.
      */
-
     const [
         shippingOptions,
         setShippingOptions,
@@ -133,10 +141,8 @@ export function CheckoutForm() {
     >([]);
 
     /*
-     * Opção de frete escolhida
-     * pelo cliente.
+     * Frete selecionado.
      */
-
     const [
         selectedShipping,
         setSelectedShipping,
@@ -145,30 +151,26 @@ export function CheckoutForm() {
     >(null);
 
     /*
-     * Estado de carregamento
-     * enquanto calculamos o frete.
+     * Loading do cálculo
+     * de frete.
      */
-
     const [
         calculatingShipping,
         setCalculatingShipping,
     ] = useState(false);
 
     /*
-     * Estado de carregamento
-     * enquanto criamos o pedido.
+     * Loading da criação
+     * do pedido.
      */
-
     const [
         submitting,
         setSubmitting,
     ] = useState(false);
 
     /*
-     * Erro relacionado ao cálculo
-     * do frete.
+     * Erro do frete.
      */
-
     const [
         shippingError,
         setShippingError,
@@ -177,9 +179,8 @@ export function CheckoutForm() {
     >(null);
 
     /*
-     * Erro geral do checkout.
+     * Erro geral.
      */
-
     const [
         error,
         setError,
@@ -190,10 +191,10 @@ export function CheckoutForm() {
     /*
      * Formata o CEP.
      *
-     * Exemplo:
-     * 01154001 → 01154-001
+     * 01154001
+     * vira
+     * 01154-001
      */
-
     function formatPostalCode(
         value: string,
     ) {
@@ -222,10 +223,9 @@ export function CheckoutForm() {
      * Atualiza o CEP.
      *
      * Quando o CEP muda,
-     * apagamos as opções de frete
-     * calculadas anteriormente.
+     * eliminamos qualquer
+     * cálculo de frete anterior.
      */
-
     function handlePostalCodeChange(
         value: string,
     ) {
@@ -249,11 +249,8 @@ export function CheckoutForm() {
     }
 
     /*
-     * Calcula as opções de frete
-     * usando o CEP e os produtos
-     * do carrinho.
+     * Calcula o frete.
      */
-
     async function handleCalculateShipping() {
         setShippingError(
             null,
@@ -263,11 +260,6 @@ export function CheckoutForm() {
             null,
         );
 
-        /*
-         * Remove caracteres
-         * não numéricos do CEP.
-         */
-
         const normalizedPostalCode =
             postalCode.replace(
                 /\D/g,
@@ -275,10 +267,9 @@ export function CheckoutForm() {
             );
 
         /*
-         * Validação:
-         * CEP precisa ter 8 números.
+         * CEP precisa ter
+         * exatamente 8 números.
          */
-
         if (
             normalizedPostalCode.length !==
             8
@@ -291,10 +282,9 @@ export function CheckoutForm() {
         }
 
         /*
-         * Validação:
-         * O carrinho precisa ter produtos.
+         * Carrinho precisa
+         * conter produtos.
          */
-
         if (!items.length) {
             setShippingError(
                 "Seu carrinho está vazio.",
@@ -308,10 +298,6 @@ export function CheckoutForm() {
         );
 
         try {
-            /*
-             * Consulta o Melhor Envio.
-             */
-
             const result =
                 await calculateShipping(
                     {
@@ -333,11 +319,6 @@ export function CheckoutForm() {
                     },
                 );
 
-            /*
-             * Erro retornado
-             * pelo cálculo de frete.
-             */
-
             if (!result.success) {
                 setShippingError(
                     result.error,
@@ -346,19 +327,15 @@ export function CheckoutForm() {
                 return;
             }
 
-            /*
-             * Salva as opções de frete.
-             */
-
             setShippingOptions(
                 result.options,
             );
 
             /*
-             * Se existir apenas uma opção,
-             * selecionamos automaticamente.
+             * Se existir apenas
+             * uma opção,
+             * seleciona automaticamente.
              */
-
             if (
                 result.options.length ===
                 1
@@ -375,21 +352,14 @@ export function CheckoutForm() {
     }
 
     /*
-     * Finaliza o checkout
-     * e cria o pedido.
+     * Finaliza o checkout.
      */
-
     async function handleSubmit(
         event: FormEvent<HTMLFormElement>,
     ) {
         event.preventDefault();
 
         setError(null);
-
-        /*
-         * Validação:
-         * Carrinho vazio.
-         */
 
         if (!items.length) {
             setError(
@@ -398,12 +368,6 @@ export function CheckoutForm() {
 
             return;
         }
-
-        /*
-         * Validação:
-         * O cliente precisa selecionar
-         * uma opção de frete.
-         */
 
         if (!selectedShipping) {
             setError(
@@ -416,10 +380,6 @@ export function CheckoutForm() {
         setSubmitting(true);
 
         try {
-            /*
-             * Cria o pedido.
-             */
-
             const result =
                 await createOrder({
                     customerName,
@@ -468,10 +428,6 @@ export function CheckoutForm() {
                             }),
                         ),
                 });
-            /*
-             * Erro retornado
-             * ao criar o pedido.
-             */
 
             if (!result.success) {
                 setError(
@@ -482,18 +438,13 @@ export function CheckoutForm() {
             }
 
             /*
-             * Limpa o carrinho
-             * depois do pedido confirmado.
+             * Limpa o carrinho.
              */
-
             clearCart();
 
             /*
-             * Volta para a loja
-             * exibindo o banner
-             * de pedido confirmado.
+             * Retorna para a loja.
              */
-
             router.push(
                 "/?pedido=confirmado",
             );
@@ -503,52 +454,58 @@ export function CheckoutForm() {
     }
 
     /*
-     * Valor do frete selecionado.
+     * Valor do frete.
      */
-
     const shipping =
         selectedShipping?.price ??
         0;
 
     /*
-     * Total do pedido:
-     * subtotal + frete.
+     * Valor total.
      */
-
     const total =
         subtotal + shipping;
 
     return (
         <form
-            onSubmit={
-                handleSubmit
-            }
+            onSubmit={handleSubmit}
             className="grid gap-10 md:grid-cols-[1fr_400px]"
         >
             {/*
              * COLUNA ESQUERDA
-             *
-             * Dados do cliente,
-             * endereço e frete.
              */}
-
             <div className="flex flex-col gap-8">
                 {/*
-                 * SEÇÃO:
-                 * Dados pessoais.
+                 * DADOS PESSOAIS
                  */}
-
                 <section className="flex flex-col gap-4">
-                    <h2 className="font-grotesque text-2xl font-bold uppercase">
+                    <h2
+                        className="
+                            animate-checkout-field
+                            font-grotesque
+                            text-2xl
+                            font-bold
+                            uppercase
+                            opacity-0
+                        "
+                        style={{
+                            animationDelay:
+                                "0ms",
+                        }}
+                    >
                         Seus dados
                     </h2>
 
                     {/*
-                     * Campo:
                      * Nome.
                      */}
-
-                    <label className="flex flex-col gap-2">
+                    <label
+                        className="animate-checkout-field flex flex-col gap-2 opacity-0"
+                        style={{
+                            animationDelay:
+                                "60ms",
+                        }}
+                    >
                         <span className="text-sm">
                             Nome
                         </span>
@@ -568,16 +525,22 @@ export function CheckoutForm() {
                                 )
                             }
                             required
-                            className="border border-black bg-transparent px-4 py-3 outline-none"
+                            className={
+                                inputClassName
+                            }
                         />
                     </label>
 
                     {/*
-                     * Campo:
                      * E-mail.
                      */}
-
-                    <label className="flex flex-col gap-2">
+                    <label
+                        className="animate-checkout-field flex flex-col gap-2 opacity-0"
+                        style={{
+                            animationDelay:
+                                "120ms",
+                        }}
+                    >
                         <span className="text-sm">
                             E-mail
                         </span>
@@ -597,42 +560,49 @@ export function CheckoutForm() {
                                 )
                             }
                             required
-                            className="border border-black bg-transparent px-4 py-3 outline-none"
+                            className={
+                                inputClassName
+                            }
                         />
                     </label>
                 </section>
 
                 {/*
-                 * SEÇÃO:
-                 * Endereço de entrega
-                 * e cálculo do frete.
+                 * ENTREGA
                  */}
-
                 <section className="flex flex-col gap-4">
-                    <h2 className="font-grotesque text-2xl font-bold uppercase">
+                    <h2
+                        className="
+                            animate-checkout-field
+                            font-grotesque
+                            text-2xl
+                            font-bold
+                            uppercase
+                            opacity-0
+                        "
+                        style={{
+                            animationDelay:
+                                "180ms",
+                        }}
+                    >
                         Entrega
                     </h2>
 
                     {/*
-                     * Campo:
                      * CEP.
-                     *
-                     * O botão ao lado
-                     * calcula o frete.
                      */}
-
-                    <label className="flex flex-col gap-2">
+                    <label
+                        className="animate-checkout-field flex flex-col gap-2 opacity-0"
+                        style={{
+                            animationDelay:
+                                "240ms",
+                        }}
+                    >
                         <span className="text-sm">
                             CEP
                         </span>
 
-                        {/*
-                         * Container:
-                         * Input do CEP +
-                         * botão de calcular.
-                         */}
-
-                        <div className="flex gap-2">
+                        <div className="flex items-stretch gap-3">
                             <input
                                 type="text"
                                 inputMode="numeric"
@@ -653,13 +623,8 @@ export function CheckoutForm() {
                                 }
                                 placeholder="00000-000"
                                 required
-                                className="min-w-0 flex-1 border border-black bg-transparent px-4 py-3 outline-none"
+                                className={`${inputClassName} min-w-0 flex-1`}
                             />
-
-                            {/*
-                             * Botão:
-                             * Calcular frete.
-                             */}
 
                             <button
                                 type="button"
@@ -669,7 +634,7 @@ export function CheckoutForm() {
                                 disabled={
                                     calculatingShipping
                                 }
-                                className="border border-black px-5 py-3 uppercase transition-colors hover:bg-black hover:text-white disabled:cursor-not-allowed disabled:opacity-50"
+                                className={`${buttonClassName} shrink-0 px-5 py-3`}
                             >
                                 {calculatingShipping
                                     ? "Calculando..."
@@ -679,11 +644,15 @@ export function CheckoutForm() {
                     </label>
 
                     {/*
-                     * Campo:
                      * Rua.
                      */}
-
-                    <label className="flex flex-col gap-2">
+                    <label
+                        className="animate-checkout-field flex flex-col gap-2 opacity-0"
+                        style={{
+                            animationDelay:
+                                "300ms",
+                        }}
+                    >
                         <span className="text-sm">
                             Rua
                         </span>
@@ -703,21 +672,23 @@ export function CheckoutForm() {
                                 )
                             }
                             required
-                            className="border border-black bg-transparent px-4 py-3 outline-none"
+                            className={
+                                inputClassName
+                            }
                         />
                     </label>
 
                     {/*
-                     * Container:
-                     * Número + Complemento.
+                     * Número +
+                     * complemento.
                      */}
-
-                    <div className="grid gap-4 md:grid-cols-[160px_1fr]">
-                        {/*
-                         * Campo:
-                         * Número.
-                         */}
-
+                    <div
+                        className="animate-checkout-field grid gap-4 opacity-0 md:grid-cols-[160px_1fr]"
+                        style={{
+                            animationDelay:
+                                "360ms",
+                        }}
+                    >
                         <label className="flex flex-col gap-2">
                             <span className="text-sm">
                                 Número
@@ -738,16 +709,11 @@ export function CheckoutForm() {
                                     )
                                 }
                                 required
-                                className="border border-black bg-transparent px-4 py-3 outline-none"
+                                className={
+                                    inputClassName
+                                }
                             />
                         </label>
-
-                        {/*
-                         * Campo:
-                         * Complemento.
-                         *
-                         * Campo opcional.
-                         */}
 
                         <label className="flex flex-col gap-2">
                             <span className="text-sm">
@@ -769,17 +735,23 @@ export function CheckoutForm() {
                                     )
                                 }
                                 placeholder="Apto, bloco, casa..."
-                                className="border border-black bg-transparent px-4 py-3 outline-none"
+                                className={
+                                    inputClassName
+                                }
                             />
                         </label>
                     </div>
 
                     {/*
-                     * Campo:
                      * Bairro.
                      */}
-
-                    <label className="flex flex-col gap-2">
+                    <label
+                        className="animate-checkout-field flex flex-col gap-2 opacity-0"
+                        style={{
+                            animationDelay:
+                                "420ms",
+                        }}
+                    >
                         <span className="text-sm">
                             Bairro
                         </span>
@@ -799,21 +771,23 @@ export function CheckoutForm() {
                                 )
                             }
                             required
-                            className="border border-black bg-transparent px-4 py-3 outline-none"
+                            className={
+                                inputClassName
+                            }
                         />
                     </label>
 
                     {/*
-                     * Container:
-                     * Cidade + Estado.
+                     * Cidade +
+                     * Estado.
                      */}
-
-                    <div className="grid gap-4 md:grid-cols-[1fr_120px]">
-                        {/*
-                         * Campo:
-                         * Cidade.
-                         */}
-
+                    <div
+                        className="animate-checkout-field grid gap-4 opacity-0 md:grid-cols-[1fr_120px]"
+                        style={{
+                            animationDelay:
+                                "480ms",
+                        }}
+                    >
                         <label className="flex flex-col gap-2">
                             <span className="text-sm">
                                 Cidade
@@ -834,17 +808,11 @@ export function CheckoutForm() {
                                     )
                                 }
                                 required
-                                className="border border-black bg-transparent px-4 py-3 outline-none"
+                                className={
+                                    inputClassName
+                                }
                             />
                         </label>
-
-                        {/*
-                         * Campo:
-                         * Estado.
-                         *
-                         * Apenas a sigla:
-                         * SP, RJ, MG...
-                         */}
 
                         <label className="flex flex-col gap-2">
                             <span className="text-sm">
@@ -870,18 +838,16 @@ export function CheckoutForm() {
                                     2
                                 }
                                 required
-                                className="border border-black bg-transparent px-4 py-3 uppercase outline-none"
+                                className={`${inputClassName} uppercase`}
                             />
                         </label>
                     </div>
 
                     {/*
-                     * Mensagem:
-                     * Erro ao calcular frete.
+                     * Erro do frete.
                      */}
-
                     {shippingError && (
-                        <p className="text-sm text-red-600">
+                        <p className="animate-checkout-field text-sm text-red-600">
                             {
                                 shippingError
                             }
@@ -889,47 +855,52 @@ export function CheckoutForm() {
                     )}
 
                     {/*
-                     * Container:
-                     * Lista de opções de frete.
-                     *
-                     * Só aparece depois
-                     * do cálculo.
+                     * OPÇÕES DE FRETE
                      */}
-
                     {shippingOptions.length >
                         0 && (
-                        <div className="flex flex-col border border-black">
+                        <div className="flex flex-col gap-3">
                             {shippingOptions.map(
                                 (
                                     option,
+                                    index,
                                 ) => {
-                                    /*
-                                     * Verifica se esta modalidade
-                                     * está selecionada.
-                                     */
-
                                     const checked =
                                         selectedShipping
                                             ?.id ===
                                         option.id;
 
                                     return (
-                                        /*
-                                         * Opção individual
-                                         * de frete.
-                                         */
-
                                         <label
                                             key={
                                                 option.id
                                             }
-                                            className="flex cursor-pointer items-center gap-4 border-b border-black p-4 last:border-b-0"
+                                            className="
+                                                animate-checkout-field
+                                                flex
+                                                cursor-pointer
+                                                items-center
+                                                gap-4
+                                                rounded-xl
+                                                border
+                                                border-black
+                                                bg-white
+                                                p-4
+                                                opacity-0
+                                                shadow-[4px_4px_0_0_#000]
+                                                transition-all
+                                                duration-200
+                                                hover:-translate-x-0.5
+                                                hover:-translate-y-0.5
+                                                hover:shadow-[6px_6px_0_0_#000]
+                                            "
+                                            style={{
+                                                animationDelay: `${
+                                                    index *
+                                                        60
+                                                }ms`,
+                                            }}
                                         >
-                                            {/*
-                                             * Radio:
-                                             * Seleciona o frete.
-                                             */}
-
                                             <input
                                                 type="radio"
                                                 name="shipping"
@@ -943,18 +914,7 @@ export function CheckoutForm() {
                                                 }
                                             />
 
-                                            {/*
-                                             * Container:
-                                             * Nome, prazo e preço
-                                             * da modalidade.
-                                             */}
-
                                             <div className="flex flex-1 items-center justify-between gap-4">
-                                                {/*
-                                                 * Transportadora,
-                                                 * modalidade e prazo.
-                                                 */}
-
                                                 <div>
                                                     <p className="font-medium">
                                                         {
@@ -972,10 +932,6 @@ export function CheckoutForm() {
                                                             : "Prazo não informado"}
                                                     </p>
                                                 </div>
-
-                                                {/*
-                                                 * Preço do frete.
-                                                 */}
 
                                                 <span>
                                                     {option.price.toLocaleString(
@@ -1000,38 +956,52 @@ export function CheckoutForm() {
             {/*
              * COLUNA DIREITA
              *
-             * Resumo do pedido
-             * e botão de finalizar.
+             * Resumo do pedido.
              */}
-
-            <aside className="flex flex-col gap-6">
+            <aside
+                className="
+                    animate-checkout-summary
+                    flex
+                    flex-col
+                    gap-6
+                    opacity-0
+                "
+            >
                 <h2 className="font-grotesque text-2xl font-bold uppercase">
                     Seu pedido
                 </h2>
 
                 {/*
-                 * Container:
-                 * Produtos do carrinho.
+                 * Produtos.
                  */}
-
                 <div className="flex flex-col">
                     {items.map(
-                        (item) => (
-                            /*
-                             * Produto individual.
-                             */
-
+                        (
+                            item,
+                            index,
+                        ) => (
                             <div
                                 key={
                                     item.id
                                 }
-                                className="flex justify-between gap-4 border-b border-black py-4"
+                                className="
+                                    animate-checkout-field
+                                    flex
+                                    justify-between
+                                    gap-4
+                                    border-b
+                                    border-black
+                                    py-4
+                                    opacity-0
+                                "
+                                style={{
+                                    animationDelay: `${
+                                        150 +
+                                        index *
+                                            60
+                                    }ms`,
+                                }}
                             >
-                                {/*
-                                 * Nome, artista
-                                 * e quantidade.
-                                 */}
-
                                 <div>
                                     <p>
                                         {
@@ -1049,11 +1019,6 @@ export function CheckoutForm() {
                                         }
                                     </p>
                                 </div>
-
-                                {/*
-                                 * Valor do produto
-                                 * multiplicado pela quantidade.
-                                 */}
 
                                 <span>
                                     {(
@@ -1074,16 +1039,9 @@ export function CheckoutForm() {
                 </div>
 
                 {/*
-                 * Container:
                  * Resumo financeiro.
                  */}
-
                 <div className="flex flex-col gap-3">
-                    {/*
-                     * Linha:
-                     * Subtotal.
-                     */}
-
                     <div className="flex justify-between">
                         <span>
                             Subtotal
@@ -1100,11 +1058,6 @@ export function CheckoutForm() {
                             )}
                         </span>
                     </div>
-
-                    {/*
-                     * Linha:
-                     * Frete selecionado.
-                     */}
 
                     <div className="flex justify-between">
                         <span>
@@ -1125,11 +1078,6 @@ export function CheckoutForm() {
                         </span>
                     </div>
 
-                    {/*
-                     * Linha:
-                     * Total do pedido.
-                     */}
-
                     <div className="flex justify-between border-t border-black pt-4 text-xl">
                         <strong>
                             Total
@@ -1149,10 +1097,8 @@ export function CheckoutForm() {
                 </div>
 
                 {/*
-                 * Mensagem:
-                 * Erro geral do checkout.
+                 * Erro geral.
                  */}
-
                 {error && (
                     <p className="text-sm text-red-600">
                         {error}
@@ -1160,10 +1106,8 @@ export function CheckoutForm() {
                 )}
 
                 {/*
-                 * Botão:
-                 * Finalizar pedido.
+                 * FINALIZAR PEDIDO
                  */}
-
                 <button
                     type="submit"
                     disabled={
@@ -1171,18 +1115,12 @@ export function CheckoutForm() {
                         !selectedShipping ||
                         !items.length
                     }
-                    className="border border-black px-6 py-4 uppercase transition-colors hover:bg-black hover:text-white disabled:cursor-not-allowed disabled:opacity-40"
+                    className={`${buttonClassName} w-full`}
                 >
                     {submitting
                         ? "Criando pedido..."
                         : "Finalizar pedido"}
                 </button>
-
-                {/*
-                 * Aviso:
-                 * Pagamento ainda
-                 * está em modo dummy.
-                 */}
 
                 <p className="text-xs opacity-60">
                     Pagamento temporariamente
