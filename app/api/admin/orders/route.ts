@@ -43,6 +43,10 @@ export async function GET(
     const supabase =
         createAdminClient();
 
+    /*
+     * Paginação.
+     */
+
     const pageParam =
         request.nextUrl.searchParams.get(
             "page",
@@ -64,22 +68,68 @@ export async function GET(
         1;
 
     /*
-     * Busca os pedidos.
+     * Filtro de enviados.
+     *
+     * Exemplos:
+     *
+     * /api/admin/orders?page=0&shipped=false
+     *
+     * /api/admin/orders?page=0&shipped=true
+     */
+
+    const shippedParam =
+        request.nextUrl.searchParams.get(
+            "shipped",
+        );
+
+    let shippedFilter:
+        boolean | null = null;
+
+    if (shippedParam === "true") {
+        shippedFilter = true;
+    }
+
+    if (shippedParam === "false") {
+        shippedFilter = false;
+    }
+
+    /*
+     * Monta a query de pedidos.
+     */
+
+    let ordersQuery =
+        supabase
+            .from("orders")
+            .select("*")
+            .order("created_at", {
+                ascending: false,
+            });
+
+    /*
+     * Só aplica o filtro caso
+     * shipped tenha sido informado.
+     */
+
+    if (shippedFilter !== null) {
+        ordersQuery =
+            ordersQuery.eq(
+                "shipped",
+                shippedFilter,
+            );
+    }
+
+    /*
+     * Aplica paginação depois
+     * dos filtros.
      */
 
     const {
         data: orders,
         error: ordersError,
-    } = await supabase
-        .from("orders")
-        .select("*")
-        .order("created_at", {
-            ascending: false,
-        })
-        .range(
-            from,
-            to,
-        );
+    } = await ordersQuery.range(
+        from,
+        to,
+    );
 
     if (ordersError) {
         console.error(
@@ -97,6 +147,10 @@ export async function GET(
             },
         );
     }
+
+    /*
+     * Nenhum pedido encontrado.
+     */
 
     if (
         !orders ||
@@ -120,7 +174,7 @@ export async function GET(
 
     /*
      * Busca os itens pertencentes
-     * aos pedidos.
+     * aos pedidos encontrados.
      */
 
     const {
@@ -157,24 +211,8 @@ export async function GET(
     }
 
     /*
-     * DEBUG TEMPORÁRIO.
-     *
-     * Veja isso no terminal do Next.js.
-     */
-
-    console.log(
-        "ORDER IDS:",
-        orderIds,
-    );
-
-    console.log(
-        "ORDER ITEMS:",
-        orderItems,
-    );
-
-    /*
-     * Pegamos todos os product_id
-     * dos itens encontrados.
+     * Pega todos os IDs dos produtos
+     * presentes nesses pedidos.
      */
 
     const productIds = [
@@ -196,7 +234,10 @@ export async function GET(
     ];
 
     /*
-     * Busca os nomes dos produtos.
+     * Busca os dados dos produtos.
+     *
+     * Esses dados serão mostrados
+     * no OrderCard.
      */
 
     const {
@@ -204,22 +245,22 @@ export async function GET(
         error: productsError,
     } = productIds.length
         ? await supabase
-            .from("products")
-            .select(`
-                id,
-                name,
-                artist,
-                slug,
-                format
-            `)
-            .in(
-                "id",
-                productIds,
-            )
+              .from("products")
+              .select(`
+                  id,
+                  name,
+                  artist,
+                  slug,
+                  format
+              `)
+              .in(
+                  "id",
+                  productIds,
+              )
         : {
-            data: [],
-            error: null,
-    };
+              data: [],
+              error: null,
+          };
 
     if (productsError) {
         console.error(
@@ -238,15 +279,13 @@ export async function GET(
         );
     }
 
-    console.log(
-        "PRODUCTS:",
-        products,
-    );
-
     /*
      * Mapa:
      *
-     * product_id -> product
+     * product_id -> produto
+     *
+     * Isso evita ficar procurando
+     * o produto inteiro várias vezes.
      */
 
     const productsMap =
@@ -260,8 +299,13 @@ export async function GET(
         );
 
     /*
-     * Adiciona os items dentro
-     * de cada pedido.
+     * Junta:
+     *
+     * pedido
+     * +
+     * itens
+     * +
+     * informações dos produtos
      */
 
     const ordersWithItems =
@@ -304,6 +348,10 @@ export async function GET(
                 };
             },
         );
+
+    /*
+     * Retorna os pedidos já completos.
+     */
 
     return NextResponse.json({
         orders:

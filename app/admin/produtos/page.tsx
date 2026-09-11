@@ -64,10 +64,6 @@ export default async function AdminProductsPage({
                         <h1 className="text-3xl font-medium">
                             Produtos
                         </h1>
-
-                        <p className="mt-1 text-sm">
-                            Gerencie os produtos da loja.
-                        </p>
                     </div>
 
                     <Link
