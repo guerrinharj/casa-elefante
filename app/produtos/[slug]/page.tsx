@@ -104,6 +104,8 @@ export default async function ProductPage({
                             </span>
                         )}
 
+                        /
+
                         {product.year && (
                             <span>
                                 {
@@ -112,6 +114,8 @@ export default async function ProductPage({
                             </span>
                         )}
 
+                        /
+
                         {product.format && (
                             <span>
                                 {
@@ -119,6 +123,8 @@ export default async function ProductPage({
                                 }
                             </span>
                         )}
+
+                        /
 
                         {product.genre && (
                             <span>

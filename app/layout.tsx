@@ -24,6 +24,12 @@ const gillSans = localFont({
     display: "swap",
 });
 
+const questrial = localFont({
+    src: "./fonts/Questrial-Regular.ttf",
+    variable: "--font-questrial",
+    display: "swap",
+});
+
 export const metadata: Metadata = {
     title: "Casa Elefante",
     description: "Loja de discos, música e Toda Terça Tem.",
@@ -37,7 +43,7 @@ export default function RootLayout({
     return (
         <html
             lang="pt-BR"
-            className={`${grotesque.variable} ${gillSans.variable}`}
+            className={`${grotesque.variable} ${gillSans.variable}  ${questrial.variable}`}
         >
             <body>
                 <CartProvider>

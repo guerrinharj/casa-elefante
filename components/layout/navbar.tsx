@@ -1,7 +1,9 @@
 import Link from "next/link";
 
 import { createClient } from "@/lib/supabase/server";
+
 import { MobileNavbar } from "@/components/layout/mobile-navbar";
+
 import { LogoutButton } from "@/components/logout-button";
 
 const linkClassName =
@@ -17,7 +19,7 @@ export async function Navbar() {
     const isLoggedIn = !!user;
 
     return (
-        <header className="relative z-50 border-b border-black bg-white">
+        <header className="sticky top-0 z-50 border-b border-black bg-[#f8f7ef]">
             <div className="flex items-center justify-between px-4 py-4 md:px-6">
                 <Link
                     href="/"
@@ -57,15 +59,6 @@ export async function Navbar() {
 
                         <li>
                             <Link
-                                href="/contato"
-                                className={linkClassName}
-                            >
-                                Contato
-                            </Link>
-                        </li>
-
-                        <li>
-                            <Link
                                 href="/newsletter"
                                 className={linkClassName}
                             >
@@ -83,15 +76,15 @@ export async function Navbar() {
                         </li>
 
                         {isLoggedIn && (
-                        <li className="text-blue-400">
-                            <Link
-                                href="/admin"
-                                className={linkClassName}
-                            >
-                                Admin
-                            </Link>
-                        </li>
-                    )}
+                            <li className="text-blue-400">
+                                <Link
+                                    href="/admin"
+                                    className={linkClassName}
+                                >
+                                    Admin
+                                </Link>
+                            </li>
+                        )}
 
                         {isLoggedIn && (
                             <li>
