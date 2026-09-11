@@ -222,10 +222,6 @@ export default function AdminOrdersPage() {
                         Pedidos
                     </h1>
 
-                    <p className="mt-1 text-sm">
-                        Gerencie os pedidos da loja.
-                    </p>
-
                     <Link
                         href="/admin/pedidos/enviados"
                         className="text-sm hover:underline"
