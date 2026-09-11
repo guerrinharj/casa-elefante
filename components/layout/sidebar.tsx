@@ -2,6 +2,8 @@ import Link from "next/link";
 
 import { createClient } from "@/lib/supabase/server";
 
+import { AnimatedCount } from "@/components/ui/animated-count";
+
 import {
     PRODUCT_FORMATS,
     PRODUCT_GENRES,
@@ -107,7 +109,9 @@ export async function Sidebar({
                                 </span>
 
                                 <span className="shrink-0">
-                                    {genreCounts[genre] ?? 0}
+                                    <AnimatedCount
+                                        value={genreCounts[genre] ?? 0}
+                                    />
                                 </span>
                             </Link>
                         </li>
@@ -138,7 +142,9 @@ export async function Sidebar({
                                 </span>
 
                                 <span className="shrink-0">
-                                    {formatCounts[format] ?? 0}
+                                    <AnimatedCount
+                                        value={formatCounts[format] ?? 0}
+                                    />
                                 </span>
                             </Link>
                         </li>
@@ -174,7 +180,9 @@ export async function Sidebar({
                                     </span>
 
                                     <span className="shrink-0">
-                                        {yearCounts[String(year)] ?? 0}
+                                        <AnimatedCount
+                                            value={yearCounts[year] ?? 0}
+                                        />
                                     </span>
                                 </Link>
                             </li>
