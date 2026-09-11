@@ -16,7 +16,7 @@ export default function CartPage() {
         return (
             <main className="p-4 md:p-6">
                 <div className="mx-auto max-w-5xl">
-                    <h1 className="font-grotesque text-4xl font-bold uppercase">
+                    <h1 className="text-4xl font-bold uppercase">
                         Carrinho
                     </h1>
 
@@ -43,30 +43,35 @@ export default function CartPage() {
                 </h1>
 
                 <div className="mt-8 flex flex-col gap-6">
-                    {items.map((item) => (
+                    {items.map((item, index) => (
                         <div
                             key={item.id}
-                            className="grid grid-cols-[100px_1fr] gap-4 border-b border-black pb-6 md:grid-cols-[120px_1fr_auto]"
+                            className="animate-cart-item opacity-0 grid grid-cols-[100px_1fr] gap-4 border-b border-black pb-6 md:grid-cols-[120px_1fr_auto]"
+                            style={{
+                                animationDelay: `${index * 70}ms`,
+                            }}
                         >
-                            <div className="aspect-square overflow-hidden bg-neutral-100">
-                                {item.image ? (
-                                    <img
-                                        src={item.image}
-                                        alt={item.name}
-                                        className="h-full w-full object-cover"
-                                    />
-                                ) : (
-                                    <div className="flex h-full items-center justify-center text-xs">
-                                        Sem imagem
-                                    </div>
-                                )}
+                            <div className="aspect-square rounded-xl border border-black bg-white p-2 shadow-[6px_6px_0_0_#000]">
+                                <div className="h-full w-full overflow-hidden">
+                                    {item.image ? (
+                                        <img
+                                            src={item.image}
+                                            alt={item.name}
+                                            className="h-full w-full object-cover"
+                                        />
+                                    ) : (
+                                        <div className="flex h-full items-center justify-center text-xs">
+                                            Sem imagem
+                                        </div>
+                                    )}
+                                </div>
                             </div>
 
                             <div className="flex flex-col justify-between">
                                 <div>
                                     <Link
                                         href={`/produtos/${item.slug}`}
-                                        className="font-grotesque text-xl font-bold uppercase"
+                                        className="font-grotesque text-2xl font-bold uppercase"
                                     >
                                         {item.name}
                                     </Link>
@@ -171,7 +176,25 @@ export default function CartPage() {
 
                     <Link
                         href="/checkout"
-                        className="mt-6 block border border-black px-6 py-3 text-center uppercase transition-colors hover:bg-black hover:text-white"
+                        className="
+                            mt-6
+                            block
+                            rounded-xl
+                            border
+                            border-black
+                            bg-white
+                            px-6
+                            py-4
+                            text-center
+                            uppercase
+                            shadow-[6px_6px_0_0_#000]
+                            transition-all
+                            duration-200
+                            ease-out
+                            hover:-translate-x-1
+                            hover:-translate-y-1
+                            hover:shadow-[10px_10px_0_0_#000]
+                        "
                     >
                         Finalizar compra
                     </Link>

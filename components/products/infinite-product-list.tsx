@@ -229,11 +229,18 @@ export function InfiniteProductList({
     return (
         <>
             <div className="grid grid-cols-2 gap-x-4 gap-y-8 md:grid-cols-3 xl:grid-cols-4">
-                {products.map((product) => (
-                    <ProductCard
+                {products.map((product, index) => (
+                    <div
                         key={product.id}
-                        product={product}
-                    />
+                        className="animate-card-in opacity-0"
+                        style={{
+                            animationDelay: `${(index % PRODUCTS_PER_PAGE) * 60}ms`,
+                        }}
+                    >
+                        <ProductCard
+                            product={product}
+                        />
+                    </div>
                 ))}
             </div>
 

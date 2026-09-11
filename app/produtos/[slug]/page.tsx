@@ -47,7 +47,7 @@ export default async function ProductPage({
     return (
         <main className="p-4 md:p-6">
             <div className="mx-auto grid max-w-6xl gap-8 md:grid-cols-2">
-                <div className="flex flex-col gap-4">
+                <div className="animate-product-image flex flex-col gap-4">
                     {product.images?.length ? (
                         product.images.map(
                             (
@@ -55,52 +55,41 @@ export default async function ProductPage({
                                 index: number,
                             ) => (
                                 <div
-                                    key={
-                                        image
-                                    }
-                                    className="aspect-square overflow-hidden bg-neutral-100"
+                                    key={image}
+                                    className="aspect-square rounded-xl border border-black bg-white p-3 shadow-[6px_6px_0_0_#000]"
                                 >
-                                    <img
-                                        src={
-                                            image
-                                        }
-                                        alt={`${product.name} ${
-                                            index +
-                                            1
-                                        }`}
-                                        className="h-full w-full object-cover"
-                                    />
+                                    <div className="h-full w-full overflow-hidden rounded-lg">
+                                        <img
+                                            src={image}
+                                            alt={`${product.name} ${index + 1}`}
+                                            className="h-full w-full object-cover"
+                                        />
+                                    </div>
                                 </div>
                             ),
                         )
                     ) : (
-                        <div className="flex aspect-square items-center justify-center bg-neutral-100">
+                        <div className="flex aspect-square items-center justify-center rounded-2xl border border-black bg-neutral-100 shadow-[6px_6px_0_0_#000]">
                             Sem imagem
                         </div>
                     )}
                 </div>
 
-                <div className="flex flex-col gap-6">
+                <div className="animate-product-info flex flex-col gap-6">
                     <div>
                         <h1 className="font-grotesque text-4xl font-bold uppercase">
-                            {
-                                product.name
-                            }
+                            {product.name}
                         </h1>
 
                         <p className="mt-2 text-xl">
-                            {
-                                product.artist
-                            }
+                            {product.artist}
                         </p>
                     </div>
 
                     <div className="flex flex-wrap gap-x-6 gap-y-2 text-sm">
                         {product.label && (
                             <span>
-                                {
-                                    product.label
-                                }
+                                {product.label}
                             </span>
                         )}
 
@@ -108,9 +97,7 @@ export default async function ProductPage({
 
                         {product.year && (
                             <span>
-                                {
-                                    product.year
-                                }
+                                {product.year}
                             </span>
                         )}
 
@@ -118,9 +105,7 @@ export default async function ProductPage({
 
                         {product.format && (
                             <span>
-                                {
-                                    product.format
-                                }
+                                {product.format}
                             </span>
                         )}
 
@@ -128,9 +113,7 @@ export default async function ProductPage({
 
                         {product.genre && (
                             <span>
-                                {
-                                    product.genre
-                                }
+                                {product.genre}
                             </span>
                         )}
                     </div>
@@ -138,17 +121,13 @@ export default async function ProductPage({
                     {product.condition && (
                         <p className="text-sm">
                             Condição:{" "}
-                            {
-                                product.condition
-                            }
+                            {product.condition}
                         </p>
                     )}
 
                     {product.description && (
                         <p className="whitespace-pre-line">
-                            {
-                                product.description
-                            }
+                            {product.description}
                         </p>
                     )}
 
@@ -160,8 +139,7 @@ export default async function ProductPage({
                                 "pt-BR",
                                 {
                                     style: "currency",
-                                    currency:
-                                        "BRL",
+                                    currency: "BRL",
                                 },
                             )}
                         </p>
@@ -178,16 +156,13 @@ export default async function ProductPage({
                             id: product.id,
                             name: product.name,
                             slug: product.slug,
-                            artist:
-                                product.artist,
+                            artist: product.artist,
                             price: Number(
                                 product.price,
                             ),
-                            stock:
-                                product.stock,
+                            stock: product.stock,
                             image:
-                                product
-                                    .images?.[0],
+                                product.images?.[0],
                         }}
                     />
                 </div>
