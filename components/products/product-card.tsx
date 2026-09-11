@@ -21,9 +21,17 @@ export function ProductCard({
     return (
         <Link
             href={`/produtos/${product.slug}`}
-            className="group flex flex-col gap-3"
+            className="
+                group flex flex-col gap-3
+                rounded-xl border border-black
+                bg-white p-3
+                shadow-[-5px_5px_0_0_#000]
+                transition-all duration-200 ease-out
+                hover:translate-x-1 hover:-translate-y-1
+                hover:shadow-[-9px_9px_0_0_#000]
+            "
         >
-            <div className="aspect-square overflow-hidden bg-neutral-100">
+            <div className="aspect-square overflow-hidden rounded-lg bg-neutral-100">
                 {image ? (
                     <img
                         src={image}
