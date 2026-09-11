@@ -10,23 +10,40 @@ export default function CartPage() {
         removeItem,
         updateQuantity,
         subtotal,
+        clearCart
     } = useCart();
 
     if (items.length === 0) {
         return (
             <main className="p-4 md:p-6">
                 <div className="mx-auto max-w-5xl">
-                    <h1 className="text-4xl font-bold uppercase">
+                    <h1 className="font-grotesque text-4xl font-bold uppercase">
                         Carrinho
                     </h1>
 
-                    <p className="mt-8">
+                    <p className="mt-8 mb-8">
                         Seu carrinho está vazio.
                     </p>
 
                     <Link
                         href="/"
-                        className="mt-6 inline-block border border-black px-6 py-3 uppercase transition-colors hover:bg-black hover:text-white"
+                        className="
+                        mt-20
+                        rounded-xl
+                        border
+                        border-black
+                        bg-white
+                        px-4
+                        py-2
+                        text-sm
+                        uppercase
+                        shadow-[4px_4px_0_0_#000]
+                        transition-all
+                        duration-200
+                        ease-out
+                        hover:-translate-x-1
+                        hover:-translate-y-1
+                        hover:shadow-[7px_7px_0_0_#000]"
                     >
                         Continuar comprando
                     </Link>
@@ -199,6 +216,30 @@ export default function CartPage() {
                         Finalizar compra
                     </Link>
                 </div>
+
+                <button
+                    type="button"
+                    onClick={clearCart}
+                    className="
+                        rounded-xl
+                        border
+                        border-black
+                        bg-white
+                        px-4
+                        py-2
+                        text-sm
+                        uppercase
+                        shadow-[4px_4px_0_0_#000]
+                        transition-all
+                        duration-200
+                        ease-out
+                        hover:-translate-x-1
+                        hover:-translate-y-1
+                        hover:shadow-[7px_7px_0_0_#000]
+                    "
+                >
+                    Limpar carrinho
+                </button>
             </div>
         </main>
     );
