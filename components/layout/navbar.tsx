@@ -6,6 +6,8 @@ import { MobileNavbar } from "@/components/layout/mobile-navbar";
 
 import { LogoutButton } from "@/components/logout-button";
 
+import { CartIcon } from "@/components/cart/cart-icon";
+
 const linkClassName =
     "relative pb-1 after:absolute after:bottom-0 after:left-0 after:h-px after:w-full after:origin-left after:scale-x-0 after:bg-black after:transition-transform after:duration-300 after:ease-out hover:after:scale-x-100";
 
@@ -67,12 +69,7 @@ export async function Navbar() {
                         </li>
 
                         <li>
-                            <Link
-                                href="/carrinho"
-                                className={linkClassName}
-                            >
-                                Carrinho
-                            </Link>
+                            <CartIcon />
                         </li>
 
                         {isLoggedIn && (
