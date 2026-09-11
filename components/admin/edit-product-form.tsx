@@ -22,6 +22,7 @@ type Product = {
     stock: number;
     genre: string | null;
     label: string | null;
+    catalog_number: string | null;
     images: string[] | null;
 };
 
@@ -194,6 +195,14 @@ export function EditProductForm({
                         ).trim() ||
                         null,
 
+                    catalog_number:
+                        String(
+                            formData.get(
+                                "catalog_number",
+                            ) ?? "",
+                        ).trim() ||
+                        null,
+
                     genre:
                         String(
                             formData.get(
@@ -303,6 +312,15 @@ export function EditProductForm({
                     name="genre"
                     defaultValue={
                         product.genre ??
+                        ""
+                    }
+                />
+
+                <Field
+                    label="Número de catálogo"
+                    name="catalog_number"
+                    defaultValue={
+                        product.catalog_number ??
                         ""
                     }
                 />

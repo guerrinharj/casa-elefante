@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 
 import { AddToCartButton } from "@/components/cart/add-to-cart-button";
+
 import { createClient } from "@/lib/supabase/server";
 
 type ProductPageProps = {
@@ -14,8 +15,7 @@ export default async function ProductPage({
 }: ProductPageProps) {
     const { slug } = await params;
 
-    const supabase =
-        await createClient();
+    const supabase = await createClient();
 
     const {
         data: product,
@@ -32,6 +32,7 @@ export default async function ProductPage({
             price,
             genre,
             format,
+            catalog_number,
             description,
             stock,
             condition,
@@ -118,9 +119,16 @@ export default async function ProductPage({
                         )}
                     </div>
 
+                    {product.catalog_number && (
+                        <p className="text-sm">
+                            <span className="underline">Número de catálogo:{" "}</span><br></br>
+                            {product.catalog_number}
+                        </p>
+                    )}
+
                     {product.condition && (
                         <p className="text-sm">
-                            Condição:{" "}
+                            <span className="underline">Condição:{" "}</span><br></br>
                             {product.condition}
                         </p>
                     )}

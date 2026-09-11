@@ -77,6 +77,7 @@ export function ProductForm() {
                     slug,
                     artist: formData.get("artist"),
                     label: formData.get("label") || null,
+                    catalog_number: formData.get("catalog_number") || null,
                     year: yearValue
                         ? Number(yearValue)
                         : null,
@@ -168,6 +169,20 @@ export function ProductForm() {
                     id="label"
                     name="label"
                     type="text"
+                    className="border border-black px-3 py-2"
+                />
+            </div>
+
+            <div className="flex flex-col gap-2">
+                <label htmlFor="catalog_number">
+                    Número de catálogo
+                </label>
+
+                <input
+                    id="catalog_number"
+                    name="catalog_number"
+                    type="text"
+                    placeholder="Ex: 88697 08241 2"
                     className="border border-black px-3 py-2"
                 />
             </div>
