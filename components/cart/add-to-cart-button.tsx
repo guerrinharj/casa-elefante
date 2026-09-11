@@ -61,7 +61,28 @@ export function AddToCartButton({
             disabled={
                 soldOut
             }
-            className="w-full border border-black px-6 py-4 uppercase transition-colors hover:bg-black hover:text-white disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-transparent disabled:hover:text-black"
+            className="
+                w-full
+                rounded-xl
+                border
+                border-black
+                bg-white
+                px-6
+                py-4
+                uppercase
+                shadow-[6px_6px_0_0_#000]
+                transition-all
+                duration-200
+                ease-out
+                hover:-translate-x-1
+                hover:-translate-y-1
+                hover:shadow-[10px_10px_0_0_#000]
+                disabled:cursor-not-allowed
+                disabled:opacity-40
+                disabled:hover:translate-x-0
+                disabled:hover:translate-y-0
+                disabled:hover:shadow-[6px_6px_0_0_#000]
+            "
         >
             {soldOut
                 ? "Esgotado"
