@@ -16,6 +16,12 @@ import {
 
 import { createClient } from "@/lib/supabase/client";
 
+
+import {
+    PRODUCT_FORMATS,
+    PRODUCT_GENRES,
+} from "@/lib/products";
+
 type SpreadsheetRow = {
     name?: unknown;
     artist?: unknown;
@@ -225,45 +231,195 @@ export function ProductSpreadsheetImporter() {
         setFinished,
     ] = useState(false);
 
-    function downloadTemplate() {
-        const data = [
+    async function downloadTemplate() {
+        const ExcelJS = await import("exceljs");
+
+        const workbook =
+            new ExcelJS.Workbook();
+
+        const worksheet =
+            workbook.addWorksheet("Produtos");
+
+        const listsWorksheet =
+            workbook.addWorksheet("Listas");
+
+        worksheet.columns = [
             {
-                name: "África Brasil",
-                artist: "Jorge Ben",
-                label: "Philips",
-                year: 1976,
-                price: 189.9,
-                genre: "MPB",
-                format: "Vinil",
-                condition: "VG+",
-                stock: 1,
-                catalog_number:
-                    "6349 168",
-                description:
-                    "Descrição do produto",
-                images:
-                    "africa-brasil-1.jpg;africa-brasil-2.jpg",
+                header: "name",
+                key: "name",
+                width: 30,
+            },
+            {
+                header: "artist",
+                key: "artist",
+                width: 25,
+            },
+            {
+                header: "label",
+                key: "label",
+                width: 20,
+            },
+            {
+                header: "year",
+                key: "year",
+                width: 10,
+            },
+            {
+                header: "price",
+                key: "price",
+                width: 12,
+            },
+            {
+                header: "genre",
+                key: "genre",
+                width: 35,
+            },
+            {
+                header: "format",
+                key: "format",
+                width: 20,
+            },
+            {
+                header: "condition",
+                key: "condition",
+                width: 15,
+            },
+            {
+                header: "stock",
+                key: "stock",
+                width: 10,
+            },
+            {
+                header: "catalog_number",
+                key: "catalog_number",
+                width: 20,
+            },
+            {
+                header: "description",
+                key: "description",
+                width: 50,
+            },
+            {
+                header: "images",
+                key: "images",
+                width: 50,
             },
         ];
 
-        const worksheet =
-            utils.json_to_sheet(
-                data,
-            );
-
-        const workbook =
-            utils.book_new();
-
-        utils.book_append_sheet(
-            workbook,
-            worksheet,
-            "Produtos",
+        PRODUCT_GENRES.forEach(
+            (genre, index) => {
+                listsWorksheet.getCell(
+                    index + 1,
+                    1,
+                ).value = genre;
+            },
         );
 
-        writeFile(
-            workbook,
-            "modelo-produtos-casa-elefante.xlsx",
+        PRODUCT_FORMATS.forEach(
+            (format, index) => {
+                listsWorksheet.getCell(
+                    index + 1,
+                    2,
+                ).value = format;
+            },
         );
+
+        listsWorksheet.getCell(
+            "A1",
+        ).value = PRODUCT_GENRES[0];
+
+        listsWorksheet.getCell(
+            "B1",
+        ).value = PRODUCT_FORMATS[0];
+
+        for (
+            let row = 2;
+            row <= 501;
+            row += 1
+        ) {
+            worksheet.getCell(
+                `F${row}`,
+            ).dataValidation = {
+                type: "list",
+                allowBlank: true,
+                formulae: [
+                    `'Listas'!$A$1:$A$${PRODUCT_GENRES.length}`,
+                ],
+                showErrorMessage: true,
+                errorTitle:
+                    "Gênero inválido",
+                error:
+                    "Selecione um gênero da lista.",
+            };
+
+            worksheet.getCell(
+                `G${row}`,
+            ).dataValidation = {
+                type: "list",
+                allowBlank: true,
+                formulae: [
+                    `'Listas'!$B$1:$B$${PRODUCT_FORMATS.length}`,
+                ],
+                showErrorMessage: true,
+                errorTitle:
+                    "Formato inválido",
+                error:
+                    "Selecione um formato da lista.",
+            };
+        }
+
+        listsWorksheet.state =
+            "hidden";
+
+        worksheet.addRow({
+            name: "África Brasil",
+            artist: "Jorge Ben",
+            label: "Philips",
+            year: 1976,
+            price: 189.9,
+            genre: PRODUCT_GENRES[0],
+            format: PRODUCT_FORMATS[0],
+            condition: "VG+",
+            stock: 1,
+            catalog_number:
+                "6349 168",
+            description:
+                "Descrição do produto",
+            images:
+                "africa-brasil-1.jpg;africa-brasil-2.jpg",
+        });
+
+        const buffer =
+            await workbook.xlsx.writeBuffer();
+
+        const blob = new Blob(
+            [buffer],
+            {
+                type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            },
+        );
+
+        const url =
+            URL.createObjectURL(blob);
+
+        const link =
+            document.createElement("a");
+
+        link.href = url;
+        link.download =
+            "modelo-produtos-casa-elefante.xlsx";
+
+        document.body.appendChild(
+            link,
+        );
+
+        link.click();
+
+        document.body.removeChild(
+            link,
+        );
+
+        URL.revokeObjectURL(url);
     }
 
     async function parseSpreadsheet(
