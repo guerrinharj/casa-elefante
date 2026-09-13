@@ -66,12 +66,21 @@ export default async function AdminProductsPage({
                         </h1>
                     </div>
 
-                    <Link
-                        href="/admin/produtos/novo"
-                        className="border border-black px-4 py-2 transition-opacity hover:opacity-60"
-                    >
-                        + Adicionar produto
-                    </Link>
+                    <div className="flex items-center gap-3">
+                        <Link
+                            href="/admin/produtos/importar"
+                            className="border border-black px-4 py-2 transition-opacity hover:opacity-60"
+                        >
+                            Importar planilha
+                        </Link>
+
+                        <Link
+                            href="/admin/produtos/novo"
+                            className="border border-black px-4 py-2 transition-opacity hover:opacity-60"
+                        >
+                            + Adicionar produto
+                        </Link>
+                    </div>
                 </div>
 
                 <AdminProductSearch />
