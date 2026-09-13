@@ -1,20 +1,32 @@
 "use client";
 
 import Link from "next/link";
+
 import {
     useEffect,
     useRef,
 } from "react";
 
 export function InteractiveLogo() {
-    const logoRef = useRef<HTMLAnchorElement>(null);
+    const logoRef =
+        useRef<HTMLAnchorElement>(null);
+
+    const cursorRef =
+        useRef<HTMLDivElement>(null);
 
     useEffect(() => {
         const logo = logoRef.current;
+        const cursor = cursorRef.current;
 
-        if (!logo) {
+        if (!logo || !cursor) {
             return;
         }
+
+        let mouseX =
+            window.innerWidth / 2;
+
+        let mouseY =
+            window.innerHeight / 2;
 
         let currentScaleY = 1;
         let currentLetterSpacing = 0;
@@ -27,39 +39,37 @@ export function InteractiveLogo() {
         const handleMouseMove = (
             event: MouseEvent,
         ) => {
+            mouseX = event.clientX;
+            mouseY = event.clientY;
+
             const normalizedX =
-                event.clientX /
+                mouseX /
                 window.innerWidth;
 
             const normalizedY =
-                event.clientY /
+                mouseY /
                 window.innerHeight;
 
             /*
-             * Eixo X:
-             * esquerda = 0px
-             * direita = 8px
+             * Quanto mais para a direita,
+             * maior o espaçamento das letras.
              */
             targetLetterSpacing =
-                normalizedX * 8;
+                normalizedX * 12;
 
             /*
-             * Eixo Y:
-             * topo = scaleY(1)
-             * baixo = scaleY(1.6)
-             *
-             * Uso scaleY para o texto crescer
-             * verticalmente sem ficar largo demais.
+             * Quanto mais para baixo,
+             * maior a escala vertical.
              */
             targetScaleY =
                 1 +
-                normalizedY * 0.6;
+                normalizedY * 0.8;
         };
 
         const animate = () => {
             /*
-             * Interpolação para deixar
-             * o movimento suave.
+             * Suaviza a transformação
+             * do logo.
              */
             currentScaleY +=
                 (targetScaleY -
@@ -71,10 +81,30 @@ export function InteractiveLogo() {
                     currentLetterSpacing) *
                 0.08;
 
-            logo.style.transform = `scaleY(${currentScaleY})`;
+            logo.style.transform =
+                `scaleY(${currentScaleY})`;
 
             logo.style.letterSpacing =
                 `${currentLetterSpacing}px`;
+
+            /*
+             * Elefante acompanha o mouse.
+             *
+             * scaleX(-1) deixa a tromba
+             * virada para a direita.
+             */
+            cursor.style.transform = `
+                translate3d(
+                    ${mouseX}px,
+                    ${mouseY}px,
+                    0
+                )
+                translate(
+                    -50%,
+                    -50%
+                )
+                scaleX(-1)
+            `;
 
             animationFrameId =
                 requestAnimationFrame(
@@ -105,19 +135,40 @@ export function InteractiveLogo() {
     }, []);
 
     return (
-        <Link
-            ref={logoRef}
-            href="/"
-            className="
-                font-grotesque
-                origin-left
-                text-4xl
-                font-bold
-                uppercase
-                will-change-transform
-            "
-        >
-            Casa Elefante
-        </Link>
+        <>
+            <Link
+                ref={logoRef}
+                href="/"
+                className="
+                    font-grotesque
+                    relative
+                    z-[60]
+                    origin-left
+                    text-4xl
+                    font-bold
+                    uppercase
+                    will-change-transform
+                "
+            >
+                Casa Elefante
+            </Link>
+
+            <div
+                ref={cursorRef}
+                className="
+                    pointer-events-none
+                    fixed
+                    left-0
+                    top-0
+                    z-[70]
+                    hidden
+                    select-none
+                    text-3xl
+                    md:block
+                "
+            >
+                🐘
+            </div>
+        </>
     );
 }

@@ -219,3 +219,11 @@ body {
 .animate-checkout-summary {
     animation: checkout-summary-in 500ms cubic-bezier(0.22, 1, 0.36, 1) 150ms forwards;
 }
+
+@media (min-width: 768px) {
+    html,
+    body,
+    body * {
+        cursor: none !important;
+    }
+}
