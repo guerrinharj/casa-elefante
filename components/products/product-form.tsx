@@ -1,21 +1,118 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
-import { slugify } from "@/lib/utils";
+import {
+    useState,
+} from "react";
+
+import {
+    useRouter,
+} from "next/navigation";
+
+import {
+    slugify,
+} from "@/lib/utils";
 
 import {
     PRODUCT_FORMATS,
     PRODUCT_GENRES,
 } from "@/lib/products";
-import { createClient } from "@/lib/supabase/client";
+
+import {
+    createClient,
+} from "@/lib/supabase/client";
+
+type ProductAnalysis = {
+    name: string | null;
+    artist: string | null;
+    label: string | null;
+    catalog_number: string | null;
+    year: number | null;
+    genre: string | null;
+    format: string | null;
+};
 
 export function ProductForm() {
     const router = useRouter();
 
-    const [images, setImages] = useState<File[]>([]);
-    const [isLoading, setIsLoading] = useState(false);
-    const [error, setError] = useState<string | null>(null);
+    const [images, setImages] =
+        useState<File[]>([]);
+
+    const [isLoading, setIsLoading] =
+        useState(false);
+
+    const [isAnalyzing, setIsAnalyzing] =
+        useState(false);
+
+    const [analysis, setAnalysis] =
+        useState<ProductAnalysis | null>(
+            null,
+        );
+
+    const [error, setError] =
+        useState<string | null>(null);
+
+    async function handleAnalyze() {
+        if (!images[0]) {
+            setError(
+                "Selecione uma imagem primeiro.",
+            );
+
+            return;
+        }
+
+        setIsAnalyzing(true);
+        setError(null);
+        setAnalysis(null);
+
+        try {
+            const formData =
+                new FormData();
+
+            formData.append(
+                "image",
+                images[0],
+            );
+
+            const response =
+                await fetch(
+                    "/api/admin/products/analyze",
+                    {
+                        method: "POST",
+                        body: formData,
+                    },
+                );
+
+            const result =
+                await response.json();
+
+            if (!response.ok) {
+                throw new Error(
+                    result.error ??
+                        "Erro ao analisar imagem.",
+                );
+            }
+
+            console.log(
+                "Produto identificado:",
+                result,
+            );
+
+            setAnalysis(result);
+        } catch (error) {
+            console.error(
+                "Erro ao identificar produto:",
+                error,
+            );
+
+            setError(
+                error instanceof Error
+                    ? error.message
+                    : "Erro ao analisar imagem.",
+            );
+        } finally {
+            setIsAnalyzing(false);
+        }
+    }
 
     async function handleSubmit(
         e: React.FormEvent<HTMLFormElement>,
@@ -25,8 +122,11 @@ export function ProductForm() {
         setIsLoading(true);
         setError(null);
 
-        const formData = new FormData(e.currentTarget);
-        const supabase = createClient();
+        const formData =
+            new FormData(e.currentTarget);
+
+        const supabase =
+            createClient();
 
         const imageUrls: string[] = [];
         const imagePaths: string[] = [];
@@ -34,7 +134,11 @@ export function ProductForm() {
         try {
             for (const image of images) {
                 const extension =
-                    image.name.split(".").pop()?.toLowerCase() ?? "jpg";
+                    image.name
+                        .split(".")
+                        .pop()
+                        ?.toLowerCase() ??
+                    "jpg";
 
                 const fileName =
                     `${crypto.randomUUID()}.${extension}`;
@@ -42,79 +146,176 @@ export function ProductForm() {
                 const filePath =
                     `products/${fileName}`;
 
-                const { error: uploadError } =
+                const {
+                    error: uploadError,
+                } =
                     await supabase.storage
                         .from("products")
-                        .upload(filePath, image, {
-                            cacheControl: "3600",
-                            upsert: false,
-                            contentType: image.type,
-                        });
+                        .upload(
+                            filePath,
+                            image,
+                            {
+                                cacheControl:
+                                    "3600",
+                                upsert: false,
+                                contentType:
+                                    image.type,
+                            },
+                        );
 
                 if (uploadError) {
                     throw uploadError;
                 }
 
-                const { data } = supabase.storage
-                    .from("products")
-                    .getPublicUrl(filePath);
+                const {
+                    data,
+                } =
+                    supabase.storage
+                        .from("products")
+                        .getPublicUrl(
+                            filePath,
+                        );
 
-                imageUrls.push(data.publicUrl);
-                imagePaths.push(filePath);
+                imageUrls.push(
+                    data.publicUrl,
+                );
+
+                imagePaths.push(
+                    filePath,
+                );
             }
 
-            const yearValue = formData.get("year");
-            const priceValue = formData.get("price");
-            const stockValue = formData.get("stock");
+            const yearValue =
+                formData.get("year");
 
-            const name = String(formData.get("name") ?? "");
-            const slug = slugify(name);
+            const priceValue =
+                formData.get("price");
 
-            const { error: insertError } = await supabase
-                .from("products")
-                .insert({
-                    name: formData.get("name"),
-                    slug,
-                    artist: formData.get("artist"),
-                    label: formData.get("label") || null,
-                    catalog_number: formData.get("catalog_number") || null,
-                    year: yearValue
-                        ? Number(yearValue)
-                        : null,
-                    price: priceValue
-                        ? Number(priceValue)
-                        : 0,
-                    genre: formData.get("genre"),
-                    format: formData.get("format"),
-                    description:
-                        formData.get("description") || null,
-                    stock: stockValue
-                        ? Number(stockValue)
-                        : 0,
-                    condition:
-                        formData.get("condition") || null,
-                    images: imageUrls,
-                    image_paths: imagePaths,
-                });
+            const stockValue =
+                formData.get("stock");
+
+            const name =
+                String(
+                    formData.get(
+                        "name",
+                    ) ?? "",
+                );
+
+            const slug =
+                slugify(name);
+
+            const {
+                error: insertError,
+            } =
+                await supabase
+                    .from("products")
+                    .insert({
+                        name:
+                            formData.get(
+                                "name",
+                            ),
+
+                        slug,
+
+                        artist:
+                            formData.get(
+                                "artist",
+                            ),
+
+                        label:
+                            formData.get(
+                                "label",
+                            ) ||
+                            null,
+
+                        catalog_number:
+                            formData.get(
+                                "catalog_number",
+                            ) ||
+                            null,
+
+                        year:
+                            yearValue
+                                ? Number(
+                                    yearValue,
+                                )
+                                : null,
+
+                        price:
+                            priceValue
+                                ? Number(
+                                    priceValue,
+                                )
+                                : 0,
+
+                        genre:
+                            formData.get(
+                                "genre",
+                            ),
+
+                        format:
+                            formData.get(
+                                "format",
+                            ),
+
+                        description:
+                            formData.get(
+                                "description",
+                            ) ||
+                            null,
+
+                        stock:
+                            stockValue
+                                ? Number(
+                                    stockValue,
+                                )
+                                : 0,
+
+                        condition:
+                            formData.get(
+                                "condition",
+                            ) ||
+                            null,
+
+                        images:
+                            imageUrls,
+
+                        image_paths:
+                            imagePaths,
+                    });
 
             if (insertError) {
                 throw insertError;
             }
 
-            router.push("/admin/produtos");
+            router.push(
+                "/admin/produtos",
+            );
+
             router.refresh();
         } catch (error) {
-            console.error("Erro ao criar produto:", error);
+            console.error(
+                "Erro ao criar produto:",
+                error,
+            );
 
             /*
-             * Se o upload funcionou, mas o INSERT falhou,
-             * removemos as imagens que acabaram de ser enviadas
-             * para não deixar arquivos órfãos no Storage.
+             * Se o upload funcionou,
+             * mas o INSERT falhou,
+             * removemos as imagens que
+             * acabaram de ser enviadas
+             * para não deixar arquivos
+             * órfãos no Storage.
              */
-            if (imagePaths.length > 0) {
+            if (
+                imagePaths.length >
+                0
+            ) {
                 await supabase.storage
                     .from("products")
-                    .remove(imagePaths);
+                    .remove(
+                        imagePaths,
+                    );
             }
 
             setError(
@@ -239,14 +440,22 @@ export function ProductForm() {
                         Selecione um gênero
                     </option>
 
-                    {PRODUCT_GENRES.map((genre) => (
-                        <option
-                            key={genre}
-                            value={genre}
-                        >
-                            {genre}
-                        </option>
-                    ))}
+                    {PRODUCT_GENRES.map(
+                        (genre) => (
+                            <option
+                                key={
+                                    genre
+                                }
+                                value={
+                                    genre
+                                }
+                            >
+                                {
+                                    genre
+                                }
+                            </option>
+                        ),
+                    )}
                 </select>
             </div>
 
@@ -269,14 +478,22 @@ export function ProductForm() {
                         Selecione um formato
                     </option>
 
-                    {PRODUCT_FORMATS.map((format) => (
-                        <option
-                            key={format}
-                            value={format}
-                        >
-                            {format}
-                        </option>
-                    ))}
+                    {PRODUCT_FORMATS.map(
+                        (format) => (
+                            <option
+                                key={
+                                    format
+                                }
+                                value={
+                                    format
+                                }
+                            >
+                                {
+                                    format
+                                }
+                            </option>
+                        ),
+                    )}
                 </select>
             </div>
 
@@ -304,7 +521,9 @@ export function ProductForm() {
                         name="stock"
                         type="number"
                         min="0"
-                        defaultValue={1}
+                        defaultValue={
+                            1
+                        }
                         required
                         className="border border-black px-3 py-2"
                     />
@@ -325,7 +544,7 @@ export function ProductForm() {
                 </div>
             </div>
 
-            <div className="flex flex-col gap-2">
+            <div className="flex flex-col gap-3">
                 <label htmlFor="images">
                     Imagens
                 </label>
@@ -337,43 +556,172 @@ export function ProductForm() {
                     accept="image/*"
                     multiple
                     required
-                    onChange={(e) => {
-                        const files = e.target.files;
+                    onChange={(
+                        e,
+                    ) => {
+                        const files =
+                            e.target
+                                .files;
 
                         setImages(
                             files
-                                ? Array.from(files)
+                                ? Array.from(
+                                    files,
+                                )
                                 : [],
+                        );
+
+                        /*
+                         * Remove análise anterior
+                         * caso o admin troque
+                         * as imagens.
+                         */
+                        setAnalysis(
+                            null,
                         );
                     }}
                     className="border border-black px-3 py-2"
                 />
 
-                {images.length > 0 && (
+                {images.length >
+                    0 && (
                     <div className="mt-2">
                         <p className="mb-2 text-sm">
-                            {images.length}{" "}
-                            {images.length === 1
+                            {
+                                images.length
+                            }{" "}
+                            {images.length ===
+                            1
                                 ? "imagem selecionada"
                                 : "imagens selecionadas"}
                         </p>
 
                         <ul className="space-y-1 text-sm">
-                            {images.map((image) => (
-                                <li
-                                    key={`${image.name}-${image.lastModified}`}
-                                >
-                                    {image.name}
-                                </li>
-                            ))}
+                            {images.map(
+                                (
+                                    image,
+                                ) => (
+                                    <li
+                                        key={`${image.name}-${image.lastModified}`}
+                                    >
+                                        {
+                                            image.name
+                                        }
+                                    </li>
+                                ),
+                            )}
                         </ul>
                     </div>
                 )}
 
                 <p className="text-xs">
-                    A primeira imagem será usada como capa do produto.
+                    A primeira imagem será
+                    usada como capa do produto.
                 </p>
+
+                <button
+                    type="button"
+                    onClick={
+                        handleAnalyze
+                    }
+                    disabled={
+                        isAnalyzing ||
+                        images.length ===
+                            0
+                    }
+                    className="mt-2 w-fit rounded border border-black bg-white px-5 py-2 shadow-[3px_3px_0_#000] transition-transform hover:-translate-x-0.5 hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                    {isAnalyzing
+                        ? "Identificando..."
+                        : "Identificar com IA"}
+                </button>
             </div>
+
+            {analysis && (
+                <div className="rounded border border-black bg-white p-4 shadow-[3px_3px_0_#000]">
+                    <div className="mb-4 flex items-center justify-between gap-4">
+                        <h2 className="font-bold uppercase">
+                            Produto identificado
+                        </h2>
+
+                        <span className="text-sm">
+                            IA
+                        </span>
+                    </div>
+
+                    <div className="grid gap-3 text-sm md:grid-cols-2">
+                        <div>
+                            <strong>
+                                Nome:
+                            </strong>{" "}
+                            {analysis.name ??
+                                "Não identificado"}
+                        </div>
+
+                        <div>
+                            <strong>
+                                Artista:
+                            </strong>{" "}
+                            {analysis.artist ??
+                                "Não identificado"}
+                        </div>
+
+                        <div>
+                            <strong>
+                                Selo:
+                            </strong>{" "}
+                            {analysis.label ??
+                                "Não identificado"}
+                        </div>
+
+                        <div>
+                            <strong>
+                                Catálogo:
+                            </strong>{" "}
+                            {analysis.catalog_number ??
+                                "Não identificado"}
+                        </div>
+
+                        <div>
+                            <strong>
+                                Ano:
+                            </strong>{" "}
+                            {analysis.year ??
+                                "Não identificado"}
+                        </div>
+
+                        <div>
+                            <strong>
+                                Gênero:
+                            </strong>{" "}
+                            {analysis.genre ??
+                                "Não identificado"}
+                        </div>
+
+                        <div>
+                            <strong>
+                                Formato:
+                            </strong>{" "}
+                            {analysis.format ??
+                                "Não identificado"}
+                        </div>
+                    </div>
+
+                    <details className="mt-4 border-t border-black pt-4">
+                        <summary className="cursor-pointer text-xs">
+                            Ver JSON retornado
+                        </summary>
+
+                        <pre className="mt-3 overflow-auto bg-neutral-100 p-3 text-xs">
+                            {JSON.stringify(
+                                analysis,
+                                null,
+                                4,
+                            )}
+                        </pre>
+                    </details>
+                </div>
+            )}
 
             {error && (
                 <p className="text-sm text-red-500">
@@ -384,7 +732,10 @@ export function ProductForm() {
             <div className="flex justify-end border-t border-black pt-6">
                 <button
                     type="submit"
-                    disabled={isLoading}
+                    disabled={
+                        isLoading ||
+                        isAnalyzing
+                    }
                     className="border border-black px-5 py-2 transition-colors hover:bg-black hover:text-white disabled:cursor-not-allowed disabled:opacity-50"
                 >
                     {isLoading
