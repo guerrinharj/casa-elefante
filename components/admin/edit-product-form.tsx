@@ -11,6 +11,11 @@ import { useRouter } from "next/navigation";
 
 import { createClient } from "@/lib/supabase/client";
 
+import {
+    PRODUCT_FORMATS,
+    PRODUCT_GENRES,
+} from "@/lib/products";
+
 type Product = {
     id: string;
     name: string;
@@ -307,13 +312,13 @@ export function EditProductForm({
                     }
                 />
 
-                <Field
+                <SelectField
                     label="Gênero"
                     name="genre"
                     defaultValue={
-                        product.genre ??
-                        ""
+                        product.genre ?? ""
                     }
+                    options={PRODUCT_GENRES}
                 />
 
                 <Field
@@ -325,13 +330,13 @@ export function EditProductForm({
                     }
                 />
 
-                <Field
+                <SelectField
                     label="Formato"
                     name="format"
                     defaultValue={
-                        product.format ??
-                        ""
+                        product.format ?? ""
                     }
+                    options={PRODUCT_FORMATS}
                 />
 
                 <Field
@@ -547,6 +552,55 @@ function Field({
                 step={step}
                 className="w-full border border-black bg-transparent px-3 py-2 outline-none"
             />
+        </label>
+    );
+}
+
+
+type SelectFieldProps = {
+    label: string;
+    name: string;
+    defaultValue?: string;
+    options: readonly string[];
+    required?: boolean;
+};
+
+function SelectField({
+    label,
+    name,
+    defaultValue,
+    options,
+    required,
+}: SelectFieldProps) {
+    return (
+        <label className="flex flex-col gap-2">
+            <span className="text-sm">
+                {label}
+            </span>
+
+            <select
+                name={name}
+                defaultValue={
+                    defaultValue
+                }
+                required={required}
+                className="w-full border border-black bg-transparent px-3 py-2 outline-none"
+            >
+                <option value="">
+                    Selecione
+                </option>
+
+                {options.map(
+                    (option) => (
+                        <option
+                            key={option}
+                            value={option}
+                        >
+                            {option}
+                        </option>
+                    ),
+                )}
+            </select>
         </label>
     );
 }
