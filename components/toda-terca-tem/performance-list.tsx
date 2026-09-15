@@ -130,22 +130,20 @@ export function PerformanceList({
                                     )}
                                 </span>
 
-                                <span className="text-xl font-bold uppercase md:text-3xl">
+                                <span className="text-xl font-gillsans md:text-3xl">
                                     {
                                         performance.name
                                     }
                                 </span>
 
                                 <span className="hidden text-sm md:block">
-                                    {performance.description ??
-                                        "Toda Terça Tem"}
+                                    {formatDate(
+                                            performance.performance_date,
+                                        )}
                                 </span>
 
                                 <div className="flex items-center gap-4">
                                     <span className="text-sm tabular-nums">
-                                        {formatDate(
-                                            performance.performance_date,
-                                        )}
                                     </span>
 
                                     {hasAudio && (

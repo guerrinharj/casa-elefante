@@ -474,7 +474,7 @@ export function AudioPlayerProvider({
                             </button>
 
                             <div className="hidden w-52 min-w-0 md:block">
-                                <p className="truncate text-sm font-bold uppercase">
+                                <p className="truncate text-sm font-bold">
                                     {
                                         currentPerformance.name
                                     }

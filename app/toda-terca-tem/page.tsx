@@ -62,14 +62,7 @@ export default async function TodaTercaTemPage() {
 
     return (
         <main className="min-h-screen bg-black text-white">
-            <section className="flex min-h-[70vh] flex-col justify-between p-4 md:p-6">
-
-                <div className="mt-16 max-w-xl">
-                    <p className="text-lg md:text-xl">
-                        Apresentações gravadas
-                        ao vivo na Casa Elefante.
-                    </p>
-                </div>
+            <section className="flex flex-col justify-between p-4 md:p-6">
             </section>
 
             <PerformanceList
