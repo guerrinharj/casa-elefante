@@ -1,71 +1,106 @@
-import type { Metadata } from "next";
+import type {
+    Metadata,
+} from "next";
 
-import { Suspense } from "react";
+import {
+    Suspense,
+} from "react";
 
 import localFont from "next/font/local";
 
 import "./globals.css";
 
-import { CartProvider } from "@/components/cart/cart-provider";
-import { Footer } from "@/components/layout/footer";
-import { Navbar } from "@/components/layout/navbar";
+import {
+    CartProvider,
+} from "@/components/cart/cart-provider";
 
-import { OrderConfirmedBanner } from "@/components/orders/order-confirmed-banner";
+import {
+    AudioPlayerProvider,
+} from "@/components/toda-terca-tem/audio-player-provider";
+
+import {
+    Footer,
+} from "@/components/layout/footer";
+
+import {
+    Navbar,
+} from "@/components/layout/navbar";
+
+import {
+    OrderConfirmedBanner,
+} from "@/components/orders/order-confirmed-banner";
 
 const grotesque = localFont({
     src: "./fonts/Grotesque.ttf",
-    variable: "--font-grotesque",
+    variable:
+        "--font-grotesque",
     display: "swap",
 });
 
 const gillSans = localFont({
     src: "./fonts/GillSans.otf",
-    variable: "--font-gill-sans",
+    variable:
+        "--font-gill-sans",
     display: "swap",
 });
 
 const questrial = localFont({
     src: "./fonts/Questrial-Regular.ttf",
-    variable: "--font-questrial",
+    variable:
+        "--font-questrial",
     display: "swap",
 });
 
-export const metadata: Metadata = {
-    title: "Casa Elefante",
-    description: "Loja de discos, música e Toda Terça Tem.",
-};
+export const metadata:
+    Metadata = {
+        title:
+            "Casa Elefante",
+        description:
+            "Loja de discos, música e Toda Terça Tem.",
+    };
 
 export default function RootLayout({
     children,
 }: Readonly<{
-    children: React.ReactNode;
+    children:
+        React.ReactNode;
 }>) {
     return (
         <html
             lang="pt-BR"
-            className={`${grotesque.variable} ${gillSans.variable}  ${questrial.variable}`}
+            className={`
+                ${grotesque.variable}
+                ${gillSans.variable}
+                ${questrial.variable}
+            `}
         >
             <body>
                 <CartProvider>
-                    <Suspense
-                        fallback={
-                            <header className="border-b border-black">
-                                <div className="h-[65px]" />
-                            </header>
-                        }
-                    >
-                        <Navbar />
-                    </Suspense>
+                    <AudioPlayerProvider>
+                        <Suspense
+                            fallback={
+                                <header className="border-b border-black">
+                                    <div className="h-[65px]" />
+                                </header>
+                            }
+                        >
+                            <Navbar />
+                        </Suspense>
 
-                    <Suspense fallback={null}>
-                        <OrderConfirmedBanner />
-                    </Suspense>
+                        <Suspense
+                            fallback={
+                                null
+                            }
+                        >
+                            <OrderConfirmedBanner />
+                        </Suspense>
 
-                    <main>
-                        {children}
-                    </main>
+                        <main>
+                            {children}
+                        </main>
 
-                    <Footer />
+                        <Footer />
+                    </AudioPlayerProvider>
                 </CartProvider>
             </body>
         </html>

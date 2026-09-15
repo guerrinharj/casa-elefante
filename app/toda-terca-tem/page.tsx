@@ -63,13 +63,6 @@ export default async function TodaTercaTemPage() {
     return (
         <main className="min-h-screen bg-black text-white">
             <section className="flex min-h-[70vh] flex-col justify-between p-4 md:p-6">
-                <h1 className="max-w-6xl text-[14vw] font-bold uppercase leading-[0.8] tracking-[-0.06em] md:text-[10vw]">
-                    Toda
-                    <br />
-                    Terça
-                    <br />
-                    Tem
-                </h1>
 
                 <div className="mt-16 max-w-xl">
                     <p className="text-lg md:text-xl">
