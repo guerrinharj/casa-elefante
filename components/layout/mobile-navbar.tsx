@@ -1,16 +1,28 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
 
-import { LogoutButton } from "@/components/logout-button";
+import {
+    useState,
+} from "react";
+
+import {
+    LogoutButton,
+} from "@/components/logout-button";
+
+type MobileNavbarProps = {
+    isLoggedIn: boolean;
+    dark?: boolean;
+};
 
 export function MobileNavbar({
     isLoggedIn,
-}: {
-    isLoggedIn: boolean;
-}) {
-    const [open, setOpen] = useState(false);
+    dark = false,
+}: MobileNavbarProps) {
+    const [
+        open,
+        setOpen,
+    ] = useState(false);
 
     function closeMenu() {
         setOpen(false);
@@ -20,41 +32,96 @@ export function MobileNavbar({
         <div className="md:hidden">
             <button
                 type="button"
-                onClick={() => setOpen(!open)}
+                onClick={() =>
+                    setOpen(
+                        !open,
+                    )
+                }
                 className="relative flex h-8 w-8 flex-col items-center justify-center gap-1.5"
                 aria-label="Abrir menu"
-                aria-expanded={open}
+                aria-expanded={
+                    open
+                }
             >
                 <span
-                    className={`block h-px w-6 bg-black transition-all duration-300 ${
-                        open
-                            ? "translate-y-[3.5px] rotate-45"
-                            : ""
-                    }`}
+                    className={`
+                        block
+                        h-px
+                        w-6
+                        transition-all
+                        duration-300
+
+                        ${
+                            dark
+                                ? "bg-white"
+                                : "bg-black"
+                        }
+
+                        ${
+                            open
+                                ? "translate-y-[3.5px] rotate-45"
+                                : ""
+                        }
+                    `}
                 />
 
                 <span
-                    className={`block h-px w-6 bg-black transition-all duration-300 ${
-                        open
-                            ? "-translate-y-[3.5px] -rotate-45"
-                            : ""
-                    }`}
+                    className={`
+                        block
+                        h-px
+                        w-6
+                        transition-all
+                        duration-300
+
+                        ${
+                            dark
+                                ? "bg-white"
+                                : "bg-black"
+                        }
+
+                        ${
+                            open
+                                ? "-translate-y-[3.5px] -rotate-45"
+                                : ""
+                        }
+                    `}
                 />
             </button>
 
             <div
-                className={`absolute left-0 top-full z-50 w-full overflow-hidden border-b border-black bg-white transition-all duration-300 ease-out ${
-                    open
-                        ? "max-h-[500px] opacity-100"
-                        : "pointer-events-none max-h-0 opacity-0"
-                }`}
+                className={`
+                    absolute
+                    left-0
+                    top-full
+                    z-50
+                    w-full
+                    overflow-hidden
+                    border-b
+                    transition-all
+                    duration-300
+                    ease-out
+
+                    ${
+                        dark
+                            ? "border-white bg-black text-white"
+                            : "border-black bg-white text-black"
+                    }
+
+                    ${
+                        open
+                            ? "max-h-[500px] opacity-100"
+                            : "pointer-events-none max-h-0 opacity-0"
+                    }
+                `}
             >
                 <nav className="px-4 py-6">
                     <ul className="space-y-4 text-xl uppercase">
                         <li>
                             <Link
                                 href="/"
-                                onClick={closeMenu}
+                                onClick={
+                                    closeMenu
+                                }
                             >
                                 Loja
                             </Link>
@@ -63,16 +130,21 @@ export function MobileNavbar({
                         <li>
                             <Link
                                 href="/toda-terca-tem"
-                                onClick={closeMenu}
+                                onClick={
+                                    closeMenu
+                                }
                             >
-                                Toda Terça Tem
+                                Toda Terça
+                                Tem
                             </Link>
                         </li>
 
                         <li>
                             <Link
                                 href="/sobre"
-                                onClick={closeMenu}
+                                onClick={
+                                    closeMenu
+                                }
                             >
                                 Sobre
                             </Link>
@@ -81,7 +153,9 @@ export function MobileNavbar({
                         <li>
                             <Link
                                 href="/contato"
-                                onClick={closeMenu}
+                                onClick={
+                                    closeMenu
+                                }
                             >
                                 Contato
                             </Link>
@@ -90,7 +164,9 @@ export function MobileNavbar({
                         <li>
                             <Link
                                 href="/newsletter"
-                                onClick={closeMenu}
+                                onClick={
+                                    closeMenu
+                                }
                             >
                                 Newsletter
                             </Link>
@@ -99,21 +175,26 @@ export function MobileNavbar({
                         <li>
                             <Link
                                 href="/carrinho"
-                                onClick={closeMenu}
+                                onClick={
+                                    closeMenu
+                                }
                             >
                                 Carrinho
                             </Link>
                         </li>
 
                         {isLoggedIn && (
-                        <li className="text-blue-400">
-                            <Link
-                                href="/admin"
-                            >
-                                Admin
-                            </Link>
-                        </li>
-                    )}
+                            <li className="text-blue-400">
+                                <Link
+                                    href="/admin"
+                                    onClick={
+                                        closeMenu
+                                    }
+                                >
+                                    Admin
+                                </Link>
+                            </li>
+                        )}
 
                         {isLoggedIn && (
                             <li>

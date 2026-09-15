@@ -7,40 +7,67 @@ import {
     useRef,
 } from "react";
 
-export function InteractiveLogo() {
+type InteractiveLogoProps = {
+    text?: string;
+};
+
+
+export function InteractiveLogo({
+    text = "Casa Elefante",
+}: InteractiveLogoProps) {
     const logoRef =
-        useRef<HTMLAnchorElement>(null);
+        useRef<HTMLAnchorElement>(
+            null,
+        );
 
     const cursorRef =
-        useRef<HTMLDivElement>(null);
+        useRef<HTMLDivElement>(
+            null,
+        );
 
     useEffect(() => {
-        const logo = logoRef.current;
-        const cursor = cursorRef.current;
+        const logo =
+            logoRef.current;
 
-        if (!logo || !cursor) {
+        const cursor =
+            cursorRef.current;
+
+        if (
+            !logo ||
+            !cursor
+        ) {
             return;
         }
 
         let mouseX =
-            window.innerWidth / 2;
+            window.innerWidth /
+            2;
 
         let mouseY =
-            window.innerHeight / 2;
+            window.innerHeight /
+            2;
 
         let currentScaleY = 1;
-        let currentLetterSpacing = 0;
+
+        let currentLetterSpacing =
+            0;
 
         let targetScaleY = 1;
-        let targetLetterSpacing = 0;
 
-        let animationFrameId: number;
+        let targetLetterSpacing =
+            0;
+
+        let animationFrameId:
+            number;
 
         const handleMouseMove = (
             event: MouseEvent,
         ) => {
-            mouseX = event.clientX;
-            mouseY = event.clientY;
+            mouseX =
+                event.clientX;
+
+            mouseY =
+                event.clientY;
 
             const normalizedX =
                 mouseX /
@@ -50,36 +77,26 @@ export function InteractiveLogo() {
                 mouseY /
                 window.innerHeight;
 
-            /*
-             * Quanto mais para a direita,
-             * maior o espaçamento das letras.
-             */
             targetLetterSpacing =
                 normalizedX * 12;
 
-            /*
-             * Quanto mais para baixo,
-             * maior a escala vertical.
-             */
             targetScaleY =
                 1 +
                 normalizedY * 0.8;
         };
 
         const animate = () => {
-            /*
-             * Suaviza a transformação
-             * do logo.
-             */
             currentScaleY +=
-                (targetScaleY -
-                    currentScaleY) *
-                0.08;
+                (
+                    targetScaleY -
+                    currentScaleY
+                ) * 0.08;
 
             currentLetterSpacing +=
-                (targetLetterSpacing -
-                    currentLetterSpacing) *
-                0.08;
+                (
+                    targetLetterSpacing -
+                    currentLetterSpacing
+                ) * 0.08;
 
             logo.style.transform =
                 `scaleY(${currentScaleY})`;
@@ -87,12 +104,6 @@ export function InteractiveLogo() {
             logo.style.letterSpacing =
                 `${currentLetterSpacing}px`;
 
-            /*
-             * Elefante acompanha o mouse.
-             *
-             * scaleX(-1) deixa a tromba
-             * virada para a direita.
-             */
             cursor.style.transform = `
                 translate3d(
                     ${mouseX}px,
@@ -150,7 +161,7 @@ export function InteractiveLogo() {
                     will-change-transform
                 "
             >
-                Casa Elefante
+                {text}
             </Link>
 
             <div
