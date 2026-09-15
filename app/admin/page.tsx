@@ -1,13 +1,17 @@
 import Link from "next/link";
 
-import { createClient } from "@/lib/supabase/server";
+import {
+    createClient,
+} from "@/lib/supabase/server";
 
 export default async function AdminPage() {
-    const supabase = await createClient();
+    const supabase =
+        await createClient();
 
     const {
         data: { user },
-    } = await supabase.auth.getUser();
+    } =
+        await supabase.auth.getUser();
 
     return (
         <main className="p-6">
@@ -48,6 +52,19 @@ export default async function AdminPage() {
 
                         <p className="mt-2 text-sm">
                             Visualizar e gerenciar pedidos.
+                        </p>
+                    </Link>
+
+                    <Link
+                        href="/admin/performances"
+                        className="border border-black p-6 transition-opacity hover:opacity-60"
+                    >
+                        <h2 className="text-xl">
+                            Toda Terça Tem
+                        </h2>
+
+                        <p className="mt-2 text-sm">
+                            Adicionar, editar e remover apresentações.
                         </p>
                     </Link>
                 </div>
