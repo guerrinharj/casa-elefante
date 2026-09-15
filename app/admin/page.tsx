@@ -67,6 +67,19 @@ export default async function AdminPage() {
                             Adicionar, editar e remover apresentações.
                         </p>
                     </Link>
+
+                    <Link
+                        href="/admin/newsletter"
+                        className="border border-black p-6 transition-opacity hover:opacity-60"
+                    >
+                        <h2 className="text-xl">
+                            Newsletter
+                        </h2>
+
+                        <p className="mt-2 text-sm">
+                            Criar e enviar newsletters para os assinantes.
+                        </p>
+                    </Link>
                 </div>
             </div>
         </main>

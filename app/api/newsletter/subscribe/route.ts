@@ -14,6 +14,25 @@ export async function POST(
     request: Request,
 ) {
     try {
+        const segmentId =
+            process.env.RESEND_NEWSLETTER_SEGMENT_ID;
+
+        if (!segmentId) {
+            console.error(
+                "RESEND_NEWSLETTER_SEGMENT_ID não configurado.",
+            );
+
+            return NextResponse.json(
+                {
+                    error:
+                        "Newsletter não configurada.",
+                },
+                {
+                    status: 500,
+                },
+            );
+        }
+
         const {
             name,
             email,
@@ -25,7 +44,8 @@ export async function POST(
         ) {
             return NextResponse.json(
                 {
-                    error: "E-mail é obrigatório.",
+                    error:
+                        "E-mail é obrigatório.",
                 },
                 {
                     status: 400,
@@ -49,10 +69,18 @@ export async function POST(
         } =
             await resend.contacts.create({
                 email: normalizedEmail,
+
                 firstName:
                     normalizedName ||
                     undefined,
+
                 unsubscribed: false,
+
+                segments: [
+                    {
+                        id: segmentId,
+                    },
+                ],
             });
 
         if (error) {
