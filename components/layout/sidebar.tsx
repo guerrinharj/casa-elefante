@@ -114,14 +114,14 @@ export async function Sidebar({
                         overflow-y-auto
                         border-r
                         border-black
-                        bg-[#f8f7ef]
+                        bg-white
                         p-6
                     `
             }
         >
             {/* GÊNERO */}
             <div className="mb-8">
-                <h2 className="mb-3 font-grotesque text-2xl font-bold uppercase">
+                <h2 className="mb-3 font-anton text-2xl font-bold uppercase">
                     Gênero
                 </h2>
 
@@ -157,7 +157,7 @@ export async function Sidebar({
 
             {/* FORMATO */}
             <div className="mb-8">
-                <h2 className="mb-3 font-grotesque text-2xl font-bold uppercase">
+                <h2 className="mb-3 font-anton text-2xl font-bold uppercase">
                     Formato
                 </h2>
 
@@ -193,7 +193,7 @@ export async function Sidebar({
 
             {/* ANO */}
             <div>
-                <h2 className="mb-3 font-grotesque text-2xl font-bold uppercase">
+                <h2 className="mb-3 font-anton text-2xl font-bold uppercase">
                     Ano
                 </h2>
 

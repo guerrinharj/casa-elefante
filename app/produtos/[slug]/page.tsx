@@ -78,7 +78,7 @@ export default async function ProductPage({
 
                 <div className="animate-product-info flex flex-col gap-6">
                     <div>
-                        <h1 className="font-grotesque text-4xl font-bold uppercase">
+                        <h1 className="font-anton text-4xl font-bold uppercase">
                             {product.name}
                         </h1>
 

@@ -47,7 +47,7 @@ export default async function OrderPage({
     return (
         <main className="p-4 md:p-6">
             <div className="mx-auto max-w-3xl">
-                <h1 className="font-grotesque text-4xl font-bold uppercase">
+                <h1 className="font-anton text-4xl font-bold uppercase">
                     Pedido recebido
                 </h1>
 
@@ -125,7 +125,7 @@ export default async function OrderPage({
                 </div>
 
                 <div className="mt-10 border border-black p-6">
-                    <p className="font-grotesque text-xl font-bold uppercase">
+                    <p className="font-anton text-xl font-bold uppercase">
                         Pagamento
                     </p>
 

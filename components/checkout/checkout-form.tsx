@@ -551,7 +551,7 @@ export function CheckoutForm() {
                     <h2
                         className="
                             animate-checkout-field
-                            font-grotesque
+                            font-anton
                             text-2xl
                             font-bold
                             uppercase
@@ -643,7 +643,7 @@ export function CheckoutForm() {
                     <h2
                         className="
                             animate-checkout-field
-                            font-grotesque
+                            font-anton
                             text-2xl
                             font-bold
                             uppercase
@@ -1025,7 +1025,7 @@ export function CheckoutForm() {
                     <h2
                         className="
                             animate-checkout-field
-                            font-grotesque
+                            font-anton
                             text-2xl
                             font-bold
                             uppercase
@@ -1322,7 +1322,7 @@ export function CheckoutForm() {
                     opacity-0
                 "
             >
-                <h2 className="font-grotesque text-2xl font-bold uppercase">
+                <h2 className="font-anton text-2xl font-bold uppercase">
                     Seu pedido
                 </h2>
 

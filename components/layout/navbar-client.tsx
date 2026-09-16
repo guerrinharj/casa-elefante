@@ -73,7 +73,7 @@ export function NavbarClient({
                 ${
                     isTodaTercaTem
                         ? "border-white bg-black text-white"
-                        : "border-black bg-[#f8f7ef] text-black"
+                        : "border-black bg-white text-black"
                 }
             `}
         >
