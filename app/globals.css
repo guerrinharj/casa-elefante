@@ -81,10 +81,15 @@
     font-family: var(--font-questrial), sans-serif;
 }
 
+.font-anton {
+    font-family: var(--font-anton), sans-serif;
+    letter-spacing: -1px
+}
+
 body {
     font-family: var(--font-questrial), sans-serif;
     letter-spacing: -0.7px;
-    background-color: #f8f7ef;
+    background-color: white;
 }
 
 

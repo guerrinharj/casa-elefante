@@ -130,7 +130,7 @@ export function PerformanceList({
                                     )}
                                 </span>
 
-                                <span className="text-xl font-gillsans md:text-3xl">
+                                <span className="text-xl font-anton uppercase md:text-3xl">
                                     {
                                         performance.name
                                     }

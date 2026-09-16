@@ -13,7 +13,7 @@ export function InteractiveLogo({
         <Link
             href="/"
             className="
-                font-grotesque
+                font-anton
                 relative
                 z-[60]
                 text-4xl

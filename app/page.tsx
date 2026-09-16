@@ -51,7 +51,7 @@ export default function HomePage({
             >
                 <Suspense
                     fallback={
-                        <aside className="h-[calc(100vh-64px)] w-64 bg-[#f8f7ef]" />
+                        <aside className="h-[calc(100vh-64px)] w-64 bg-white" />
                     }
                 >
                     <Sidebar />
@@ -67,7 +67,7 @@ export default function HomePage({
                         w-5
                         border-r
                         border-black
-                        bg-[#f8f7ef]
+                        bg-white
                     "
                 />
             </div>

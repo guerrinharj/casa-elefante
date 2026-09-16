@@ -51,6 +51,12 @@ const questrial = localFont({
     display: "swap",
 });
 
+const anton = localFont({
+    src: "./fonts/Anton-Regular.ttf",
+    variable: "--font-anton",
+    display: "swap",
+});
+
 export const metadata:
     Metadata = {
         title:
@@ -72,6 +78,7 @@ export default function RootLayout({
                 ${grotesque.variable}
                 ${gillSans.variable}
                 ${questrial.variable}
+                ${anton.variable}
             `}
         >
             <body>
