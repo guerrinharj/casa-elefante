@@ -473,15 +473,15 @@ export function AudioPlayerProvider({
                                     : "▶"}
                             </button>
 
-                            <div className="hidden w-52 min-w-0 md:block">
-                                <p className="truncate text-sm font-bold">
+                            <div className="hidden min-w-0 shrink-0 items-baseline gap-4 md:flex">
+                                <p className="font-anton max-w-[360px] truncate text-2xl uppercase leading-none">
                                     {
                                         currentPerformance.name
                                     }
                                 </p>
 
                                 {currentPerformance.performance_date && (
-                                    <p className="mt-1 text-xs">
+                                    <p className="shrink-0 text-xs tabular-nums">
                                         {formatDate(
                                             currentPerformance.performance_date,
                                         )}
@@ -513,7 +513,7 @@ export function AudioPlayerProvider({
                                         handleSeek
                                     }
                                     aria-label="Progresso do áudio"
-                                    className="h-px min-w-0 flex-1 cursor-pointer appearance-none bg-white"
+                                    className="audio-slider h-px min-w-0 flex-1 cursor-pointer bg-white"
                                 />
 
                                 <span className="w-10 shrink-0 text-right text-xs tabular-nums">
@@ -529,7 +529,7 @@ export function AudioPlayerProvider({
                                     onClick={
                                         toggleMute
                                     }
-                                    className="w-8 text-xs uppercase"
+                                    className="w-8 text-xs uppercase text-white"
                                 >
                                     {volume ===
                                     0
@@ -553,7 +553,7 @@ export function AudioPlayerProvider({
                                         handleVolume
                                     }
                                     aria-label="Volume"
-                                    className="h-px w-20 cursor-pointer appearance-none bg-white"
+                                    className="audio-slider h-px w-20 cursor-pointer bg-white"
                                 />
                             </div>
 

@@ -224,3 +224,33 @@ body {
 .animate-checkout-summary {
     animation: checkout-summary-in 500ms cubic-bezier(0.22, 1, 0.36, 1) 150ms forwards;
 }
+
+.audio-slider {
+    appearance: none;
+    -webkit-appearance: none;
+}
+
+.audio-slider::-webkit-slider-thumb {
+    appearance: none;
+    -webkit-appearance: none;
+
+    width: 12px;
+    height: 12px;
+
+    border: 1px solid #fff;
+    border-radius: 9999px;
+
+    background: #000;
+    cursor: pointer;
+}
+
+.audio-slider::-moz-range-thumb {
+    width: 12px;
+    height: 12px;
+
+    border: 1px solid #fff;
+    border-radius: 9999px;
+
+    background: #000;
+    cursor: pointer;
+}

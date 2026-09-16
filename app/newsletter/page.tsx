@@ -84,10 +84,6 @@ export default function NewsletterPage() {
         return (
             <main className="p-4 md:p-6">
                 <div className="mx-auto max-w-3xl">
-                    <h1 className="text-4xl font-bold uppercase">
-                        Newsletter
-                    </h1>
-
                     <div className="mt-10 rounded-xl border border-black bg-white p-6 shadow-[4px_4px_0_#000]">
                         <p className="text-lg">
                             Inscrição realizada.
@@ -106,7 +102,7 @@ export default function NewsletterPage() {
     return (
         <main className="p-4 md:p-6">
             <div className="mx-auto max-w-3xl">
-                <h1 className="text-4xl font-bold uppercase">
+                <h1 className="text-4xl font-anton uppercase">
                     Newsletter
                 </h1>
 
