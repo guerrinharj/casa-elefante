@@ -3,12 +3,6 @@ export default function SobrePage() {
         <main className="px-6 py-12 md:px-10 md:py-16">
             <div className="mx-auto max-w-5xl">
                 <div className="grid gap-10 md:grid-cols-12">
-                    <div className="md:col-span-3">
-                        <h1 className="text-sm uppercase">
-                            Sobre
-                        </h1>
-                    </div>
-
                     <div className="md:col-span-8 md:col-start-5">
                         <p className="text-2xl leading-tight md:text-4xl md:leading-tight">
                             A Casa Elefante é mais que uma loja de discos.
