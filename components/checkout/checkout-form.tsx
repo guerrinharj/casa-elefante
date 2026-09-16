@@ -16,6 +16,7 @@ import {
     type ShippingOption,
 } from "@/app/checkout/shipping-actions";
 
+
 /*
  * Classe visual compartilhada
  * pelos botões do checkout.
@@ -90,6 +91,74 @@ export function CheckoutForm() {
         customerEmail,
         setCustomerEmail,
     ] = useState("");
+
+    type PaymentMethod =
+    | "pix"
+    | "card";
+
+    const [
+        paymentMethod,
+        setPaymentMethod,
+    ] = useState<PaymentMethod | null>(
+        null,
+    );
+
+    const [
+        cardNumber,
+        setCardNumber,
+    ] = useState("");
+
+    const [
+        cardName,
+        setCardName,
+    ] = useState("");
+
+    const [
+        cardExpiry,
+        setCardExpiry,
+    ] = useState("");
+
+    const [
+        cardCvv,
+        setCardCvv,
+    ] = useState("");
+
+    function formatCardNumber(
+    value: string,
+) {
+    const numbers =
+        value
+            .replace(/\D/g, "")
+            .slice(0, 16);
+
+    return numbers
+        .replace(
+            /(\d{4})(?=\d)/g,
+            "$1 ",
+        );
+}
+
+    function formatCardExpiry(
+        value: string,
+    ) {
+        const numbers =
+            value
+                .replace(/\D/g, "")
+                .slice(0, 4);
+
+        if (
+            numbers.length <= 2
+        ) {
+            return numbers;
+        }
+
+        return `${numbers.slice(
+            0,
+            2,
+        )}/${numbers.slice(
+            2,
+        )}`;
+    }
 
     /*
      * Endereço.
@@ -951,7 +1020,293 @@ export function CheckoutForm() {
                         </div>
                     )}
                 </section>
+
+                <section className="flex flex-col gap-4">
+                    <h2
+                        className="
+                            animate-checkout-field
+                            font-grotesque
+                            text-2xl
+                            font-bold
+                            uppercase
+                            opacity-0
+                        "
+                        style={{
+                            animationDelay: "540ms",
+                        }}
+                    >
+                        Pagamento
+                    </h2>
+
+                    <div className="flex flex-col gap-3">
+                        {/*
+                        * PIX
+                        */}
+                        <label
+                            className="
+                                animate-checkout-field
+                                flex
+                                cursor-pointer
+                                items-center
+                                gap-4
+                                rounded-xl
+                                border
+                                border-black
+                                bg-white
+                                p-4
+                                opacity-0
+                                shadow-[4px_4px_0_0_#000]
+                                transition-all
+                                duration-200
+                                hover:-translate-x-0.5
+                                hover:-translate-y-0.5
+                                hover:shadow-[6px_6px_0_0_#000]
+                            "
+                            style={{
+                                animationDelay: "600ms",
+                            }}
+                        >
+                            <input
+                                type="radio"
+                                name="paymentMethod"
+                                value="pix"
+                                checked={
+                                    paymentMethod ===
+                                    "pix"
+                                }
+                                onChange={() =>
+                                    setPaymentMethod(
+                                        "pix",
+                                    )
+                                }
+                            />
+
+                            <div>
+                                <p className="font-medium">
+                                    PIX
+                                </p>
+
+                                <p className="text-sm opacity-60">
+                                    Pagamento instantâneo
+                                </p>
+                            </div>
+                        </label>
+
+                        {/*
+                        * CARTÃO
+                        */}
+                        <label
+                            className="
+                                animate-checkout-field
+                                flex
+                                cursor-pointer
+                                items-center
+                                gap-4
+                                rounded-xl
+                                border
+                                border-black
+                                bg-white
+                                p-4
+                                opacity-0
+                                shadow-[4px_4px_0_0_#000]
+                                transition-all
+                                duration-200
+                                hover:-translate-x-0.5
+                                hover:-translate-y-0.5
+                                hover:shadow-[6px_6px_0_0_#000]
+                            "
+                            style={{
+                                animationDelay: "660ms",
+                            }}
+                        >
+                            <input
+                                type="radio"
+                                name="paymentMethod"
+                                value="card"
+                                checked={
+                                    paymentMethod ===
+                                    "card"
+                                }
+                                onChange={() =>
+                                    setPaymentMethod(
+                                        "card",
+                                    )
+                                }
+                            />
+
+                            <div>
+                                <p className="font-medium">
+                                    Cartão de crédito
+                                </p>
+
+                                <p className="text-sm opacity-60">
+                                    Crédito
+                                </p>
+                            </div>
+                        </label>
+
+                        {/*
+                        * CAMPOS DO CARTÃO
+                        */}
+                        {paymentMethod ===
+                            "card" && (
+                            <div
+                                className="
+                                    grid
+                                    gap-4
+                                    rounded-xl
+                                    border
+                                    border-black
+                                    bg-white
+                                    p-5
+                                    shadow-[4px_4px_0_0_#000]
+                                "
+                            >
+                                <label className="flex flex-col gap-2">
+                                    <span className="text-sm">
+                                        Número do cartão
+                                    </span>
+
+                                    <input
+                                        type="text"
+                                        inputMode="numeric"
+                                        autoComplete="cc-number"
+                                        value={
+                                            cardNumber
+                                        }
+                                        onChange={(
+                                            event,
+                                        ) =>
+                                            setCardNumber(
+                                                formatCardNumber(
+                                                    event
+                                                        .target
+                                                        .value,
+                                                ),
+                                            )
+                                        }
+                                        placeholder="0000 0000 0000 0000"
+                                        maxLength={
+                                            19
+                                        }
+                                        required
+                                        className={
+                                            inputClassName
+                                        }
+                                    />
+                                </label>
+
+                                <label className="flex flex-col gap-2">
+                                    <span className="text-sm">
+                                        Nome no cartão
+                                    </span>
+
+                                    <input
+                                        type="text"
+                                        autoComplete="cc-name"
+                                        value={
+                                            cardName
+                                        }
+                                        onChange={(
+                                            event,
+                                        ) =>
+                                            setCardName(
+                                                event
+                                                    .target
+                                                    .value
+                                                    .toUpperCase(),
+                                            )
+                                        }
+                                        placeholder="NOME COMO ESTÁ NO CARTÃO"
+                                        required
+                                        className={
+                                            inputClassName
+                                        }
+                                    />
+                                </label>
+
+                                <div className="grid grid-cols-2 gap-4">
+                                    <label className="flex flex-col gap-2">
+                                        <span className="text-sm">
+                                            Validade
+                                        </span>
+
+                                        <input
+                                            type="text"
+                                            inputMode="numeric"
+                                            autoComplete="cc-exp"
+                                            value={
+                                                cardExpiry
+                                            }
+                                            onChange={(
+                                                event,
+                                            ) =>
+                                                setCardExpiry(
+                                                    formatCardExpiry(
+                                                        event
+                                                            .target
+                                                            .value,
+                                                    ),
+                                                )
+                                            }
+                                            placeholder="MM/AA"
+                                            maxLength={
+                                                5
+                                            }
+                                            required
+                                            className={
+                                                inputClassName
+                                            }
+                                        />
+                                    </label>
+
+                                    <label className="flex flex-col gap-2">
+                                        <span className="text-sm">
+                                            CVV
+                                        </span>
+
+                                        <input
+                                            type="password"
+                                            inputMode="numeric"
+                                            autoComplete="cc-csc"
+                                            value={
+                                                cardCvv
+                                            }
+                                            onChange={(
+                                                event,
+                                            ) =>
+                                                setCardCvv(
+                                                    event
+                                                        .target
+                                                        .value
+                                                        .replace(
+                                                            /\D/g,
+                                                            "",
+                                                        )
+                                                        .slice(
+                                                            0,
+                                                            4,
+                                                        ),
+                                                )
+                                            }
+                                            placeholder="123"
+                                            maxLength={
+                                                4
+                                            }
+                                            required
+                                            className={
+                                                inputClassName
+                                            }
+                                        />
+                                    </label>
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                </section>
             </div>
+
+            
 
             {/*
              * COLUNA DIREITA
