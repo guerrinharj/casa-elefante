@@ -25,6 +25,7 @@ type Product = {
     format: string | null;
     year: number | null;
     stock: number;
+    description: string | null;
     genre: string | null;
     label: string | null;
     catalog_number: string | null;
@@ -196,6 +197,14 @@ export function EditProductForm({
                         String(
                             formData.get(
                                 "label",
+                            ) ?? "",
+                        ).trim() ||
+                        null,
+
+                    description:
+                        String(
+                            formData.get(
+                                "description",
                             ) ?? "",
                         ).trim() ||
                         null,
@@ -489,6 +498,23 @@ export function EditProductForm({
                             handleImagesChange
                         }
                         className="hidden"
+                    />
+                </label>
+
+
+                <label className="flex flex-col gap-2">
+                    <span className="text-sm">
+                        Descrição
+                    </span>
+
+                    <textarea
+                        name="description"
+                        defaultValue={
+                            product.description ??
+                            ""
+                        }
+                        rows={8}
+                        className="w-full resize-y border border-black bg-transparent px-3 py-2 outline-none"
                     />
                 </label>
             </div>
