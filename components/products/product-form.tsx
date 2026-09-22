@@ -211,6 +211,11 @@ export function ProductForm() {
                     "pre_order",
                 ) === "on";
 
+            const isFeatured =
+                formData.get(
+                    "is_featured",
+                ) === "on";
+
             const name =
                 String(
                     formData.get(
@@ -324,6 +329,9 @@ export function ProductForm() {
 
                         pre_order:
                             preOrder,
+
+                        is_featured:
+                            isFeatured,
 
                         condition:
                             formData.get(
@@ -679,17 +687,32 @@ export function ProductForm() {
                 </div>
             </div>
 
-            <div className="flex items-center gap-3">
-                <input
-                    id="pre_order"
-                    name="pre_order"
-                    type="checkbox"
-                    className="h-4 w-4"
-                />
+            <div className="flex flex-col gap-3">
+                <div className="flex items-center gap-3">
+                    <input
+                        id="pre_order"
+                        name="pre_order"
+                        type="checkbox"
+                        className="h-4 w-4"
+                    />
 
-                <label htmlFor="pre_order">
-                    Produto em pré-venda
-                </label>
+                    <label htmlFor="pre_order">
+                        Produto em pré-venda
+                    </label>
+                </div>
+
+                <div className="flex items-center gap-3">
+                    <input
+                        id="is_featured"
+                        name="is_featured"
+                        type="checkbox"
+                        className="h-4 w-4"
+                    />
+
+                    <label htmlFor="is_featured">
+                        Produto destacado
+                    </label>
+                </div>
             </div>
 
             <div className="flex flex-col gap-3">

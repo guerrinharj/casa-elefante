@@ -36,6 +36,7 @@ type Product = {
     length: number | null;
     weight: number | null;
     pre_order: boolean;
+    is_featured: boolean;
 };
 
 type EditProductFormProps = {
@@ -189,6 +190,16 @@ export function EditProductForm({
             const weight =
                 formData.get("weight");
 
+            const preOrder =
+                formData.get(
+                    "pre_order",
+                ) === "on";
+
+            const isFeatured =
+                formData.get(
+                    "is_featured",
+                ) === "on";
+
             const {
                 error: updateError,
             } = await supabase
@@ -295,9 +306,10 @@ export function EditProductForm({
                         : null,
 
                     pre_order:
-                        formData.get(
-                            "pre_order",
-                        ) === "on",
+                        preOrder,
+
+                    is_featured:
+                        isFeatured,
 
                     images:
                         finalImages,
@@ -508,20 +520,37 @@ export function EditProductForm({
                     />
                 </div>
 
-                <label className="flex w-fit cursor-pointer items-center gap-3">
-                    <input
-                        name="pre_order"
-                        type="checkbox"
-                        defaultChecked={
-                            product.pre_order
-                        }
-                        className="h-4 w-4"
-                    />
+                <div className="flex flex-col gap-3">
+                    <label className="flex w-fit cursor-pointer items-center gap-3">
+                        <input
+                            name="pre_order"
+                            type="checkbox"
+                            defaultChecked={
+                                product.pre_order
+                            }
+                            className="h-4 w-4"
+                        />
 
-                    <span className="text-sm">
-                        Produto em pré-venda
-                    </span>
-                </label>
+                        <span className="text-sm">
+                            Produto em pré-venda
+                        </span>
+                    </label>
+
+                    <label className="flex w-fit cursor-pointer items-center gap-3">
+                        <input
+                            name="is_featured"
+                            type="checkbox"
+                            defaultChecked={
+                                product.is_featured
+                            }
+                            className="h-4 w-4"
+                        />
+
+                        <span className="text-sm">
+                            Produto destacado
+                        </span>
+                    </label>
+                </div>
             </div>
 
             <div className="flex flex-col gap-4">
