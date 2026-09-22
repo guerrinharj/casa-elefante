@@ -15,7 +15,8 @@ export default async function ProductPage({
 }: ProductPageProps) {
     const { slug } = await params;
 
-    const supabase = await createClient();
+    const supabase =
+        await createClient();
 
     const {
         data: product,
@@ -28,6 +29,7 @@ export default async function ProductPage({
             slug,
             artist,
             label,
+            country,
             year,
             price,
             genre,
@@ -36,7 +38,12 @@ export default async function ProductPage({
             description,
             stock,
             condition,
-            images
+            images,
+            width,
+            height,
+            length,
+            weight,
+            pre_order
         `)
         .eq("slug", slug)
         .single();
@@ -44,6 +51,18 @@ export default async function ProductPage({
     if (error || !product) {
         notFound();
     }
+
+    const productDetails = [
+        product.label,
+        product.year,
+        product.format,
+        product.genre,
+    ].filter(Boolean);
+
+    const hasDimensions =
+        product.width ||
+        product.height ||
+        product.length;
 
     return (
         <main className="p-4 md:p-6">
@@ -56,12 +75,16 @@ export default async function ProductPage({
                                 index: number,
                             ) => (
                                 <div
-                                    key={image}
+                                    key={
+                                        image
+                                    }
                                     className="aspect-square rounded-xl border border-black bg-white p-3 shadow-[6px_6px_0_0_#000]"
                                 >
                                     <div className="h-full w-full overflow-hidden rounded-lg">
                                         <img
-                                            src={image}
+                                            src={
+                                                image
+                                            }
                                             alt={`${product.name} ${index + 1}`}
                                             className="h-full w-full object-cover"
                                         />
@@ -78,6 +101,14 @@ export default async function ProductPage({
 
                 <div className="animate-product-info flex flex-col gap-6">
                     <div>
+                        {product.pre_order && (
+                            <div className="mb-3">
+                                <span className="inline-block rounded-full border border-black bg-black px-3 py-1 text-xs font-medium uppercase text-white">
+                                    Pré-venda
+                                </span>
+                            </div>
+                        )}
+
                         <h1 className="font-anton text-4xl font-bold uppercase">
                             {product.name}
                         </h1>
@@ -87,55 +118,124 @@ export default async function ProductPage({
                         </p>
                     </div>
 
-                    <div className="flex flex-wrap gap-x-6 gap-y-2 text-sm">
-                        {product.label && (
-                            <span>
-                                {product.label}
-                            </span>
-                        )}
+                    {productDetails.length >
+                        0 && (
+                        <div className="flex flex-wrap items-center gap-x-2 gap-y-2 text-sm">
+                            {productDetails.map(
+                                (
+                                    detail,
+                                    index,
+                                ) => (
+                                    <div
+                                        key={`${detail}-${index}`}
+                                        className="flex items-center gap-2"
+                                    >
+                                        {index >
+                                            0 && (
+                                            <span>
+                                                /
+                                            </span>
+                                        )}
 
-                        /
-
-                        {product.year && (
-                            <span>
-                                {product.year}
-                            </span>
-                        )}
-
-                        /
-
-                        {product.format && (
-                            <span>
-                                {product.format}
-                            </span>
-                        )}
-
-                        /
-
-                        {product.genre && (
-                            <span>
-                                {product.genre}
-                            </span>
-                        )}
-                    </div>
+                                        <span>
+                                            {
+                                                detail
+                                            }
+                                        </span>
+                                    </div>
+                                ),
+                            )}
+                        </div>
+                    )}
 
                     {product.catalog_number && (
                         <p className="text-sm">
-                            <span className="underline">Número de catálogo:{" "}</span><br></br>
-                            {product.catalog_number}
+                            <span className="underline">
+                                Número de
+                                catálogo:
+                            </span>
+
+                            <br />
+
+                            {
+                                product.catalog_number
+                            }
+                        </p>
+                    )}
+
+                    {product.country && (
+                        <p className="text-sm">
+                            <span className="underline">
+                                País:
+                            </span>
+
+                            <br />
+
+                            {
+                                product.country
+                            }
                         </p>
                     )}
 
                     {product.condition && (
                         <p className="text-sm">
-                            <span className="underline">Condição:{" "}</span><br></br>
-                            {product.condition}
+                            <span className="underline">
+                                Condição:
+                            </span>
+
+                            <br />
+
+                            {
+                                product.condition
+                            }
                         </p>
+                    )}
+
+                    {(hasDimensions ||
+                        product.weight) && (
+                        <div className="flex flex-col gap-3 text-sm">
+                            {hasDimensions && (
+                                <p>
+                                    <span className="underline">
+                                        Dimensões:
+                                    </span>
+
+                                    <br />
+
+                                    {product.width ??
+                                        "—"}
+                                    {" × "}
+                                    {product.length ??
+                                        "—"}
+                                    {" × "}
+                                    {product.height ??
+                                        "—"}{" "}
+                                    cm
+                                </p>
+                            )}
+
+                            {product.weight && (
+                                <p>
+                                    <span className="underline">
+                                        Peso:
+                                    </span>
+
+                                    <br />
+
+                                    {
+                                        product.weight
+                                    }{" "}
+                                    g
+                                </p>
+                            )}
+                        </div>
                     )}
 
                     {product.description && (
                         <p className="whitespace-pre-line">
-                            {product.description}
+                            {
+                                product.description
+                            }
                         </p>
                     )}
 
@@ -147,16 +247,25 @@ export default async function ProductPage({
                                 "pt-BR",
                                 {
                                     style: "currency",
-                                    currency: "BRL",
+                                    currency:
+                                        "BRL",
                                 },
                             )}
                         </p>
 
-                        <p className="mt-2 text-sm">
-                            {product.stock > 0
-                                ? `${product.stock} em estoque`
-                                : "Produto indisponível"}
-                        </p>
+                        {product.pre_order ? (
+                            <p className="mt-2 text-sm">
+                                Produto em
+                                pré-venda
+                            </p>
+                        ) : (
+                            <p className="mt-2 text-sm">
+                                {product.stock >
+                                0
+                                    ? `${product.stock} em estoque`
+                                    : "Produto indisponível"}
+                            </p>
+                        )}
                     </div>
 
                     <AddToCartButton
@@ -164,13 +273,16 @@ export default async function ProductPage({
                             id: product.id,
                             name: product.name,
                             slug: product.slug,
-                            artist: product.artist,
+                            artist:
+                                product.artist,
                             price: Number(
                                 product.price,
                             ),
-                            stock: product.stock,
+                            stock:
+                                product.stock,
                             image:
-                                product.images?.[0],
+                                product
+                                    .images?.[0],
                         }}
                     />
                 </div>
