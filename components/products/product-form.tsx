@@ -194,6 +194,22 @@ export function ProductForm() {
             const stockValue =
                 formData.get("stock");
 
+            const widthValue =
+                formData.get("width");
+
+            const heightValue =
+                formData.get("height");
+
+            const lengthValue =
+                formData.get("length");
+
+            const weightValue =
+                formData.get("weight");
+
+            const preOrder =
+                formData.get("pre_order") ===
+                "on";
+
             const name =
                 String(
                     formData.get(
@@ -270,6 +286,37 @@ export function ProductForm() {
                                     stockValue,
                                 )
                                 : 0,
+
+                        width:
+                            widthValue
+                                ? Number(
+                                    widthValue,
+                                )
+                                : null,
+
+                        height:
+                            heightValue
+                                ? Number(
+                                    heightValue,
+                                )
+                                : null,
+
+                        length:
+                            lengthValue
+                                ? Number(
+                                    lengthValue,
+                                )
+                                : null,
+
+                        weight:
+                            weightValue
+                                ? Number(
+                                    weightValue,
+                                )
+                                : null,
+
+                        pre_order:
+                            preOrder,
 
                         condition:
                             formData.get(
@@ -541,6 +588,94 @@ export function ProductForm() {
                         placeholder="Ex: VG+, NM"
                         className="border border-black px-3 py-2"
                     />
+                </div>
+
+                <div className="flex flex-col gap-4">
+                    <div>
+                        <h2 className="font-medium">
+                            Dimensões e peso
+                        </h2>
+
+                        <p className="mt-1 text-sm">
+                            Informações utilizadas para
+                            cálculo de frete.
+                        </p>
+                    </div>
+
+                    <div className="grid gap-6 md:grid-cols-4">
+                        <div className="flex flex-col gap-2">
+                            <label htmlFor="width">
+                                Largura (cm)
+                            </label>
+
+                            <input
+                                id="width"
+                                name="width"
+                                type="number"
+                                min="0"
+                                step="0.1"
+                                className="border border-black px-3 py-2"
+                            />
+                        </div>
+
+                        <div className="flex flex-col gap-2">
+                            <label htmlFor="height">
+                                Altura (cm)
+                            </label>
+
+                            <input
+                                id="height"
+                                name="height"
+                                type="number"
+                                min="0"
+                                step="0.1"
+                                className="border border-black px-3 py-2"
+                            />
+                        </div>
+
+                        <div className="flex flex-col gap-2">
+                            <label htmlFor="length">
+                                Comprimento (cm)
+                            </label>
+
+                            <input
+                                id="length"
+                                name="length"
+                                type="number"
+                                min="0"
+                                step="0.1"
+                                className="border border-black px-3 py-2"
+                            />
+                        </div>
+
+                        <div className="flex flex-col gap-2">
+                            <label htmlFor="weight">
+                                Peso (g)
+                            </label>
+
+                            <input
+                                id="weight"
+                                name="weight"
+                                type="number"
+                                min="0"
+                                step="1"
+                                className="border border-black px-3 py-2"
+                            />
+                        </div>
+                    </div>
+                </div>
+
+                <div className="flex items-center gap-3">
+                    <input
+                        id="pre_order"
+                        name="pre_order"
+                        type="checkbox"
+                        className="h-4 w-4"
+                    />
+
+                    <label htmlFor="pre_order">
+                        Produto em pré-venda
+                    </label>
                 </div>
             </div>
 

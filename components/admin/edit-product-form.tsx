@@ -30,6 +30,11 @@ type Product = {
     label: string | null;
     catalog_number: string | null;
     images: string[] | null;
+    width: number | null;
+    height: number | null;
+    length: number | null;
+    weight: number | null;
+    pre_order: boolean;
 };
 
 type EditProductFormProps = {
@@ -76,7 +81,8 @@ export function EditProductForm({
     ) {
         setImages((current) =>
             current.filter(
-                (item) => item !== image,
+                (item) =>
+                    item !== image,
             ),
         );
     }
@@ -87,13 +93,15 @@ export function EditProductForm({
         setNewImages((current) =>
             current.filter(
                 (_, currentIndex) =>
-                    currentIndex !== index,
+                    currentIndex !==
+                    index,
             ),
         );
     }
 
     async function uploadImages() {
-        const uploadedUrls: string[] = [];
+        const uploadedUrls: string[] =
+            [];
 
         for (const file of newImages) {
             const extension =
@@ -167,6 +175,18 @@ export function EditProductForm({
 
             const year =
                 formData.get("year");
+
+            const width =
+                formData.get("width");
+
+            const height =
+                formData.get("height");
+
+            const length =
+                formData.get("length");
+
+            const weight =
+                formData.get("weight");
 
             const {
                 error: updateError,
@@ -249,6 +269,27 @@ export function EditProductForm({
                         ),
                     ),
 
+                    width: width
+                        ? Number(width)
+                        : null,
+
+                    height: height
+                        ? Number(height)
+                        : null,
+
+                    length: length
+                        ? Number(length)
+                        : null,
+
+                    weight: weight
+                        ? Number(weight)
+                        : null,
+
+                    pre_order:
+                        formData.get(
+                            "pre_order",
+                        ) === "on",
+
                     images:
                         finalImages,
                 })
@@ -325,9 +366,12 @@ export function EditProductForm({
                     label="Gênero"
                     name="genre"
                     defaultValue={
-                        product.genre ?? ""
+                        product.genre ??
+                        ""
                     }
-                    options={PRODUCT_GENRES}
+                    options={
+                        PRODUCT_GENRES
+                    }
                 />
 
                 <Field
@@ -343,9 +387,12 @@ export function EditProductForm({
                     label="Formato"
                     name="format"
                     defaultValue={
-                        product.format ?? ""
+                        product.format ??
+                        ""
                     }
-                    options={PRODUCT_FORMATS}
+                    options={
+                        PRODUCT_FORMATS
+                    }
                 />
 
                 <Field
@@ -379,6 +426,84 @@ export function EditProductForm({
                     }
                     required
                 />
+            </div>
+
+            <div className="flex flex-col gap-4">
+                <div>
+                    <h2 className="text-lg font-medium">
+                        Dimensões e peso
+                    </h2>
+
+                    <p className="text-sm text-black/50">
+                        Informações utilizadas
+                        para cálculo de frete.
+                    </p>
+                </div>
+
+                <div className="grid gap-6 md:grid-cols-4">
+                    <Field
+                        label="Largura (cm)"
+                        name="width"
+                        type="number"
+                        min="0"
+                        step="0.1"
+                        defaultValue={
+                            product.width ??
+                            ""
+                        }
+                    />
+
+                    <Field
+                        label="Altura (cm)"
+                        name="height"
+                        type="number"
+                        min="0"
+                        step="0.1"
+                        defaultValue={
+                            product.height ??
+                            ""
+                        }
+                    />
+
+                    <Field
+                        label="Comprimento (cm)"
+                        name="length"
+                        type="number"
+                        min="0"
+                        step="0.1"
+                        defaultValue={
+                            product.length ??
+                            ""
+                        }
+                    />
+
+                    <Field
+                        label="Peso (g)"
+                        name="weight"
+                        type="number"
+                        min="0"
+                        step="1"
+                        defaultValue={
+                            product.weight ??
+                            ""
+                        }
+                    />
+                </div>
+
+                <label className="flex w-fit cursor-pointer items-center gap-3">
+                    <input
+                        name="pre_order"
+                        type="checkbox"
+                        defaultChecked={
+                            product.pre_order
+                        }
+                        className="h-4 w-4"
+                    />
+
+                    <span className="text-sm">
+                        Produto em pré-venda
+                    </span>
+                </label>
             </div>
 
             <div className="flex flex-col gap-4">
@@ -501,7 +626,6 @@ export function EditProductForm({
                     />
                 </label>
 
-
                 <label className="flex flex-col gap-2">
                     <span className="text-sm">
                         Descrição
@@ -581,7 +705,6 @@ function Field({
         </label>
     );
 }
-
 
 type SelectFieldProps = {
     label: string;
