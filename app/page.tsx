@@ -1,8 +1,26 @@
-import { Suspense } from "react";
+import {
+    Suspense,
+} from "react";
 
-import { MobileFilters } from "@/components/layout/mobile-filters";
-import { Sidebar } from "@/components/layout/sidebar";
-import { ProductsSection } from "@/components/products/products-section";
+import {
+    MobileFilters,
+} from "@/components/layout/mobile-filters";
+
+import {
+    Sidebar,
+} from "@/components/layout/sidebar";
+
+import {
+    ProductsSection,
+} from "@/components/products/products-section";
+
+import {
+    FeaturedProductsCarousel,
+} from "@/components/products/featured-products-carousel";
+
+import {
+    createClient,
+} from "@/lib/supabase/server";
 
 type HomePageProps = {
     searchParams: Promise<{
@@ -11,15 +29,60 @@ type HomePageProps = {
         year?: string;
         artist?: string;
         label?: string;
+        condition?: string;
+        availability?: string;
+        country?: string;
+        search?: string;
     }>;
 };
 
-export default function HomePage({
+export default async function HomePage({
     searchParams,
 }: HomePageProps) {
+    const supabase =
+        await createClient();
+
+    const {
+        data: featuredProducts,
+        error: featuredError,
+    } = await supabase
+        .from("products")
+        .select(`
+            id,
+            name,
+            slug,
+            artist,
+            price,
+            format,
+            year,
+            images
+        `)
+        .eq(
+            "is_featured",
+            true,
+        )
+        .gt(
+            "stock",
+            0,
+        )
+        .order(
+            "created_at",
+            {
+                ascending: false,
+            },
+        );
+
+    if (featuredError) {
+        console.error(
+            "Erro ao buscar produtos destacados:",
+            featuredError,
+        );
+    }
+
     return (
         <div className="w-full max-w-full overflow-x-hidden">
             {/* MOBILE FILTERS */}
+
             <div className="md:hidden">
                 <Suspense
                     fallback={
@@ -33,6 +96,7 @@ export default function HomePage({
             </div>
 
             {/* DESKTOP SIDEBAR */}
+
             <div
                 className="
                     group
@@ -58,6 +122,7 @@ export default function HomePage({
                 </Suspense>
 
                 {/* Pequena área visível quando fechada */}
+
                 <div
                     className="
                         absolute
@@ -72,14 +137,37 @@ export default function HomePage({
                 />
             </div>
 
-            {/* PRODUCTS */}
-            <section className="w-full overflow-hidden p-4 md:py-6 md:pr-6 md:pl-24">
-                <Suspense fallback={<p></p>}>
+            {/* CONTENT */}
+
+            <main className="w-full overflow-hidden p-4 md:py-6 md:pr-6 md:pl-24">
+                {/* FEATURED PRODUCTS */}
+
+                {featuredProducts &&
+                    featuredProducts.length >
+                        0 && (
+                    <div className="mb-8">
+                        <FeaturedProductsCarousel
+                            products={
+                                featuredProducts
+                            }
+                        />
+                    </div>
+                )}
+
+                {/* PRODUCTS */}
+
+                <Suspense
+                    fallback={
+                        <p></p>
+                    }
+                >
                     <ProductsSection
-                        searchParams={searchParams}
+                        searchParams={
+                            searchParams
+                        }
                     />
                 </Suspense>
-            </section>
+            </main>
         </div>
     );
 }
