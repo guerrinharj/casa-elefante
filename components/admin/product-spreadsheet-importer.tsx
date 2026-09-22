@@ -11,11 +11,11 @@ import {
 import {
     read,
     utils,
-    writeFile,
 } from "xlsx";
 
-import { createClient } from "@/lib/supabase/client";
-
+import {
+    createClient,
+} from "@/lib/supabase/client";
 
 import {
     PRODUCT_FORMATS,
@@ -26,6 +26,7 @@ type SpreadsheetRow = {
     name?: unknown;
     artist?: unknown;
     label?: unknown;
+    country?: unknown;
     year?: unknown;
     price?: unknown;
     genre?: unknown;
@@ -34,6 +35,11 @@ type SpreadsheetRow = {
     stock?: unknown;
     catalog_number?: unknown;
     description?: unknown;
+    width?: unknown;
+    height?: unknown;
+    length?: unknown;
+    weight?: unknown;
+    pre_order?: unknown;
     images?: unknown;
 };
 
@@ -42,6 +48,7 @@ type ParsedProduct = {
     name: string;
     artist: string;
     label: string | null;
+    country: string | null;
     year: number | null;
     price: number;
     genre: string | null;
@@ -50,6 +57,11 @@ type ParsedProduct = {
     stock: number;
     catalog_number: string | null;
     description: string | null;
+    width: number | null;
+    height: number | null;
+    length: number | null;
+    weight: number | null;
+    pre_order: boolean;
     imageNames: string[];
 };
 
@@ -58,7 +70,9 @@ type ImportError = {
     message: string;
 };
 
-function normalizeString(value: unknown) {
+function normalizeString(
+    value: unknown,
+) {
     if (
         value === null ||
         value === undefined
@@ -86,12 +100,14 @@ function normalizeNumber(
         return value;
     }
 
-    const normalized = String(value)
-        .trim()
-        .replace(/\s/g, "")
-        .replace(",", ".");
+    const normalized =
+        String(value)
+            .trim()
+            .replace(/\s/g, "")
+            .replace(",", ".");
 
-    const parsed = Number(normalized);
+    const parsed =
+        Number(normalized);
 
     if (
         Number.isNaN(parsed)
@@ -100,6 +116,42 @@ function normalizeNumber(
     }
 
     return parsed;
+}
+
+function normalizeBoolean(
+    value: unknown,
+) {
+    if (
+        typeof value === "boolean"
+    ) {
+        return value;
+    }
+
+    if (
+        typeof value === "number"
+    ) {
+        return value === 1;
+    }
+
+    const normalized =
+        normalizeString(value)
+            .toLowerCase()
+            .normalize("NFD")
+            .replace(
+                /[\u0300-\u036f]/g,
+                "",
+            );
+
+    return [
+        "sim",
+        "s",
+        "true",
+        "1",
+        "yes",
+        "y",
+    ].includes(
+        normalized,
+    );
 }
 
 function slugify(
@@ -167,8 +219,9 @@ function parseImageNames(
 
     return string
         .split(/[;,|]/)
-        .map((item) =>
-            item.trim(),
+        .map(
+            (item) =>
+                item.trim(),
         )
         .filter(Boolean);
 }
@@ -190,7 +243,9 @@ export function ProductSpreadsheetImporter() {
     const [
         images,
         setImages,
-    ] = useState<File[]>([]);
+    ] = useState<File[]>(
+        [],
+    );
 
     const [
         products,
@@ -232,16 +287,23 @@ export function ProductSpreadsheetImporter() {
     ] = useState(false);
 
     async function downloadTemplate() {
-        const ExcelJS = await import("exceljs");
+        const ExcelJS =
+            await import(
+                "exceljs"
+            );
 
         const workbook =
             new ExcelJS.Workbook();
 
         const worksheet =
-            workbook.addWorksheet("Produtos");
+            workbook.addWorksheet(
+                "Produtos",
+            );
 
         const listsWorksheet =
-            workbook.addWorksheet("Listas");
+            workbook.addWorksheet(
+                "Listas",
+            );
 
         worksheet.columns = [
             {
@@ -257,6 +319,11 @@ export function ProductSpreadsheetImporter() {
             {
                 header: "label",
                 key: "label",
+                width: 20,
+            },
+            {
+                header: "country",
+                key: "country",
                 width: 20,
             },
             {
@@ -290,14 +357,45 @@ export function ProductSpreadsheetImporter() {
                 width: 10,
             },
             {
-                header: "catalog_number",
-                key: "catalog_number",
+                header:
+                    "catalog_number",
+                key:
+                    "catalog_number",
                 width: 20,
             },
             {
-                header: "description",
-                key: "description",
+                header:
+                    "description",
+                key:
+                    "description",
                 width: 50,
+            },
+            {
+                header: "width",
+                key: "width",
+                width: 14,
+            },
+            {
+                header: "height",
+                key: "height",
+                width: 14,
+            },
+            {
+                header: "length",
+                key: "length",
+                width: 14,
+            },
+            {
+                header: "weight",
+                key: "weight",
+                width: 14,
+            },
+            {
+                header:
+                    "pre_order",
+                key:
+                    "pre_order",
+                width: 15,
             },
             {
                 header: "images",
@@ -307,30 +405,38 @@ export function ProductSpreadsheetImporter() {
         ];
 
         PRODUCT_GENRES.forEach(
-            (genre, index) => {
+            (
+                genre,
+                index,
+            ) => {
                 listsWorksheet.getCell(
                     index + 1,
                     1,
-                ).value = genre;
+                ).value =
+                    genre;
             },
         );
 
         PRODUCT_FORMATS.forEach(
-            (format, index) => {
+            (
+                format,
+                index,
+            ) => {
                 listsWorksheet.getCell(
                     index + 1,
                     2,
-                ).value = format;
+                ).value =
+                    format;
             },
         );
 
         listsWorksheet.getCell(
-            "A1",
-        ).value = PRODUCT_GENRES[0];
+            "C1",
+        ).value = "SIM";
 
         listsWorksheet.getCell(
-            "B1",
-        ).value = PRODUCT_FORMATS[0];
+            "C2",
+        ).value = "NÃO";
 
         for (
             let row = 2;
@@ -338,14 +444,15 @@ export function ProductSpreadsheetImporter() {
             row += 1
         ) {
             worksheet.getCell(
-                `F${row}`,
+                `G${row}`,
             ).dataValidation = {
                 type: "list",
                 allowBlank: true,
                 formulae: [
                     `'Listas'!$A$1:$A$${PRODUCT_GENRES.length}`,
                 ],
-                showErrorMessage: true,
+                showErrorMessage:
+                    true,
                 errorTitle:
                     "Gênero inválido",
                 error:
@@ -353,18 +460,35 @@ export function ProductSpreadsheetImporter() {
             };
 
             worksheet.getCell(
-                `G${row}`,
+                `H${row}`,
             ).dataValidation = {
                 type: "list",
                 allowBlank: true,
                 formulae: [
                     `'Listas'!$B$1:$B$${PRODUCT_FORMATS.length}`,
                 ],
-                showErrorMessage: true,
+                showErrorMessage:
+                    true,
                 errorTitle:
                     "Formato inválido",
                 error:
                     "Selecione um formato da lista.",
+            };
+
+            worksheet.getCell(
+                `Q${row}`,
+            ).dataValidation = {
+                type: "list",
+                allowBlank: true,
+                formulae: [
+                    "'Listas'!$C$1:$C$2",
+                ],
+                showErrorMessage:
+                    true,
+                errorTitle:
+                    "Pré-venda inválida",
+                error:
+                    "Selecione SIM ou NÃO.",
             };
         }
 
@@ -372,40 +496,72 @@ export function ProductSpreadsheetImporter() {
             "hidden";
 
         worksheet.addRow({
-            name: "África Brasil",
-            artist: "Jorge Ben",
-            label: "Philips",
+            name:
+                "África Brasil",
+            artist:
+                "Jorge Ben",
+            label:
+                "Philips",
+            country:
+                "Brasil",
             year: 1976,
             price: 189.9,
-            genre: PRODUCT_GENRES[0],
-            format: PRODUCT_FORMATS[0],
-            condition: "VG+",
+            genre:
+                PRODUCT_GENRES[0],
+            format:
+                PRODUCT_FORMATS[0],
+            condition:
+                "VG+",
             stock: 1,
             catalog_number:
                 "6349 168",
             description:
                 "Descrição do produto",
+            width: 32,
+            height: 1,
+            length: 32,
+            weight: 350,
+            pre_order:
+                "NÃO",
             images:
                 "africa-brasil-1.jpg;africa-brasil-2.jpg",
         });
 
+        const headerRow =
+            worksheet.getRow(1);
+
+        headerRow.font = {
+            bold: true,
+        };
+
+        headerRow.alignment = {
+            vertical:
+                "middle",
+        };
+
         const buffer =
             await workbook.xlsx.writeBuffer();
 
-        const blob = new Blob(
-            [buffer],
-            {
-                type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-            },
-        );
+        const blob =
+            new Blob(
+                [buffer],
+                {
+                    type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                },
+            );
 
         const url =
-            URL.createObjectURL(blob);
+            URL.createObjectURL(
+                blob,
+            );
 
         const link =
-            document.createElement("a");
+            document.createElement(
+                "a",
+            );
 
         link.href = url;
+
         link.download =
             "modelo-produtos-casa-elefante.xlsx";
 
@@ -419,7 +575,9 @@ export function ProductSpreadsheetImporter() {
             link,
         );
 
-        URL.revokeObjectURL(url);
+        URL.revokeObjectURL(
+            url,
+        );
     }
 
     async function parseSpreadsheet(
@@ -439,7 +597,8 @@ export function ProductSpreadsheetImporter() {
                 read(buffer);
 
             const firstSheetName =
-                workbook.SheetNames[0];
+                workbook
+                    .SheetNames[0];
 
             if (
                 !firstSheetName
@@ -460,7 +619,8 @@ export function ProductSpreadsheetImporter() {
                 >(
                     worksheet,
                     {
-                        defval: "",
+                        defval:
+                            "",
                     },
                 );
 
@@ -493,6 +653,11 @@ export function ProductSpreadsheetImporter() {
                     const label =
                         normalizeString(
                             row.label,
+                        );
+
+                    const country =
+                        normalizeString(
+                            row.country,
                         );
 
                     const genre =
@@ -533,6 +698,31 @@ export function ProductSpreadsheetImporter() {
                     const stock =
                         normalizeNumber(
                             row.stock,
+                        );
+
+                    const width =
+                        normalizeNumber(
+                            row.width,
+                        );
+
+                    const height =
+                        normalizeNumber(
+                            row.height,
+                        );
+
+                    const length =
+                        normalizeNumber(
+                            row.length,
+                        );
+
+                    const weight =
+                        normalizeNumber(
+                            row.weight,
+                        );
+
+                    const preOrder =
+                        normalizeBoolean(
+                            row.pre_order,
                         );
 
                     const imageNames =
@@ -590,14 +780,78 @@ export function ProductSpreadsheetImporter() {
                         return;
                     }
 
+                    if (
+                        width !== null &&
+                        width < 0
+                    ) {
+                        validationErrors.push({
+                            row:
+                                spreadsheetRow,
+                            message:
+                                "Largura inválida.",
+                        });
+
+                        return;
+                    }
+
+                    if (
+                        height !== null &&
+                        height < 0
+                    ) {
+                        validationErrors.push({
+                            row:
+                                spreadsheetRow,
+                            message:
+                                "Altura inválida.",
+                        });
+
+                        return;
+                    }
+
+                    if (
+                        length !== null &&
+                        length < 0
+                    ) {
+                        validationErrors.push({
+                            row:
+                                spreadsheetRow,
+                            message:
+                                "Comprimento inválido.",
+                        });
+
+                        return;
+                    }
+
+                    if (
+                        weight !== null &&
+                        weight < 0
+                    ) {
+                        validationErrors.push({
+                            row:
+                                spreadsheetRow,
+                            message:
+                                "Peso inválido.",
+                        });
+
+                        return;
+                    }
+
                     parsedProducts.push({
                         row:
                             spreadsheetRow,
+
                         name,
+
                         artist,
+
                         label:
                             label ||
                             null,
+
+                        country:
+                            country ||
+                            null,
+
                         year:
                             year !==
                             null
@@ -605,16 +859,21 @@ export function ProductSpreadsheetImporter() {
                                     year,
                                 )
                                 : null,
+
                         price,
+
                         genre:
                             genre ||
                             null,
+
                         format:
                             format ||
                             null,
+
                         condition:
                             condition ||
                             null,
+
                         stock:
                             stock !==
                             null
@@ -622,12 +881,32 @@ export function ProductSpreadsheetImporter() {
                                     stock,
                                 )
                                 : 0,
+
                         catalog_number:
                             catalogNumber ||
                             null,
+
                         description:
                             description ||
                             null,
+
+                        width,
+
+                        height,
+
+                        length,
+
+                        weight:
+                            weight !==
+                            null
+                                ? Math.trunc(
+                                    weight,
+                                )
+                                : null,
+
+                        pre_order:
+                            preOrder,
+
                         imageNames,
                     });
                 },
@@ -655,7 +934,9 @@ export function ProductSpreadsheetImporter() {
                 },
             ]);
         } finally {
-            setIsReading(false);
+            setIsReading(
+                false,
+            );
         }
     }
 
@@ -690,8 +971,13 @@ export function ProductSpreadsheetImporter() {
                     [],
             );
 
-        setImages(selected);
-        setFinished(false);
+        setImages(
+            selected,
+        );
+
+        setFinished(
+            false,
+        );
     }
 
     function validateImages() {
@@ -732,7 +1018,8 @@ export function ProductSpreadsheetImporter() {
                             imageErrors.push({
                                 row:
                                     product.row,
-                                message: `Imagem "${imageName}" não foi selecionada.`,
+                                message:
+                                    `Imagem "${imageName}" não foi selecionada.`,
                             });
                         }
                     },
@@ -754,7 +1041,8 @@ export function ProductSpreadsheetImporter() {
         >,
     ) {
         if (
-            product.imageNames
+            product
+                .imageNames
                 .length === 0
         ) {
             return [];
@@ -768,7 +1056,8 @@ export function ProductSpreadsheetImporter() {
             crypto.randomUUID();
 
         for (
-            const imageName of product.imageNames
+            const imageName of
+                product.imageNames
         ) {
             const file =
                 fileMap.get(
@@ -792,22 +1081,26 @@ export function ProductSpreadsheetImporter() {
                 `imports/${folder}/${safeFilename}`;
 
             const {
-                error: uploadError,
-            } = await supabase.storage
-                .from("products")
-                .upload(
-                    storagePath,
-                    file,
-                    {
-                        cacheControl:
-                            "3600",
-                        upsert:
-                            false,
-                        contentType:
-                            file.type ||
-                            undefined,
-                    },
-                );
+                error:
+                    uploadError,
+            } =
+                await supabase.storage
+                    .from(
+                        "products",
+                    )
+                    .upload(
+                        storagePath,
+                        file,
+                        {
+                            cacheControl:
+                                "3600",
+                            upsert:
+                                false,
+                            contentType:
+                                file.type ||
+                                undefined,
+                        },
+                    );
 
             if (
                 uploadError
@@ -819,11 +1112,14 @@ export function ProductSpreadsheetImporter() {
 
             const {
                 data,
-            } = supabase.storage
-                .from("products")
-                .getPublicUrl(
-                    storagePath,
-                );
+            } =
+                supabase.storage
+                    .from(
+                        "products",
+                    )
+                    .getPublicUrl(
+                        storagePath,
+                    );
 
             uploadedUrls.push(
                 data.publicUrl,
@@ -932,27 +1228,57 @@ export function ProductSpreadsheetImporter() {
                             .insert({
                                 name:
                                     product.name,
+
                                 slug,
+
                                 artist:
                                     product.artist,
+
                                 label:
                                     product.label,
+
+                                country:
+                                    product.country,
+
                                 year:
                                     product.year,
+
                                 price:
                                     product.price,
+
                                 genre:
                                     product.genre,
+
                                 format:
                                     product.format,
+
                                 description:
                                     product.description,
+
                                 stock:
                                     product.stock,
+
                                 condition:
                                     product.condition,
+
                                 catalog_number:
                                     product.catalog_number,
+
+                                width:
+                                    product.width,
+
+                                height:
+                                    product.height,
+
+                                length:
+                                    product.length,
+
+                                weight:
+                                    product.weight,
+
+                                pre_order:
+                                    product.pre_order,
+
                                 images:
                                     imageUrls,
                             });
@@ -992,9 +1318,14 @@ export function ProductSpreadsheetImporter() {
                 importErrors,
             );
 
-            setFinished(true);
+            setFinished(
+                true,
+            );
         } finally {
-            setProgress("");
+            setProgress(
+                "",
+            );
+
             setIsImporting(
                 false,
             );
@@ -1010,9 +1341,12 @@ export function ProductSpreadsheetImporter() {
                     </h1>
 
                     <p className="mt-2 max-w-2xl text-sm opacity-60">
-                        Importe vários produtos através de uma
-                        planilha e associe as imagens pelos nomes
-                        dos arquivos.
+                        Importe vários
+                        produtos através de
+                        uma planilha e
+                        associe as imagens
+                        pelos nomes dos
+                        arquivos.
                     </p>
                 </div>
 
@@ -1028,12 +1362,16 @@ export function ProductSpreadsheetImporter() {
                 <div className="flex flex-col gap-4">
                     <div>
                         <h2 className="text-xl font-medium">
-                            1. Baixe o modelo
+                            1. Baixe o
+                            modelo
                         </h2>
 
                         <p className="mt-1 text-sm opacity-60">
-                            Use as colunas do modelo para garantir
-                            que os produtos sejam reconhecidos.
+                            Use as colunas
+                            do modelo para
+                            garantir que os
+                            produtos sejam
+                            reconhecidos.
                         </p>
                     </div>
 
@@ -1045,7 +1383,8 @@ export function ProductSpreadsheetImporter() {
                             }
                             className="rounded-lg border border-black bg-white px-4 py-2 shadow-[3px_3px_0_#000] transition-transform hover:-translate-x-0.5 hover:-translate-y-0.5"
                         >
-                            Baixar modelo .xlsx
+                            Baixar modelo
+                            .xlsx
                         </button>
                     </div>
                 </div>
@@ -1055,11 +1394,14 @@ export function ProductSpreadsheetImporter() {
                 <div className="flex flex-col gap-5">
                     <div>
                         <h2 className="text-xl font-medium">
-                            2. Selecione a planilha
+                            2. Selecione a
+                            planilha
                         </h2>
 
                         <p className="mt-1 text-sm opacity-60">
-                            Formatos aceitos: .xlsx, .xls e .csv.
+                            Formatos
+                            aceitos: .xlsx,
+                            .xls e .csv.
                         </p>
                     </div>
 
@@ -1088,7 +1430,8 @@ export function ProductSpreadsheetImporter() {
 
                     {isReading && (
                         <p className="text-sm">
-                            Lendo planilha...
+                            Lendo
+                            planilha...
                         </p>
                     )}
 
@@ -1102,8 +1445,8 @@ export function ProductSpreadsheetImporter() {
                                     }{" "}
                                     produtos
                                 </strong>{" "}
-                                encontrados na
-                                planilha.
+                                encontrados
+                                na planilha.
                             </div>
                         )}
                 </div>
@@ -1113,15 +1456,23 @@ export function ProductSpreadsheetImporter() {
                 <div className="flex flex-col gap-5">
                     <div>
                         <h2 className="text-xl font-medium">
-                            3. Selecione as imagens
+                            3. Selecione as
+                            imagens
                         </h2>
 
                         <p className="mt-1 max-w-2xl text-sm opacity-60">
-                            Você pode selecionar todas as imagens
-                            de todos os produtos de uma vez. O
-                            sistema usa os nomes informados na
-                            coluna images para descobrir quais
-                            imagens pertencem a cada produto.
+                            Você pode
+                            selecionar todas
+                            as imagens de
+                            todos os produtos
+                            de uma vez. O
+                            sistema usa os
+                            nomes informados
+                            na coluna images
+                            para descobrir
+                            quais imagens
+                            pertencem a cada
+                            produto.
                         </p>
                     </div>
 
@@ -1161,7 +1512,7 @@ export function ProductSpreadsheetImporter() {
                     </h2>
 
                     <div className="mt-5 overflow-x-auto">
-                        <table className="w-full min-w-[800px] border-collapse text-left text-sm">
+                        <table className="w-full min-w-[1100px] border-collapse text-left text-sm">
                             <thead>
                                 <tr className="border-b border-black">
                                     <th className="p-3">
@@ -1177,11 +1528,23 @@ export function ProductSpreadsheetImporter() {
                                     </th>
 
                                     <th className="p-3">
+                                        País
+                                    </th>
+
+                                    <th className="p-3">
                                         Preço
                                     </th>
 
                                     <th className="p-3">
                                         Estoque
+                                    </th>
+
+                                    <th className="p-3">
+                                        Peso
+                                    </th>
+
+                                    <th className="p-3">
+                                        Pré-venda
                                     </th>
 
                                     <th className="p-3">
@@ -1220,6 +1583,11 @@ export function ProductSpreadsheetImporter() {
                                             </td>
 
                                             <td className="p-3">
+                                                {product.country ??
+                                                    "—"}
+                                            </td>
+
+                                            <td className="p-3">
                                                 R${" "}
                                                 {product.price.toFixed(
                                                     2,
@@ -1230,6 +1598,19 @@ export function ProductSpreadsheetImporter() {
                                                 {
                                                     product.stock
                                                 }
+                                            </td>
+
+                                            <td className="p-3">
+                                                {product.weight !==
+                                                null
+                                                    ? `${product.weight} g`
+                                                    : "—"}
+                                            </td>
+
+                                            <td className="p-3">
+                                                {product.pre_order
+                                                    ? "Sim"
+                                                    : "Não"}
                                             </td>
 
                                             <td className="p-3">
@@ -1252,7 +1633,9 @@ export function ProductSpreadsheetImporter() {
                 0 && (
                 <section className="rounded-xl border border-red-600 bg-red-50 p-6">
                     <h2 className="font-medium text-red-700">
-                        Foram encontrados alguns problemas
+                        Foram
+                        encontrados alguns
+                        problemas
                     </h2>
 
                     <div className="mt-4 flex flex-col gap-2 text-sm text-red-700">
@@ -1281,7 +1664,8 @@ export function ProductSpreadsheetImporter() {
             {finished && (
                 <section className="rounded-xl border border-green-700 bg-green-50 p-6 text-green-800">
                     <strong>
-                        Importação concluída.
+                        Importação
+                        concluída.
                     </strong>
 
                     <p className="mt-1 text-sm">
