@@ -29,6 +29,7 @@ type Product = {
     genre: string | null;
     label: string | null;
     catalog_number: string | null;
+    country: string | null;
     images: string[] | null;
     width: number | null;
     height: number | null;
@@ -221,6 +222,14 @@ export function EditProductForm({
                         ).trim() ||
                         null,
 
+                    country:
+                        String(
+                            formData.get(
+                                "country",
+                            ) ?? "",
+                        ).trim() ||
+                        null,
+
                     description:
                         String(
                             formData.get(
@@ -392,6 +401,15 @@ export function EditProductForm({
                     }
                     options={
                         PRODUCT_FORMATS
+                    }
+                />
+
+                <Field
+                    label="País"
+                    name="country"
+                    defaultValue={
+                        product.country ??
+                        ""
                     }
                 />
 

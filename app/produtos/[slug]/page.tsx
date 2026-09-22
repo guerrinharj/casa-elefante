@@ -29,6 +29,7 @@ export default async function ProductPage({
             slug,
             artist,
             label,
+            country,
             year,
             price,
             genre,
@@ -158,6 +159,20 @@ export default async function ProductPage({
 
                             {
                                 product.catalog_number
+                            }
+                        </p>
+                    )}
+
+                    {product.country && (
+                        <p className="text-sm">
+                            <span className="underline">
+                                País:
+                            </span>
+
+                            <br />
+
+                            {
+                                product.country
                             }
                         </p>
                     )}
