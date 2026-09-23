@@ -160,6 +160,14 @@ export function EditPerformanceForm({
         );
 
     const [
+        coverImageFile,
+        setCoverImageFile,
+    ] =
+        useState<File | null>(
+            null,
+        );
+
+    const [
         published,
         setPublished,
     ] = useState(
@@ -241,37 +249,87 @@ export function EditPerformanceForm({
         return data.publicUrl;
     }
 
-    async function removeOldAudio() {
-        if (
-            !performance.audio_url
-        ) {
+    async function uploadCoverImage() {
+        if (!coverImageFile) {
+            return performance.cover_image;
+        }
+
+        const fileName =
+            createFileName(
+                coverImageFile,
+            );
+
+        const filePath =
+            `covers/${fileName}`;
+
+        const {
+            error: uploadError,
+        } =
+            await supabase.storage
+                .from(
+                    "musicas",
+                )
+                .upload(
+                    filePath,
+                    coverImageFile,
+                    {
+                        cacheControl:
+                            "3600",
+                        upsert:
+                            false,
+                        contentType:
+                            coverImageFile.type,
+                    },
+                );
+
+        if (uploadError) {
+            throw uploadError;
+        }
+
+        const {
+            data,
+        } =
+            supabase.storage
+                .from(
+                    "musicas",
+                )
+                .getPublicUrl(
+                    filePath,
+                );
+
+        return data.publicUrl;
+    }
+
+    async function removeStorageFile(
+        url: string | null,
+    ) {
+        if (!url) {
             return;
         }
 
-        const oldPath =
+        const path =
             getStoragePathFromUrl(
-                performance.audio_url,
+                url,
             );
 
-        if (!oldPath) {
+        if (!path) {
             return;
         }
 
         const {
-            error:
-                removeError,
+            error: removeError,
         } =
             await supabase.storage
                 .from(
                     "musicas",
                 )
                 .remove([
-                    oldPath,
+                    path,
                 ]);
 
         if (removeError) {
             console.error(
-                "Remove old audio error:",
+                "Remove storage file error:",
                 removeError,
             );
         }
@@ -306,9 +364,19 @@ export function EditPerformanceForm({
             string | null =
             performance.audio_url;
 
+        let newCoverImageUrl:
+            string | null =
+            performance.cover_image;
+
         try {
-            newAudioUrl =
-                await uploadAudio();
+            [
+                newAudioUrl,
+                newCoverImageUrl,
+            ] =
+                await Promise.all([
+                    uploadAudio(),
+                    uploadCoverImage(),
+                ]);
 
             const {
                 error:
@@ -340,6 +408,9 @@ export function EditPerformanceForm({
                         audio_url:
                             newAudioUrl,
 
+                        cover_image:
+                            newCoverImageUrl,
+
                         published,
                     })
                     .eq(
@@ -352,16 +423,45 @@ export function EditPerformanceForm({
             }
 
             /*
-             * Só removemos o áudio antigo
+             * Só removemos os arquivos antigos
              * depois que o UPDATE no banco
              * funcionou.
              */
+            const filesToRemove:
+                Promise<void>[] =
+                [];
+
             if (
                 audioFile &&
                 newAudioUrl !==
                     performance.audio_url
             ) {
-                await removeOldAudio();
+                filesToRemove.push(
+                    removeStorageFile(
+                        performance.audio_url,
+                    ),
+                );
+            }
+
+            if (
+                coverImageFile &&
+                newCoverImageUrl !==
+                    performance.cover_image
+            ) {
+                filesToRemove.push(
+                    removeStorageFile(
+                        performance.cover_image,
+                    ),
+                );
+            }
+
+            if (
+                filesToRemove.length >
+                0
+            ) {
+                await Promise.all(
+                    filesToRemove,
+                );
             }
 
             router.push(
@@ -429,41 +529,16 @@ export function EditPerformanceForm({
             /*
              * Depois de remover a performance
              * do banco, removemos também
-             * o MP3 do Storage.
+             * áudio e imagem do Storage.
              */
-            if (
-                performance.audio_url
-            ) {
-                const audioPath =
-                    getStoragePathFromUrl(
-                        performance.audio_url,
-                    );
-
-                if (
-                    audioPath
-                ) {
-                    const {
-                        error:
-                            storageError,
-                    } =
-                        await supabase.storage
-                            .from(
-                                "musicas",
-                            )
-                            .remove([
-                                audioPath,
-                            ]);
-
-                    if (
-                        storageError
-                    ) {
-                        console.error(
-                            "Delete audio error:",
-                            storageError,
-                        );
-                    }
-                }
-            }
+            await Promise.all([
+                removeStorageFile(
+                    performance.audio_url,
+                ),
+                removeStorageFile(
+                    performance.cover_image,
+                ),
+            ]);
 
             router.push(
                 "/admin/performances",
@@ -630,6 +705,83 @@ export function EditPerformanceForm({
                     }
                     className="rounded-md border border-black bg-white px-4 py-3 outline-none disabled:opacity-50"
                 />
+            </div>
+
+            <div className="flex flex-col gap-2">
+                <label
+                    htmlFor="cover-image"
+                    className="text-sm"
+                >
+                    Imagem da apresentação
+                </label>
+
+                {performance.cover_image && (
+                    <div className="rounded-md border border-black p-4">
+                        <p className="text-xs uppercase opacity-50">
+                            Imagem atual
+                        </p>
+
+                        <img
+                            src={
+                                performance.cover_image
+                            }
+                            alt={
+                                performance.name
+                            }
+                            className="
+                                mt-3
+                                max-h-80
+                                w-full
+                                rounded-md
+                                object-cover
+                            "
+                        />
+                    </div>
+                )}
+
+                <input
+                    id="cover-image"
+                    type="file"
+                    accept="image/*"
+                    disabled={
+                        isBusy
+                    }
+                    onChange={(
+                        event,
+                    ) =>
+                        setCoverImageFile(
+                            event
+                                .target
+                                .files?.[0] ??
+                                null,
+                        )
+                    }
+                    className="rounded-md border border-black bg-white px-4 py-3 disabled:opacity-50"
+                />
+
+                <p className="text-xs opacity-60">
+                    Deixe vazio para manter a imagem atual.
+                </p>
+
+                {coverImageFile && (
+                    <div className="flex flex-col gap-1">
+                        <p className="text-xs font-medium">
+                            Nova imagem:
+                        </p>
+
+                        <p className="text-xs opacity-60">
+                            {
+                                coverImageFile.name
+                            }
+                        </p>
+
+                        <p className="text-xs opacity-60">
+                            {formatFileSize(
+                                coverImageFile.size,
+                            )}
+                        </p>
+                    </div>
+                )}
             </div>
 
             <div className="flex flex-col gap-2">

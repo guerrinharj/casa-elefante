@@ -69,7 +69,7 @@ export function UpcomingPerformances({
                             "
                         >
                             <div className="flex items-start justify-between gap-6">
-                                <p className="text-right text-sm uppercase">
+                                <p className="text-sm uppercase">
                                     {formatDate(
                                         performance.performance_date,
                                     )}
@@ -80,6 +80,7 @@ export function UpcomingPerformances({
                                 className="
                                     flex
                                     items-center
+                                    justify-end
                                     py-12
                                     md:py-16
                                 "
@@ -87,6 +88,7 @@ export function UpcomingPerformances({
                                 <h2
                                     className="
                                         max-w-6xl
+                                        text-right
                                         font-anton
                                         text-6xl
                                         uppercase
