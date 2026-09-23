@@ -91,6 +91,14 @@ export function PerformanceForm() {
         );
 
     const [
+        coverImageFile,
+        setCoverImageFile,
+    ] =
+        useState<File | null>(
+            null,
+        );
+
+    const [
         published,
         setPublished,
     ] = useState(false);
@@ -169,6 +177,57 @@ export function PerformanceForm() {
         return data.publicUrl;
     }
 
+    async function uploadCoverImage() {
+        if (!coverImageFile) {
+            return null;
+        }
+
+        const fileName =
+            createFileName(
+                coverImageFile,
+            );
+
+        const filePath =
+            `covers/${fileName}`;
+
+        const {
+            error: uploadError,
+        } =
+            await supabase.storage
+                .from(
+                    "musicas",
+                )
+                .upload(
+                    filePath,
+                    coverImageFile,
+                    {
+                        cacheControl:
+                            "3600",
+                        upsert:
+                            false,
+                        contentType:
+                            coverImageFile.type,
+                    },
+                );
+
+        if (uploadError) {
+            throw uploadError;
+        }
+
+        const {
+            data,
+        } =
+            supabase.storage
+                .from(
+                    "musicas",
+                )
+                .getPublicUrl(
+                    filePath,
+                );
+
+        return data.publicUrl;
+    }
+
     async function handleSubmit(
         event:
             FormEvent<HTMLFormElement>,
@@ -191,20 +250,18 @@ export function PerformanceForm() {
             return;
         }
 
-        if (!audioFile) {
-            setError(
-                "Selecione um arquivo de áudio.",
-            );
-
-            return;
-        }
-
         setLoading(true);
         setError(null);
 
         try {
-            const audioUrl =
-                await uploadAudio();
+            const [
+                audioUrl,
+                coverImageUrl,
+            ] =
+                await Promise.all([
+                    uploadAudio(),
+                    uploadCoverImage(),
+                ]);
 
             const {
                 error:
@@ -237,7 +294,7 @@ export function PerformanceForm() {
                             audioUrl,
 
                         cover_image:
-                            null,
+                            coverImageUrl,
 
                         published,
                     });
@@ -400,10 +457,65 @@ export function PerformanceForm() {
 
             <div className="flex flex-col gap-2">
                 <label
+                    htmlFor="cover-image"
+                    className="text-sm"
+                >
+                    Imagem da apresentação
+
+                    <span className="ml-2 text-xs opacity-50">
+                        Opcional
+                    </span>
+                </label>
+
+                <input
+                    id="cover-image"
+                    type="file"
+                    accept="image/*"
+                    onChange={(
+                        event,
+                    ) =>
+                        setCoverImageFile(
+                            event
+                                .target
+                                .files?.[0] ??
+                                null,
+                        )
+                    }
+                    className="rounded-md border border-black bg-white px-4 py-3"
+                />
+
+                {coverImageFile && (
+                    <div className="flex flex-col gap-1">
+                        <p className="text-xs opacity-60">
+                            {
+                                coverImageFile.name
+                            }
+                        </p>
+
+                        <p className="text-xs opacity-60">
+                            {(
+                                coverImageFile.size /
+                                1024 /
+                                1024
+                            ).toFixed(
+                                1,
+                            )}{" "}
+                            MB
+                        </p>
+                    </div>
+                )}
+            </div>
+
+            <div className="flex flex-col gap-2">
+                <label
                     htmlFor="audio"
                     className="text-sm"
                 >
                     Áudio
+
+                    <span className="ml-2 text-xs opacity-50">
+                        Opcional
+                    </span>
                 </label>
 
                 <input
@@ -420,7 +532,6 @@ export function PerformanceForm() {
                                 null,
                         )
                     }
-                    required
                     className="rounded-md border border-black bg-white px-4 py-3"
                 />
 

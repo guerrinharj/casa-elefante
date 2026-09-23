@@ -194,7 +194,7 @@ export function FeaturedProductsCarousel({
                                         </p>
                                     )}
 
-                                    <h2 className="font-grotesque text-4xl leading-none uppercase md:text-6xl lg:text-7xl">
+                                    <h2 className="font-anton text-4xl leading-none uppercase md:text-6xl lg:text-7xl">
                                         {
                                             product.name
                                         }

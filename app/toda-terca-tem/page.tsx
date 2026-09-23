@@ -3,6 +3,10 @@ import {
 } from "@/components/toda-terca-tem/performance-list";
 
 import {
+    UpcomingPerformances,
+} from "@/components/toda-terca-tem/upcoming-performances";
+
+import {
     createClient,
 } from "@/lib/supabase/server";
 
@@ -60,14 +64,49 @@ export default async function TodaTercaTemPage() {
         );
     }
 
+    const today =
+        new Date()
+            .toISOString()
+            .split("T")[0];
+
+    const upcomingPerformances =
+        (performances ?? [])
+            .filter(
+                (performance) =>
+                    performance.performance_date &&
+                    performance.performance_date >=
+                        today,
+            )
+            .sort(
+                (a, b) =>
+                    (
+                        a.performance_date ??
+                        ""
+                    ).localeCompare(
+                        b.performance_date ??
+                            "",
+                    ),
+            );
+
+    const pastPerformances =
+        (performances ?? []).filter(
+            (performance) =>
+                performance.performance_date &&
+                performance.performance_date <
+                    today,
+        );
+
     return (
         <main className="min-h-screen bg-black text-white">
-            <section className="flex flex-col justify-between p-4 md:p-6">
-            </section>
+            <UpcomingPerformances
+                performances={
+                    upcomingPerformances
+                }
+            />
 
             <PerformanceList
                 performances={
-                    performances ?? []
+                    pastPerformances
                 }
             />
         </main>
