@@ -14,6 +14,9 @@ type ProductsSectionProps = {
         artist?: string;
         label?: string;
         search?: string;
+        condition?: string;
+        availability?: string;
+        pre_order?: string;
     }>;
 };
 
@@ -36,7 +39,9 @@ export async function ProductsSection({
                 year,
                 format,
                 images,
-                stock
+                stock,
+                condition,
+                pre_order
             `,
             {
                 count: "exact",
@@ -88,6 +93,46 @@ export async function ProductsSection({
         );
     }
 
+    if (filters.condition) {
+        query = query.eq(
+            "condition",
+            filters.condition,
+        );
+    }
+
+    if (filters.availability) {
+        if (
+            filters.availability ===
+            "pre_order"
+        ) {
+            query = query.eq(
+                "pre_order",
+                true,
+            );
+        }
+
+        if (
+            filters.availability ===
+            "ready"
+        ) {
+            query = query.eq(
+                "pre_order",
+                false,
+            );
+        }
+    }
+
+    if (
+        filters.pre_order !==
+        undefined
+    ) {
+        query = query.eq(
+            "pre_order",
+            filters.pre_order ===
+                "true",
+        );
+    }
+
     if (filters.search) {
         query = query.or(
             `name.ilike.%${filters.search}%,artist.ilike.%${filters.search}%`,
@@ -122,6 +167,8 @@ export async function ProductsSection({
         filters.year,
         filters.artist,
         filters.label,
+        filters.condition,
+        filters.availability,
     ].filter(Boolean);
 
     const title =
@@ -135,6 +182,9 @@ export async function ProductsSection({
         filters.year ||
         filters.artist ||
         filters.label ||
+        filters.condition ||
+        filters.availability ||
+        filters.pre_order ||
         filters.search
     );
 
@@ -172,8 +222,12 @@ export async function ProductsSection({
                 </p>
             ) : (
                 <InfiniteProductList
-                    initialProducts={products}
-                    filters={filters}
+                    initialProducts={
+                        products
+                    }
+                    filters={
+                        filters
+                    }
                 />
             )}
         </>
