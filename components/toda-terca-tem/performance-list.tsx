@@ -59,7 +59,7 @@ export function PerformanceList({
         <section className="border-t border-white">
             <div className="p-4 md:p-6">
                 <p className="text-sm uppercase">
-                    Apresentações
+                    Apresentações Passadas
                 </p>
             </div>
 

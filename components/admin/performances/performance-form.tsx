@@ -191,14 +191,6 @@ export function PerformanceForm() {
             return;
         }
 
-        if (!audioFile) {
-            setError(
-                "Selecione um arquivo de áudio.",
-            );
-
-            return;
-        }
-
         setLoading(true);
         setError(null);
 
@@ -404,6 +396,9 @@ export function PerformanceForm() {
                     className="text-sm"
                 >
                     Áudio
+                    <span className="ml-2 text-xs opacity-50">
+                        Opcional
+                    </span>
                 </label>
 
                 <input
@@ -420,7 +415,6 @@ export function PerformanceForm() {
                                 null,
                         )
                     }
-                    required
                     className="rounded-md border border-black bg-white px-4 py-3"
                 />
 
