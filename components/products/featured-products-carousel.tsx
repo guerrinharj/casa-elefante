@@ -150,9 +150,7 @@ export function FeaturedProductsCarousel({
                         )}
                     </div>
 
-                    {/* BLUR */}
-
-                    <div className="absolute inset-0 backdrop-blur-[3px]" />
+                    <div className="absolute inset-0" />
 
                     {/* CLICKABLE PRODUCT AREA */}
 

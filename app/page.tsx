@@ -39,6 +39,17 @@ type HomePageProps = {
 export default async function HomePage({
     searchParams,
 }: HomePageProps) {
+    const filters = await searchParams;
+
+    const hasActiveFilters = Object.values(
+        filters,
+    ).some((value) => {
+        return (
+            typeof value === "string" &&
+            value.trim() !== ""
+        );
+    });
+
     const supabase =
         await createClient();
 
@@ -82,7 +93,6 @@ export default async function HomePage({
     return (
         <div className="w-full max-w-full overflow-x-hidden">
             {/* MOBILE FILTERS */}
-
             <div className="md:hidden">
                 <Suspense
                     fallback={
@@ -96,7 +106,6 @@ export default async function HomePage({
             </div>
 
             {/* DESKTOP SIDEBAR */}
-
             <div
                 className="
                     group
@@ -122,7 +131,6 @@ export default async function HomePage({
                 </Suspense>
 
                 {/* Pequena área visível quando fechada */}
-
                 <div
                     className="
                         absolute
@@ -138,32 +146,30 @@ export default async function HomePage({
             </div>
 
             {/* CONTENT */}
-
             <main className="w-full overflow-hidden p-4 md:py-6 md:pr-6 md:pl-24">
                 {/* FEATURED PRODUCTS */}
-
-                {featuredProducts &&
+                {!hasActiveFilters &&
+                    featuredProducts &&
                     featuredProducts.length >
                         0 && (
-                    <div className="mb-8">
-                        <FeaturedProductsCarousel
-                            products={
-                                featuredProducts
-                            }
-                        />
-                    </div>
-                )}
+                        <div className="mb-8">
+                            <FeaturedProductsCarousel
+                                products={
+                                    featuredProducts
+                                }
+                            />
+                        </div>
+                    )}
 
                 {/* PRODUCTS */}
-
                 <Suspense
-                    fallback={
-                        <p></p>
-                    }
+                    fallback={<p></p>}
                 >
                     <ProductsSection
                         searchParams={
-                            searchParams
+                            Promise.resolve(
+                                filters,
+                            )
                         }
                     />
                 </Suspense>
