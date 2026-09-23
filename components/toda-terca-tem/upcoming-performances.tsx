@@ -48,28 +48,76 @@ export function UpcomingPerformances({
                         href={`/toda-terca-tem/${performance.slug}`}
                         className="
                             group
+                            relative
                             block
+                            overflow-hidden
                             border-b
                             border-white
                             bg-black
                             text-white
                             transition-colors
-                            duration-300
+                            duration-500
                             hover:bg-white
                             hover:text-black
                         "
                     >
+                        {performance.cover_image && (
+                            <div
+                                className="
+                                    absolute
+                                    inset-0
+                                    bg-cover
+                                    bg-center
+                                    grayscale
+                                    opacity-100
+                                    transition-all
+                                    duration-500
+                                    ease-out
+                                    group-hover:scale-[1.02]
+                                    group-hover:opacity-0
+                                "
+                                style={{
+                                    backgroundImage:
+                                        `url("${performance.cover_image}")`,
+                                }}
+                            />
+                        )}
+
                         <div
                             className="
+                                absolute
+                                inset-0
+                                bg-black/35
+                                opacity-100
+                                transition-opacity
+                                duration-500
+                                group-hover:opacity-0
+                            "
+                        />
+
+                        <div
+                            className="
+                                relative
+                                z-10
                                 grid
                                 min-h-[55vh]
                                 grid-rows-[auto_1fr_auto]
                                 p-4
+                                md:min-h-[65vh]
                                 md:p-6
                             "
                         >
-                            <div className="flex items-start justify-between gap-6">
-                                <p className="text-sm uppercase">
+                            <div>
+                                <p
+                                    className="
+                                        font-anton
+                                        text-3xl
+                                        uppercase
+                                        leading-none
+                                        md:text-5xl
+                                        lg:text-6xl
+                                    "
+                                >
                                     {formatDate(
                                         performance.performance_date,
                                     )}
@@ -104,7 +152,14 @@ export function UpcomingPerformances({
                                 </h2>
                             </div>
 
-                            <div className="flex items-end justify-between gap-6">
+                            <div
+                                className="
+                                    flex
+                                    items-end
+                                    justify-between
+                                    gap-6
+                                "
+                            >
                                 <p
                                     className="
                                         max-w-xl
