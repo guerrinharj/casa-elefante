@@ -135,17 +135,6 @@ export function NavbarClient({
                         </li>
 
                         <li>
-                            <Link
-                                href="/atacado"
-                                className={
-                                    linkClassName
-                                }
-                            >
-                                Atacado
-                            </Link>
-                        </li>
-
-                        <li>
                             <CartIcon />
                         </li>
 
