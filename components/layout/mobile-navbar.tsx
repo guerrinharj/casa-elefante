@@ -12,11 +12,13 @@ import {
 
 type MobileNavbarProps = {
     isLoggedIn: boolean;
+    isAdmin: boolean;
     dark?: boolean;
 };
 
 export function MobileNavbar({
     isLoggedIn,
+    isAdmin,
     dark = false,
 }: MobileNavbarProps) {
     const [
@@ -50,13 +52,11 @@ export function MobileNavbar({
                         w-6
                         transition-all
                         duration-300
-
                         ${
                             dark
                                 ? "bg-white"
                                 : "bg-black"
                         }
-
                         ${
                             open
                                 ? "translate-y-[3.5px] rotate-45"
@@ -72,13 +72,11 @@ export function MobileNavbar({
                         w-6
                         transition-all
                         duration-300
-
                         ${
                             dark
                                 ? "bg-white"
                                 : "bg-black"
                         }
-
                         ${
                             open
                                 ? "-translate-y-[3.5px] -rotate-45"
@@ -100,13 +98,11 @@ export function MobileNavbar({
                     transition-all
                     duration-300
                     ease-out
-
                     ${
                         dark
                             ? "border-white bg-black text-white"
                             : "border-black bg-white text-black"
                     }
-
                     ${
                         open
                             ? "max-h-[500px] opacity-100"
@@ -174,6 +170,17 @@ export function MobileNavbar({
 
                         <li>
                             <Link
+                                href="/atacado"
+                                onClick={
+                                    closeMenu
+                                }
+                            >
+                                Atacado
+                            </Link>
+                        </li>
+
+                        <li>
+                            <Link
                                 href="/carrinho"
                                 onClick={
                                     closeMenu
@@ -183,7 +190,7 @@ export function MobileNavbar({
                             </Link>
                         </li>
 
-                        {isLoggedIn && (
+                        {isAdmin && (
                             <li className="text-blue-400">
                                 <Link
                                     href="/admin"

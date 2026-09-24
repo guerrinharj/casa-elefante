@@ -24,10 +24,14 @@ import {
 
 type NavbarClientProps = {
     isLoggedIn: boolean;
+    isAdmin: boolean;
+    isWholesale: boolean;
 };
 
 export function NavbarClient({
     isLoggedIn,
+    isAdmin,
+    isWholesale,
 }: NavbarClientProps) {
     const pathname =
         usePathname();
@@ -51,7 +55,6 @@ export function NavbarClient({
         after:duration-300
         after:ease-out
         hover:after:scale-x-100
-
         ${
             isTodaTercaTem
                 ? "after:bg-white"
@@ -69,7 +72,6 @@ export function NavbarClient({
                 border-b
                 transition-colors
                 duration-500
-
                 ${
                     isTodaTercaTem
                         ? "border-white bg-black text-white"
@@ -133,10 +135,21 @@ export function NavbarClient({
                         </li>
 
                         <li>
+                            <Link
+                                href="/atacado"
+                                className={
+                                    linkClassName
+                                }
+                            >
+                                Atacado
+                            </Link>
+                        </li>
+
+                        <li>
                             <CartIcon />
                         </li>
 
-                        {isLoggedIn && (
+                        {isAdmin && (
                             <li className="text-blue-400">
                                 <Link
                                     href="/admin"
@@ -160,6 +173,9 @@ export function NavbarClient({
                 <MobileNavbar
                     isLoggedIn={
                         isLoggedIn
+                    }
+                    isAdmin={
+                        isAdmin
                     }
                     dark={
                         isTodaTercaTem
