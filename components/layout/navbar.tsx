@@ -1,28 +1,23 @@
 import {
-    createClient,
-} from "@/lib/supabase/server";
-
-import {
     NavbarClient,
 } from "@/components/layout/navbar-client";
 
+import {
+    getUserAccess,
+} from "@/lib/auth";
+
 export async function Navbar() {
-    const supabase =
-        await createClient();
-
     const {
-        data: { user },
-    } =
-        await supabase.auth.getUser();
-
-    const isLoggedIn =
-        !!user;
+        isLoggedIn,
+        isAdmin,
+        isWholesale,
+    } = await getUserAccess();
 
     return (
         <NavbarClient
-            isLoggedIn={
-                isLoggedIn
-            }
+            isLoggedIn={isLoggedIn}
+            isAdmin={isAdmin}
+            isWholesale={isWholesale}
         />
     );
 }
