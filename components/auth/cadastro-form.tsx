@@ -144,12 +144,6 @@ export function CadastroForm() {
             createClient();
 
         try {
-            /*
-             * 1. Criamos o usuário.
-             *
-             * O trigger que criamos no Supabase
-             * automaticamente cria profiles.
-             */
             const {
                 data: authData,
                 error: authError,
@@ -158,6 +152,7 @@ export function CadastroForm() {
                     {
                         email:
                             formData.email,
+
                         password:
                             formData.password,
 
@@ -165,6 +160,36 @@ export function CadastroForm() {
                             data: {
                                 name:
                                     formData.name,
+
+                                phone:
+                                    formData.phone,
+
+                                company_name:
+                                    formData.companyName,
+
+                                document:
+                                    formData.document,
+
+                                instagram:
+                                    formData.instagram ||
+                                    null,
+
+                                website:
+                                    formData.website ||
+                                    null,
+
+                                city:
+                                    formData.city,
+
+                                state:
+                                    formData.state.toUpperCase(),
+
+                                business_description:
+                                    formData.businessDescription ||
+                                    null,
+
+                                wholesale_application:
+                                    true,
                             },
                         },
                     },
@@ -181,74 +206,16 @@ export function CadastroForm() {
             }
 
             /*
-             * Se o Supabase estiver configurado
-             * para confirmação de e-mail,
-             * signUp pode criar o usuário sem
-             * criar uma sessão imediatamente.
+             * Não criamos wholesale_applications aqui.
              *
-             * Precisamos de uma sessão para
-             * inserir wholesale_applications
-             * através da policy de RLS.
+             * Os dados comerciais foram salvos em
+             * raw_user_meta_data.
+             *
+             * Quando o usuário confirmar o e-mail,
+             * o trigger do Supabase criará
+             * automaticamente a solicitação com
+             * status "pending".
              */
-            if (!authData.session) {
-                setError(
-                    "Sua conta foi criada. Confirme seu e-mail para continuar o cadastro.",
-                );
-
-                return;
-            }
-
-            /*
-             * 2. Criamos a solicitação
-             * de atacado.
-             */
-            const {
-                error:
-                    applicationError,
-            } = await supabase
-                .from(
-                    "wholesale_applications",
-                )
-                .insert({
-                    user_id:
-                        authData.user.id,
-
-                    company_name:
-                        formData.companyName,
-
-                    document:
-                        formData.document,
-
-                    phone:
-                        formData.phone,
-
-                    instagram:
-                        formData.instagram ||
-                        null,
-
-                    website:
-                        formData.website ||
-                        null,
-
-                    city:
-                        formData.city,
-
-                    state:
-                        formData.state,
-
-                    business_description:
-                        formData.businessDescription ||
-                        null,
-
-                    status:
-                        "pending",
-                });
-
-            if (
-                applicationError
-            ) {
-                throw applicationError;
-            }
 
             setSuccess(true);
         } catch (
@@ -268,29 +235,41 @@ export function CadastroForm() {
         return (
             <div className="rounded-lg border border-black bg-white p-8 shadow">
                 <div className="mb-4 inline-flex rounded-full border border-black px-3 py-1 text-xs uppercase">
-                    Cadastro pendente
+                    Confirme seu e-mail
                 </div>
 
                 <h1 className="mb-4 text-3xl font-medium">
-                    Recebemos seu
-                    cadastro.
+                    Cadastro recebido.
                 </h1>
 
                 <p className="mb-6">
-                    Sua solicitação de
-                    acesso aos preços de
-                    atacado da Casa
-                    Elefante está sendo
-                    analisada.
+                    Enviamos um e-mail de
+                    confirmação para{" "}
+                    <strong>
+                        {
+                            formData.email
+                        }
+                    </strong>
+                    .
+                </p>
+
+                <p className="mb-6 text-sm opacity-70">
+                    Clique no link enviado
+                    para confirmar seu
+                    endereço de e-mail.
+                    Depois da confirmação,
+                    sua solicitação de
+                    acesso ao atacado será
+                    enviada automaticamente
+                    para análise.
                 </p>
 
                 <p className="mb-8 text-sm opacity-70">
-                    Assim que seu
-                    cadastro for
-                    aprovado, sua conta
-                    terá acesso aos
-                    preços e condições
-                    de atacado.
+                    Assim que seu cadastro
+                    for aprovado pela Casa
+                    Elefante, sua conta
+                    terá acesso aos preços
+                    e condições de atacado.
                 </p>
 
                 <Link
@@ -312,10 +291,9 @@ export function CadastroForm() {
 
                 <p className="text-sm opacity-70">
                     Preencha seus dados
-                    para solicitar
-                    acesso aos preços de
-                    atacado da Casa
-                    Elefante.
+                    para solicitar acesso
+                    aos preços de atacado
+                    da Casa Elefante.
                 </p>
             </CardHeader>
 
@@ -334,6 +312,7 @@ export function CadastroForm() {
                             <Input
                                 id="name"
                                 name="name"
+                                autoComplete="name"
                                 required
                                 value={
                                     formData.name
@@ -374,6 +353,7 @@ export function CadastroForm() {
                                 id="phone"
                                 name="phone"
                                 type="tel"
+                                autoComplete="tel"
                                 required
                                 value={
                                     formData.phone
@@ -430,6 +410,7 @@ export function CadastroForm() {
                                 <Input
                                     id="city"
                                     name="city"
+                                    autoComplete="address-level2"
                                     required
                                     value={
                                         formData.city
@@ -449,6 +430,7 @@ export function CadastroForm() {
                                     id="state"
                                     name="state"
                                     placeholder="SP"
+                                    autoComplete="address-level1"
                                     maxLength={2}
                                     required
                                     value={
@@ -487,6 +469,7 @@ export function CadastroForm() {
                             <Input
                                 id="website"
                                 name="website"
+                                type="url"
                                 placeholder="https://"
                                 value={
                                     formData.website
