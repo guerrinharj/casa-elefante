@@ -234,14 +234,12 @@ export function LoginForm({
                             </Button>
 
                             <p className="text-center text-sm">
-                                Ainda não
-                                possui uma
-                                conta?{" "}
+                                Quer comprar no atacado?{" "}
                                 <Link
                                     href="/cadastro"
                                     className="underline underline-offset-4"
                                 >
-                                    Criar conta
+                                    Cadastre-se como atacadista
                                 </Link>
                             </p>
                         </div>
