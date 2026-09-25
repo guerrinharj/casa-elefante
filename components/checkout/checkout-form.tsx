@@ -288,6 +288,47 @@ export function CheckoutForm() {
         )}`;
     }
 
+    async function fetchAddressByPostalCode(
+        postalCode: string,
+    ) {
+        try {
+            const response = await fetch(
+                `https://viacep.com.br/ws/${postalCode}/json/`,
+            );
+
+            if (!response.ok) {
+                return;
+            }
+
+            const data = await response.json();
+
+            if (data.erro) {
+                return;
+            }
+
+            setStreet(
+                data.logradouro ?? "",
+            );
+
+            setNeighborhood(
+                data.bairro ?? "",
+            );
+
+            setCity(
+                data.localidade ?? "",
+            );
+
+            setState(
+                data.uf ?? "",
+            );
+        } catch (error) {
+            console.error(
+                "Erro ao buscar CEP:",
+                error,
+            );
+        }
+    }
+
     /*
      * Atualiza o CEP.
      *
@@ -298,10 +339,13 @@ export function CheckoutForm() {
     function handlePostalCodeChange(
         value: string,
     ) {
-        setPostalCode(
+        const formattedPostalCode =
             formatPostalCode(
                 value,
-            ),
+            );
+
+        setPostalCode(
+            formattedPostalCode,
         );
 
         setShippingOptions(
@@ -315,6 +359,20 @@ export function CheckoutForm() {
         setShippingError(
             null,
         );
+
+        const normalizedPostalCode =
+            formattedPostalCode.replace(
+                /\D/g,
+                "",
+            );
+
+        if (
+            normalizedPostalCode.length === 8
+        ) {
+            void fetchAddressByPostalCode(
+                normalizedPostalCode,
+            );
+        }
     }
 
     /*
