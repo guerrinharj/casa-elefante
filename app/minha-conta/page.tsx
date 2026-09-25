@@ -20,15 +20,22 @@ type OrderItem = {
 
 type Order = {
     id: string;
+    user_id: string | null;
+    wholesale_application_id:
+        string | null;
     status: string;
     subtotal: number;
     shipping: number;
     total: number;
     shipped: boolean;
-    invoice_number: string | null;
-    shipping_service: string | null;
-    shipping_company: string | null;
-    delivery_time: string | null;
+    invoice_number:
+        string | null;
+    shipping_service:
+        string | null;
+    shipping_company:
+        string | null;
+    delivery_time:
+        string | null;
     created_at: string;
     order_items: OrderItem[];
 };
@@ -81,6 +88,10 @@ export default async function MinhaContaPage() {
     const supabase =
         await createClient();
 
+    /*
+     * Usuário autenticado.
+     */
+
     const {
         data: {
             user,
@@ -92,10 +103,18 @@ export default async function MinhaContaPage() {
         redirect("/login");
     }
 
+    /*
+     * Primeiro buscamos o profile
+     * e o cadastro de atacado.
+     *
+     * Precisamos saber o ID da
+     * wholesale_application antes
+     * de consultar os pedidos.
+     */
+
     const [
         profileResult,
         wholesaleResult,
-        ordersResult,
     ] = await Promise.all([
         supabase
             .from("profiles")
@@ -134,11 +153,38 @@ export default async function MinhaContaPage() {
                 user.id,
             )
             .maybeSingle(),
+    ]);
 
+    const profile =
+        profileResult.data;
+
+    const wholesale =
+        wholesaleResult.data;
+
+    if (!profile) {
+        redirect("/");
+    }
+
+    /*
+     * Verifica se existe um cadastro
+     * de atacado aprovado.
+     */
+
+    const isWholesale =
+        wholesale?.status ===
+        "approved";
+
+    /*
+     * Query base dos pedidos.
+     */
+
+    let ordersQuery =
         supabase
             .from("orders")
             .select(`
                 id,
+                user_id,
+                wholesale_application_id,
                 status,
                 subtotal,
                 shipping,
@@ -158,32 +204,66 @@ export default async function MinhaContaPage() {
                     quantity,
                     unit_price
                 )
-            `)
-            .eq(
-                "user_id",
-                user.id,
-            )
-            .order(
-                "created_at",
-                {
-                    ascending: false,
-                },
-            ),
-    ]);
+            `);
 
-    const profile =
-        profileResult.data;
+    /*
+     * Se for atacadista aprovado:
+     *
+     * buscamos pedidos vinculados
+     * diretamente ao cadastro de
+     * atacado.
+     *
+     * Também mantemos pedidos
+     * associados somente pelo
+     * user_id para preservar
+     * pedidos antigos.
+     */
 
-    const wholesale =
-        wholesaleResult.data;
+    if (
+        isWholesale &&
+        wholesale
+    ) {
+        ordersQuery =
+            ordersQuery.or(
+                `wholesale_application_id.eq.${wholesale.id},and(user_id.eq.${user.id},wholesale_application_id.is.null)`,
+            );
+    } else {
+        /*
+         * Conta normal:
+         *
+         * buscamos pedidos pelo
+         * usuário e garantimos que
+         * não sejam pedidos de
+         * atacado.
+         */
+
+        ordersQuery =
+            ordersQuery
+                .eq(
+                    "user_id",
+                    user.id,
+                )
+                .is(
+                    "wholesale_application_id",
+                    null,
+                );
+    }
+
+    /*
+     * Executa a consulta.
+     */
+
+    const ordersResult =
+        await ordersQuery.order(
+            "created_at",
+            {
+                ascending: false,
+            },
+        );
 
     const orders =
         (ordersResult.data ??
             []) as Order[];
-
-    if (!profile) {
-        redirect("/");
-    }
 
     return (
         <main className="px-4 py-10 md:px-6">
@@ -369,7 +449,8 @@ export default async function MinhaContaPage() {
 
                         <p className="text-sm opacity-50">
                             {orders.length}{" "}
-                            {orders.length === 1
+                            {orders.length ===
+                            1
                                 ? "pedido"
                                 : "pedidos"}
                         </p>
@@ -404,183 +485,198 @@ export default async function MinhaContaPage() {
                             {orders.map(
                                 (
                                     order,
-                                ) => (
-                                    <article
-                                        key={
-                                            order.id
-                                        }
-                                        className="border border-black bg-white p-6"
-                                    >
-                                        <div className="flex flex-col gap-4 border-b border-black/20 pb-5 sm:flex-row sm:items-start sm:justify-between">
-                                            <div>
-                                                <p className="text-xs uppercase opacity-50">
-                                                    Pedido
-                                                </p>
+                                ) => {
+                                    const isWholesaleOrder =
+                                        Boolean(
+                                            order.wholesale_application_id,
+                                        );
 
-                                                <p className="mt-1 font-medium">
-                                                    #
-                                                    {order.id
-                                                        .slice(
-                                                            0,
-                                                            8,
-                                                        )
-                                                        .toUpperCase()}
-                                                </p>
-
-                                                <p className="mt-1 text-sm opacity-50">
-                                                    {dateFormatter.format(
-                                                        new Date(
-                                                            order.created_at,
-                                                        ),
-                                                    )}
-                                                </p>
-                                            </div>
-
-                                            <div className="flex items-center gap-3">
-                                                <span className="border border-black px-3 py-1 text-xs uppercase">
-                                                    {getStatusLabel(
-                                                        order.status,
-                                                    )}
-                                                </span>
-
-                                                <p className="text-xl font-medium">
-                                                    {currencyFormatter.format(
-                                                        Number(
-                                                            order.total,
-                                                        ),
-                                                    )}
-                                                </p>
-                                            </div>
-                                        </div>
-
-                                        <div className="divide-y divide-black/10">
-                                            {order.order_items.map(
-                                                (
-                                                    item,
-                                                ) => (
-                                                    <div
-                                                        key={
-                                                            item.id
-                                                        }
-                                                        className="flex justify-between gap-6 py-4"
-                                                    >
-                                                        <div>
-                                                            {item.product_id ? (
-                                                                <Link
-                                                                    href={`/produtos/${item.product_id}`}
-                                                                    className="font-medium hover:underline"
-                                                                >
-                                                                    {
-                                                                        item.product_name
-                                                                    }
-                                                                </Link>
-                                                            ) : (
-                                                                <p className="font-medium">
-                                                                    {
-                                                                        item.product_name
-                                                                    }
-                                                                </p>
-                                                            )}
-
-                                                            <div className="mt-1 flex flex-wrap gap-x-3 text-sm opacity-50">
-                                                                {item.artist && (
-                                                                    <span>
-                                                                        {
-                                                                            item.artist
-                                                                        }
-                                                                    </span>
-                                                                )}
-
-                                                                {item.format && (
-                                                                    <span>
-                                                                        {
-                                                                            item.format
-                                                                        }
-                                                                    </span>
-                                                                )}
-
-                                                                <span>
-                                                                    Qtd.{" "}
-                                                                    {
-                                                                        item.quantity
-                                                                    }
-                                                                </span>
-                                                            </div>
-                                                        </div>
-
-                                                        <p className="shrink-0">
-                                                            {currencyFormatter.format(
-                                                                Number(
-                                                                    item.unit_price,
-                                                                ) *
-                                                                    item.quantity,
-                                                            )}
+                                    return (
+                                        <article
+                                            key={
+                                                order.id
+                                            }
+                                            className="border border-black bg-white p-6"
+                                        >
+                                            <div className="flex flex-col gap-4 border-b border-black/20 pb-5 sm:flex-row sm:items-start sm:justify-between">
+                                                <div>
+                                                    <div className="flex flex-wrap items-center gap-2">
+                                                        <p className="text-xs uppercase opacity-50">
+                                                            Pedido
                                                         </p>
+
+                                                        {isWholesaleOrder && (
+                                                            <span className="border border-black bg-black px-2 py-0.5 text-[10px] uppercase text-white">
+                                                                Atacado
+                                                            </span>
+                                                        )}
                                                     </div>
-                                                ),
-                                            )}
-                                        </div>
 
-                                        <div className="border-t border-black/20 pt-5">
-                                            <div className="ml-auto max-w-xs space-y-2 text-sm">
-                                                <div className="flex justify-between gap-6">
-                                                    <span className="opacity-50">
-                                                        Subtotal
-                                                    </span>
+                                                    <p className="mt-1 font-medium">
+                                                        #
+                                                        {order.id
+                                                            .slice(
+                                                                0,
+                                                                8,
+                                                            )
+                                                            .toUpperCase()}
+                                                    </p>
 
-                                                    <span>
-                                                        {currencyFormatter.format(
-                                                            Number(
-                                                                order.subtotal,
+                                                    <p className="mt-1 text-sm opacity-50">
+                                                        {dateFormatter.format(
+                                                            new Date(
+                                                                order.created_at,
                                                             ),
                                                         )}
-                                                    </span>
+                                                    </p>
                                                 </div>
 
-                                                <div className="flex justify-between gap-6">
-                                                    <span className="opacity-50">
-                                                        Frete
-                                                    </span>
-
-                                                    <span>
-                                                        {currencyFormatter.format(
-                                                            Number(
-                                                                order.shipping,
-                                                            ),
+                                                <div className="flex items-center gap-3">
+                                                    <span className="border border-black px-3 py-1 text-xs uppercase">
+                                                        {getStatusLabel(
+                                                            order.status,
                                                         )}
                                                     </span>
-                                                </div>
 
-                                                <div className="flex justify-between gap-6 border-t border-black/20 pt-2 text-base font-medium">
-                                                    <span>
-                                                        Total
-                                                    </span>
-
-                                                    <span>
+                                                    <p className="text-xl font-medium">
                                                         {currencyFormatter.format(
                                                             Number(
                                                                 order.total,
                                                             ),
                                                         )}
-                                                    </span>
+                                                    </p>
                                                 </div>
                                             </div>
-                                        </div>
 
-                                        {order.shipped && (
-                                            <div className="mt-5 border-t border-black/20 pt-5">
-                                                <p className="text-sm">
-                                                    Pedido
-                                                    enviado
-                                                    {order.shipping_company
-                                                        ? ` por ${order.shipping_company}`
-                                                        : ""}
-                                                    .
-                                                </p>
+                                            <div className="divide-y divide-black/10">
+                                                {order.order_items.map(
+                                                    (
+                                                        item,
+                                                    ) => (
+                                                        <div
+                                                            key={
+                                                                item.id
+                                                            }
+                                                            className="flex justify-between gap-6 py-4"
+                                                        >
+                                                            <div>
+                                                                {item.product_id ? (
+                                                                    <Link
+                                                                        href={`/produtos/${item.product_id}`}
+                                                                        className="font-medium hover:underline"
+                                                                    >
+                                                                        {
+                                                                            item.product_name
+                                                                        }
+                                                                    </Link>
+                                                                ) : (
+                                                                    <p className="font-medium">
+                                                                        {
+                                                                            item.product_name
+                                                                        }
+                                                                    </p>
+                                                                )}
+
+                                                                <div className="mt-1 flex flex-wrap gap-x-3 text-sm opacity-50">
+                                                                    {item.artist && (
+                                                                        <span>
+                                                                            {
+                                                                                item.artist
+                                                                            }
+                                                                        </span>
+                                                                    )}
+
+                                                                    {item.format && (
+                                                                        <span>
+                                                                            {
+                                                                                item.format
+                                                                            }
+                                                                        </span>
+                                                                    )}
+
+                                                                    <span>
+                                                                        Qtd.{" "}
+                                                                        {
+                                                                            item.quantity
+                                                                        }
+                                                                    </span>
+                                                                </div>
+                                                            </div>
+
+                                                            <p className="shrink-0">
+                                                                {currencyFormatter.format(
+                                                                    Number(
+                                                                        item.unit_price,
+                                                                    ) *
+                                                                        item.quantity,
+                                                                )}
+                                                            </p>
+                                                        </div>
+                                                    ),
+                                                )}
                                             </div>
-                                        )}
-                                    </article>
-                                ),
+
+                                            <div className="border-t border-black/20 pt-5">
+                                                <div className="ml-auto max-w-xs space-y-2 text-sm">
+                                                    <div className="flex justify-between gap-6">
+                                                        <span className="opacity-50">
+                                                            Subtotal
+                                                        </span>
+
+                                                        <span>
+                                                            {currencyFormatter.format(
+                                                                Number(
+                                                                    order.subtotal,
+                                                                ),
+                                                            )}
+                                                        </span>
+                                                    </div>
+
+                                                    <div className="flex justify-between gap-6">
+                                                        <span className="opacity-50">
+                                                            Frete
+                                                        </span>
+
+                                                        <span>
+                                                            {currencyFormatter.format(
+                                                                Number(
+                                                                    order.shipping,
+                                                                ),
+                                                            )}
+                                                        </span>
+                                                    </div>
+
+                                                    <div className="flex justify-between gap-6 border-t border-black/20 pt-2 text-base font-medium">
+                                                        <span>
+                                                            Total
+                                                        </span>
+
+                                                        <span>
+                                                            {currencyFormatter.format(
+                                                                Number(
+                                                                    order.total,
+                                                                ),
+                                                            )}
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            {order.shipped && (
+                                                <div className="mt-5 border-t border-black/20 pt-5">
+                                                    <p className="text-sm">
+                                                        Pedido
+                                                        enviado
+                                                        {order.shipping_company
+                                                            ? ` por ${order.shipping_company}`
+                                                            : ""}
+                                                        .
+                                                    </p>
+                                                </div>
+                                            )}
+                                        </article>
+                                    );
+                                },
                             )}
                         </div>
                     )}
