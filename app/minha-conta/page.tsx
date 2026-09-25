@@ -160,8 +160,8 @@ export default async function MinhaContaPage() {
                 )
             `)
             .eq(
-                "customer_email",
-                user.email,
+                "user_id",
+                user.id,
             )
             .order(
                 "created_at",
