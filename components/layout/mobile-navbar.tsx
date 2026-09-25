@@ -11,6 +11,7 @@ import {
 } from "@/components/logout-button";
 
 type MobileNavbarProps = {
+    name: string | null;
     isLoggedIn: boolean;
     isAdmin: boolean;
     isWholesale: boolean;
@@ -18,6 +19,7 @@ type MobileNavbarProps = {
 };
 
 export function MobileNavbar({
+    name,
     isLoggedIn,
     isAdmin,
     isWholesale,
@@ -214,7 +216,8 @@ export function MobileNavbar({
                                             closeMenu
                                         }
                                     >
-                                        Atacadista
+                                        {name ??
+                                            "Atacadista"}
                                     </Link>
                                 </li>
                             )}

@@ -1,13 +1,21 @@
-import { redirect } from "next/navigation";
+import {
+    redirect,
+} from "next/navigation";
 
-import { createClient } from "@/lib/supabase/server";
+import {
+    createClient,
+} from "@/lib/supabase/server";
 
 export async function requireAdmin() {
-    const supabase = await createClient();
+    const supabase =
+        await createClient();
 
     const {
-        data: { user },
-    } = await supabase.auth.getUser();
+        data: {
+            user,
+        },
+    } =
+        await supabase.auth.getUser();
 
     if (!user) {
         redirect("/login");
@@ -18,8 +26,13 @@ export async function requireAdmin() {
         error,
     } = await supabase
         .from("profiles")
-        .select("role")
-        .eq("id", user.id)
+        .select(
+            "name, role",
+        )
+        .eq(
+            "id",
+            user.id,
+        )
         .single();
 
     if (
@@ -37,15 +50,20 @@ export async function requireAdmin() {
 }
 
 export async function getUserAccess() {
-    const supabase = await createClient();
+    const supabase =
+        await createClient();
 
     const {
-        data: { user },
-    } = await supabase.auth.getUser();
+        data: {
+            user,
+        },
+    } =
+        await supabase.auth.getUser();
 
     if (!user) {
         return {
             user: null,
+            name: null,
             isLoggedIn: false,
             isAdmin: false,
             isWholesale: false,
@@ -59,29 +77,49 @@ export async function getUserAccess() {
     ] = await Promise.all([
         supabase
             .from("profiles")
-            .select("role")
-            .eq("id", user.id)
+            .select(
+                "name, role",
+            )
+            .eq(
+                "id",
+                user.id,
+            )
             .single(),
 
         supabase
-            .from("wholesale_applications")
-            .select("status")
-            .eq("user_id", user.id)
+            .from(
+                "wholesale_applications",
+            )
+            .select(
+                "status",
+            )
+            .eq(
+                "user_id",
+                user.id,
+            )
             .maybeSingle(),
     ]);
 
+    const name =
+        profileResult.data?.name ??
+        null;
+
     const isAdmin =
-        profileResult.data?.role === "admin";
+        profileResult.data?.role ===
+        "admin";
 
     const isWholesale =
-        wholesaleResult.data?.status === "approved";
+        wholesaleResult.data?.status ===
+        "approved";
 
     return {
         user,
+        name,
         isLoggedIn: true,
         isAdmin,
         isWholesale,
         canSeeWholesalePrice:
-            isAdmin || isWholesale,
+            isAdmin ||
+            isWholesale,
     };
 }

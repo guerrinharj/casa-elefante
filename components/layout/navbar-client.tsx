@@ -23,12 +23,14 @@ import {
 } from "@/components/cart/cart-icon";
 
 type NavbarClientProps = {
+    name: string | null;
     isLoggedIn: boolean;
     isAdmin: boolean;
     isWholesale: boolean;
 };
 
 export function NavbarClient({
+    name,
     isLoggedIn,
     isAdmin,
     isWholesale,
@@ -160,7 +162,8 @@ export function NavbarClient({
                                             linkClassName
                                         }
                                     >
-                                        Atacadista
+                                        {name ??
+                                            "Atacadista"}
                                     </Link>
                                 </li>
                             )}
@@ -172,11 +175,11 @@ export function NavbarClient({
                                     className={
                                         linkClassName
                                     }
-                            >
-                                Admin
-                            </Link>
-                        </li>
-                    )}
+                                >
+                                    Admin
+                                </Link>
+                            </li>
+                        )}
 
                         {isLoggedIn && (
                             <li>
@@ -187,6 +190,7 @@ export function NavbarClient({
                 </nav>
 
                 <MobileNavbar
+                    name={name}
                     isLoggedIn={
                         isLoggedIn
                     }
