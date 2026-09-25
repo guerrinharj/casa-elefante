@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 
 import {
@@ -12,10 +13,9 @@ type OrderItem = {
     id: string;
     product_id: string | null;
     product_name: string;
-    artist: string | null;
-    format: string | null;
-    quantity: number;
     unit_price: number;
+    quantity: number;
+    product_image: string | null;
 };
 
 type Order = {
@@ -34,8 +34,8 @@ type Order = {
         string | null;
     shipping_company:
         string | null;
-    delivery_time:
-        string | null;
+    shipping_delivery_time:
+        number | null;
     created_at: string;
     order_items: OrderItem[];
 };
@@ -89,7 +89,9 @@ export default async function MinhaContaPage() {
         await createClient();
 
     /*
-     * Usuário autenticado.
+     * =========================================================
+     * AUTH
+     * =========================================================
      */
 
     const {
@@ -104,9 +106,9 @@ export default async function MinhaContaPage() {
     }
 
     /*
-     * Busca profile e cadastro
-     * de atacado pertencentes ao
-     * usuário autenticado.
+     * =========================================================
+     * PROFILE + WHOLESALE APPLICATION
+     * =========================================================
      */
 
     const [
@@ -133,6 +135,7 @@ export default async function MinhaContaPage() {
             )
             .select(`
                 id,
+                user_id,
                 company_name,
                 document,
                 phone,
@@ -158,31 +161,22 @@ export default async function MinhaContaPage() {
     const wholesale =
         wholesaleResult.data;
 
-
     if (!profile) {
         redirect("/");
     }
 
     /*
-     * Os pedidos de atacado pertencem
-     * à wholesale_application.
-     *
-     * user.id
-     *     ↓
-     * wholesale_applications.user_id
-     *     ↓
-     * wholesale.id
-     *     ↓
-     * orders.wholesale_application_id
+     * =========================================================
+     * ORDERS
+     * =========================================================
      */
 
     let orders: Order[] = [];
 
-    let ordersError:
-        | Error
-        | null = null;
+    let ordersError: unknown =
+        null;
 
-    if (wholesale) {
+    if (wholesale?.id) {
         const ordersResult =
             await supabase
                 .from("orders")
@@ -198,16 +192,15 @@ export default async function MinhaContaPage() {
                     invoice_number,
                     shipping_service,
                     shipping_company,
-                    delivery_time,
+                    shipping_delivery_time,
                     created_at,
                     order_items (
                         id,
                         product_id,
                         product_name,
-                        artist,
-                        format,
+                        unit_price,
                         quantity,
-                        unit_price
+                        product_image
                     )
                 `)
                 .eq(
@@ -244,6 +237,10 @@ export default async function MinhaContaPage() {
                 </div>
 
                 <div className="grid gap-6 md:grid-cols-2">
+                    {/*
+                     * DADOS DA CONTA
+                     */}
+
                     <section className="border border-black bg-white p-6">
                         <h2 className="mb-6 text-2xl font-medium">
                             Dados da conta
@@ -286,6 +283,10 @@ export default async function MinhaContaPage() {
                             </div>
                         </div>
                     </section>
+
+                    {/*
+                     * DADOS DO ATACADO
+                     */}
 
                     {wholesale && (
                         <section className="border border-black bg-white p-6">
@@ -401,6 +402,12 @@ export default async function MinhaContaPage() {
                     )}
                 </div>
 
+                {/*
+                 * =================================================
+                 * HISTÓRICO DE COMPRAS
+                 * =================================================
+                 */}
+
                 <section className="mt-12">
                     <div className="mb-6 flex items-end justify-between gap-4">
                         <div>
@@ -472,6 +479,10 @@ export default async function MinhaContaPage() {
                                             }
                                             className="border border-black bg-white p-6"
                                         >
+                                            {/*
+                                             * HEADER
+                                             */}
+
                                             <div className="flex flex-col gap-4 border-b border-black/20 pb-5 sm:flex-row sm:items-start sm:justify-between">
                                                 <div>
                                                     <div className="flex flex-wrap items-center gap-2">
@@ -522,6 +533,10 @@ export default async function MinhaContaPage() {
                                                 </div>
                                             </div>
 
+                                            {/*
+                                             * ITEMS
+                                             */}
+
                                             <div className="divide-y divide-black/10">
                                                 {order.order_items.map(
                                                     (
@@ -531,64 +546,68 @@ export default async function MinhaContaPage() {
                                                             key={
                                                                 item.id
                                                             }
-                                                            className="flex justify-between gap-6 py-4"
+                                                            className="flex gap-4 py-4"
                                                         >
-                                                            <div>
-                                                                {item.product_id ? (
-                                                                    <Link
-                                                                        href={`/produtos/${item.product_id}`}
-                                                                        className="font-medium hover:underline"
-                                                                    >
-                                                                        {
+                                                            {item.product_image && (
+                                                                <div className="relative h-20 w-20 shrink-0 overflow-hidden border border-black/10 bg-[#f8f7ef]">
+                                                                    <Image
+                                                                        src={
+                                                                            item.product_image
+                                                                        }
+                                                                        alt={
                                                                             item.product_name
                                                                         }
-                                                                    </Link>
-                                                                ) : (
+                                                                        fill
+                                                                        sizes="80px"
+                                                                        className="object-cover"
+                                                                    />
+                                                                </div>
+                                                            )}
+
+                                                            <div className="flex min-w-0 flex-1 justify-between gap-6">
+                                                                <div>
                                                                     <p className="font-medium">
                                                                         {
                                                                             item.product_name
                                                                         }
                                                                     </p>
-                                                                )}
 
-                                                                <div className="mt-1 flex flex-wrap gap-x-3 text-sm opacity-50">
-                                                                    {item.artist && (
+                                                                    <div className="mt-1 flex flex-wrap gap-x-3 text-sm opacity-50">
                                                                         <span>
+                                                                            Qtd.{" "}
                                                                             {
-                                                                                item.artist
+                                                                                item.quantity
                                                                             }
                                                                         </span>
-                                                                    )}
 
-                                                                    {item.format && (
                                                                         <span>
-                                                                            {
-                                                                                item.format
-                                                                            }
+                                                                            {currencyFormatter.format(
+                                                                                Number(
+                                                                                    item.unit_price,
+                                                                                ),
+                                                                            )}{" "}
+                                                                            cada
                                                                         </span>
-                                                                    )}
-
-                                                                    <span>
-                                                                        Qtd.{" "}
-                                                                        {
-                                                                            item.quantity
-                                                                        }
-                                                                    </span>
+                                                                    </div>
                                                                 </div>
-                                                            </div>
 
-                                                            <p className="shrink-0">
-                                                                {currencyFormatter.format(
-                                                                    Number(
-                                                                        item.unit_price,
-                                                                    ) *
-                                                                        item.quantity,
-                                                                )}
-                                                            </p>
+                                                                <p className="shrink-0">
+                                                                    {currencyFormatter.format(
+                                                                        Number(
+                                                                            item.unit_price,
+                                                                        ) *
+                                                                            item.quantity,
+                                                                    )}
+                                                                </p>
+                                                            </div>
                                                         </div>
                                                     ),
                                                 )}
                                             </div>
+
+                                            {/*
+                                             * TOTALS
+                                             */}
 
                                             <div className="border-t border-black/20 pt-5">
                                                 <div className="ml-auto max-w-xs space-y-2 text-sm">
@@ -636,6 +655,10 @@ export default async function MinhaContaPage() {
                                                 </div>
                                             </div>
 
+                                            {/*
+                                             * SHIPPING
+                                             */}
+
                                             {order.shipped && (
                                                 <div className="mt-5 border-t border-black/20 pt-5">
                                                     <p className="text-sm">
@@ -646,6 +669,29 @@ export default async function MinhaContaPage() {
                                                             : ""}
                                                         .
                                                     </p>
+
+                                                    {order.shipping_service && (
+                                                        <p className="mt-1 text-sm opacity-50">
+                                                            Serviço:{" "}
+                                                            {
+                                                                order.shipping_service
+                                                            }
+                                                        </p>
+                                                    )}
+
+                                                    {order.shipping_delivery_time !==
+                                                        null && (
+                                                        <p className="mt-1 text-sm opacity-50">
+                                                            Prazo:{" "}
+                                                            {
+                                                                order.shipping_delivery_time
+                                                            }{" "}
+                                                            {order.shipping_delivery_time ===
+                                                            1
+                                                                ? "dia"
+                                                                : "dias"}
+                                                        </p>
+                                                    )}
                                                 </div>
                                             )}
                                         </article>
