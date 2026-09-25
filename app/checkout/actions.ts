@@ -1,19 +1,20 @@
 "use server";
 
-import { createAdminClient } from "@/lib/supabase/admin";
+import {
+    createAdminClient,
+} from "@/lib/supabase/admin";
 
-import { orderPaidEmail } from "@/lib/emails/order-paid";
+import {
+    createClient,
+} from "@/lib/supabase/server";
 
-import { resend } from "@/lib/resend";
+import {
+    orderPaidEmail,
+} from "@/lib/emails/order-paid";
 
-/*
- * Item recebido do carrinho.
- */
-
-type CheckoutItem = {
-    productId: string;
-    quantity: number;
-};
+import {
+    resend,
+} from "@/lib/resend";
 
 /*
  * Dados recebidos pelo checkout.
@@ -69,6 +70,131 @@ type CreateOrderResult =
 export async function createOrder(
     input: CreateOrderInput,
 ): Promise<CreateOrderResult> {
+    /*
+     * Cliente Supabase ligado
+     * à sessão atual.
+     *
+     * Usamos este client para
+     * descobrir quem está
+     * realizando a compra.
+     */
+
+    const authSupabase =
+        await createClient();
+
+    const {
+        data: {
+            user,
+        },
+        error: authError,
+    } =
+        await authSupabase.auth.getUser();
+
+    if (authError) {
+        console.error(
+            "Erro ao verificar usuário:",
+            authError,
+        );
+    }
+
+    /*
+     * ID do usuário comprador.
+     *
+     * Se estiver deslogado,
+     * permanece null.
+     */
+
+    const userId =
+        user?.id ?? null;
+
+    /*
+     * Cliente administrativo.
+     *
+     * Usado para todas as operações
+     * críticas do checkout.
+     */
+
+    const supabase =
+        createAdminClient();
+
+    /*
+     * Dados de atacado.
+     *
+     * isWholesale:
+     * determina se devemos aplicar
+     * regras e preços de atacado.
+     *
+     * wholesaleApplicationId:
+     * identifica especificamente
+     * o cadastro de atacadista
+     * relacionado ao pedido.
+     */
+
+    let isWholesale =
+        false;
+
+    let wholesaleApplicationId:
+        string | null =
+        null;
+
+    /*
+     * Se existe usuário autenticado,
+     * verificamos se ele possui
+     * cadastro de atacadista
+     * aprovado.
+     */
+
+    if (userId) {
+        const {
+            data: wholesaleApplication,
+            error: wholesaleError,
+        } = await supabase
+            .from(
+                "wholesale_applications",
+            )
+            .select(
+                "id, status",
+            )
+            .eq(
+                "user_id",
+                userId,
+            )
+            .maybeSingle();
+
+        if (wholesaleError) {
+            console.error(
+                "Erro ao verificar atacadista:",
+                wholesaleError,
+            );
+
+            return {
+                success: false,
+                error: "Não foi possível validar sua conta.",
+            };
+        }
+
+        /*
+         * Somente cadastro aprovado
+         * é considerado atacadista.
+         */
+
+        isWholesale =
+            wholesaleApplication?.status ===
+            "approved";
+
+        /*
+         * Só relacionamos o pedido
+         * ao cadastro de atacado
+         * quando ele estiver aprovado.
+         */
+
+        wholesaleApplicationId =
+            isWholesale &&
+            wholesaleApplication
+                ? wholesaleApplication.id
+                : null;
+    }
+
     /*
      * Normaliza o nome
      * do cliente.
@@ -280,14 +406,6 @@ export async function createOrder(
     ];
 
     /*
-     * Cliente administrativo
-     * do Supabase.
-     */
-
-    const supabase =
-        createAdminClient();
-
-    /*
      * Busca os produtos diretamente
      * no banco.
      *
@@ -304,9 +422,13 @@ export async function createOrder(
             id,
             name,
             price,
+            wholesale_price,
             stock
         `)
-        .in("id", productIds);
+        .in(
+            "id",
+            productIds,
+        );
 
     /*
      * Erro ao consultar
@@ -376,11 +498,14 @@ export async function createOrder(
 
     /*
      * Valida estoque,
+     * quantidade mínima,
      * calcula subtotal
      * e prepara os itens.
      */
 
-    for (const item of validItems) {
+    for (
+        const item of validItems
+    ) {
         const product =
             productsMap.get(
                 item.productId,
@@ -412,14 +537,85 @@ export async function createOrder(
         }
 
         /*
-         * Converte o preço
-         * para número.
+         * Verifica se o produto
+         * possui preço de atacado.
+         */
+
+        const hasWholesalePrice =
+            product.wholesale_price !==
+            null;
+
+        /*
+         * Este item será vendido
+         * como atacado somente se:
+         *
+         * 1. o comprador for um
+         *    atacadista aprovado;
+         *
+         * 2. o produto possuir
+         *    wholesale_price.
+         */
+
+        const isWholesaleItem =
+            isWholesale &&
+            hasWholesalePrice;
+
+        /*
+         * Quantidade mínima.
+         *
+         * Atacado = 2
+         * Varejo = 1
+         */
+
+        const minimumQuantity =
+            isWholesaleItem
+                ? 2
+                : 1;
+
+        /*
+         * Validação da quantidade
+         * mínima no servidor.
+         */
+
+        if (
+            item.quantity <
+            minimumQuantity
+        ) {
+            return {
+                success: false,
+                error: `A quantidade mínima para comprar ${product.name} no atacado é ${minimumQuantity} unidades.`,
+            };
+        }
+
+        /*
+         * Define o preço real
+         * no servidor.
          */
 
         const unitPrice =
-            Number(
-                product.price,
-            );
+            isWholesaleItem
+                ? Number(
+                      product.wholesale_price,
+                  )
+                : Number(
+                      product.price,
+                  );
+
+        /*
+         * Valida o preço.
+         */
+
+        if (
+            !Number.isFinite(
+                unitPrice,
+            ) ||
+            unitPrice < 0
+        ) {
+            return {
+                success: false,
+                error: `O preço de ${product.name} é inválido.`,
+            };
+        }
 
         /*
          * Soma ao subtotal.
@@ -450,54 +646,50 @@ export async function createOrder(
     }
 
     /*
-     * Frete.
-     *
-     * Ainda está temporariamente
-     * como zero.
-     *
-     * No próximo passo vamos
-     * validar novamente no servidor
-     * a modalidade escolhida
-     * no Melhor Envio.
+     * Frete selecionado
+     * pelo cliente.
      */
-
-    /*
- * Frete selecionado
- * pelo cliente.
- */
 
     const shipping =
         Number(
             input.shipping.price,
         );
 
-        /*
-        * Validação do valor
-        * do frete.
-        */
+    /*
+     * Validação do valor
+     * do frete.
+     */
 
-        if (
-            !Number.isFinite(
-                shipping,
-            ) ||
-            shipping < 0
-        ) {
-            return {
-                success: false,
-                error: "Frete inválido.",
-            };
-        }
-
-        /*
-        * Total do pedido.
-        */
-
-        const total =
-            subtotal + shipping;
+    if (
+        !Number.isFinite(
+            shipping,
+        ) ||
+        shipping < 0
+    ) {
+        return {
+            success: false,
+            error: "Frete inválido.",
+        };
+    }
 
     /*
-     * Cria o pedido
-     * na tabela orders.
+     * Total do pedido.
+     */
+
+    const total =
+        subtotal +
+        shipping;
+
+    /*
+     * Cria o pedido.
+     *
+     * user_id:
+     * usuário que realizou
+     * a compra.
+     *
+     * wholesale_application_id:
+     * cadastro de atacadista
+     * usado nesta compra.
      */
 
     const {
@@ -506,6 +698,12 @@ export async function createOrder(
     } = await supabase
         .from("orders")
         .insert({
+            user_id:
+                userId,
+
+            wholesale_application_id:
+                wholesaleApplicationId,
+
             customer_name:
                 customerName,
 
@@ -532,8 +730,6 @@ export async function createOrder(
         })
         .select("id")
         .single();
-
-
 
     /*
      * Erro ao criar
@@ -651,11 +847,13 @@ export async function createOrder(
     }
 
     /*
-    * Atualiza o estoque
-    * depois do pagamento aprovado.
-    */
+     * Atualiza o estoque
+     * depois do pagamento aprovado.
+     */
 
-    for (const item of orderItems) {
+    for (
+        const item of orderItems
+    ) {
         const product =
             productsMap.get(
                 item.product_id,
@@ -666,17 +864,17 @@ export async function createOrder(
         }
 
         /*
-        * Calcula o novo estoque.
-        */
+         * Calcula o novo estoque.
+         */
 
         const newStock =
             product.stock -
             item.quantity;
 
         /*
-        * Atualiza o produto
-        * no banco.
-        */
+         * Atualiza o produto
+         * no banco.
+         */
 
         const {
             error: stockError,
@@ -692,9 +890,9 @@ export async function createOrder(
             );
 
         /*
-        * Se houver erro,
-        * registramos no servidor.
-        */
+         * Se houver erro,
+         * registramos no servidor.
+         */
 
         if (stockError) {
             console.error(
@@ -716,59 +914,60 @@ export async function createOrder(
     try {
         const {
             error: emailError,
-        } = await resend.emails.send(
-            {
-                /*
-                 * Remetente
-                 */
+        } =
+            await resend.emails.send(
+                {
+                    /*
+                     * Remetente.
+                     */
 
-                from:
-                    process.env
-                        .RESEND_FROM_EMAIL!,
+                    from:
+                        process.env
+                            .RESEND_FROM_EMAIL!,
 
-                /*
-                 * Cliente
-                 */
+                    /*
+                     * Cliente.
+                     */
 
-                to:
-                    customerEmail,
+                    to:
+                        customerEmail,
 
-                /*
-                 * Assunto
-                 */
+                    /*
+                     * Assunto.
+                     */
 
-                subject:
-                    "Seu pedido Casa Elefante foi confirmado",
+                    subject:
+                        "Seu pedido Casa Elefante foi confirmado",
 
-                /*
-                 * Conteúdo
-                 * do e-mail
-                 */
+                    /*
+                     * Conteúdo
+                     * do e-mail.
+                     */
 
-                html:
-                    orderPaidEmail({
-                        customerName,
+                    html:
+                        orderPaidEmail({
+                            customerName,
 
-                        orderId:
-                            order.id,
+                            orderId:
+                                order.id,
 
-                        total,
+                            total,
 
-                        items:
-                            orderItems,
-                    }),
-            },
-            {
-                /*
-                 * Evita enviar o mesmo
-                 * e-mail duas vezes
-                 * para o mesmo pedido.
-                 */
+                            items:
+                                orderItems,
+                        }),
+                },
+                {
+                    /*
+                     * Evita enviar o mesmo
+                     * e-mail duas vezes
+                     * para o mesmo pedido.
+                     */
 
-                idempotencyKey:
-                    `order-paid/${order.id}`,
-            },
-        );
+                    idempotencyKey:
+                        `order-paid/${order.id}`,
+                },
+            );
 
         /*
          * Log de erro de e-mail.
