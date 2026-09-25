@@ -89,7 +89,7 @@ export function NavbarClient({
                 />
 
                 <nav className="hidden md:block">
-                    <ul className="flex gap-6">
+                    <ul className="flex items-center gap-6">
                         <li>
                             <Link
                                 href="/"
@@ -138,6 +138,33 @@ export function NavbarClient({
                             <CartIcon />
                         </li>
 
+                        {!isLoggedIn && (
+                            <li>
+                                <Link
+                                    href="/login"
+                                    className={
+                                        linkClassName
+                                    }
+                                >
+                                    Login
+                                </Link>
+                            </li>
+                        )}
+
+                        {isWholesale &&
+                            !isAdmin && (
+                                <li className="text-blue-400">
+                                    <Link
+                                        href="/minha-conta"
+                                        className={
+                                            linkClassName
+                                        }
+                                    >
+                                        Atacadista
+                                    </Link>
+                                </li>
+                            )}
+
                         {isAdmin && (
                             <li className="text-blue-400">
                                 <Link
@@ -145,11 +172,11 @@ export function NavbarClient({
                                     className={
                                         linkClassName
                                     }
-                                >
-                                    Admin
-                                </Link>
-                            </li>
-                        )}
+                            >
+                                Admin
+                            </Link>
+                        </li>
+                    )}
 
                         {isLoggedIn && (
                             <li>
@@ -165,6 +192,9 @@ export function NavbarClient({
                     }
                     isAdmin={
                         isAdmin
+                    }
+                    isWholesale={
+                        isWholesale
                     }
                     dark={
                         isTodaTercaTem
