@@ -1,7 +1,11 @@
 import Link from "next/link";
 
 import { InfiniteProductList } from "@/components/products/infinite-product-list";
+
 import { ProductSearch } from "@/components/products/product-search";
+
+import { getUserAccess } from "@/lib/auth";
+
 import { createClient } from "@/lib/supabase/server";
 
 const PRODUCTS_PER_PAGE = 24;
@@ -23,9 +27,15 @@ type ProductsSectionProps = {
 export async function ProductsSection({
     searchParams,
 }: ProductsSectionProps) {
-    const filters = await searchParams;
+    const filters =
+        await searchParams;
 
-    const supabase = await createClient();
+    const supabase =
+        await createClient();
+
+    const {
+        isWholesale,
+    } = await getUserAccess();
 
     let query = supabase
         .from("products")
@@ -75,7 +85,9 @@ export async function ProductsSection({
     if (filters.year) {
         query = query.eq(
             "year",
-            Number(filters.year),
+            Number(
+                filters.year,
+            ),
         );
     }
 
@@ -176,17 +188,18 @@ export async function ProductsSection({
             ? titleFilters.join(" / ")
             : "Loja";
 
-    const hasActiveFilters = Boolean(
-        filters.genre ||
-        filters.format ||
-        filters.year ||
-        filters.artist ||
-        filters.label ||
-        filters.condition ||
-        filters.availability ||
-        filters.pre_order ||
-        filters.search
-    );
+    const hasActiveFilters =
+        Boolean(
+            filters.genre ||
+                filters.format ||
+                filters.year ||
+                filters.artist ||
+                filters.label ||
+                filters.condition ||
+                filters.availability ||
+                filters.pre_order ||
+                filters.search,
+        );
 
     return (
         <>
@@ -218,7 +231,8 @@ export async function ProductsSection({
 
             {products.length === 0 ? (
                 <p>
-                    Nenhum produto encontrado.
+                    Nenhum produto
+                    encontrado.
                 </p>
             ) : (
                 <InfiniteProductList
@@ -227,6 +241,9 @@ export async function ProductsSection({
                     }
                     filters={
                         filters
+                    }
+                    isWholesale={
+                        isWholesale
                     }
                 />
             )}

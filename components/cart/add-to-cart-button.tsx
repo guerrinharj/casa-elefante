@@ -13,6 +13,7 @@ type AddToCartButtonProps = {
         price: number;
         image?: string;
         stock: number;
+        minimumQuantity?: number;
     };
 };
 
@@ -26,20 +27,40 @@ export function AddToCartButton({
         addItem,
     } = useCart();
 
-    /*
-     * Produto sem estoque.
-     */
+    const minimumQuantity =
+        product.minimumQuantity ?? 1;
 
+    /*
+     * Produto completamente
+     * sem estoque.
+     */
     const soldOut =
         product.stock <= 0;
+
+    /*
+     * Existe estoque, mas não
+     * o suficiente para atingir
+     * a quantidade mínima.
+     *
+     * Exemplo atacado:
+     * estoque = 1
+     * mínimo = 2
+     */
+    const unavailableForMinimumQuantity =
+        !soldOut &&
+        product.stock <
+            minimumQuantity;
+
+    const unavailable =
+        soldOut ||
+        unavailableForMinimumQuantity;
 
     /*
      * Adiciona o produto
      * ao carrinho.
      */
-
     function handleAddToCart() {
-        if (soldOut) {
+        if (unavailable) {
             return;
         }
 
@@ -52,6 +73,20 @@ export function AddToCartButton({
         );
     }
 
+    function getButtonLabel() {
+        if (soldOut) {
+            return "Esgotado";
+        }
+
+        if (
+            unavailableForMinimumQuantity
+        ) {
+            return "Indisponível para atacado";
+        }
+
+        return "Adicionar ao carrinho";
+    }
+
     return (
         <button
             type="button"
@@ -59,7 +94,7 @@ export function AddToCartButton({
                 handleAddToCart
             }
             disabled={
-                soldOut
+                unavailable
             }
             className="
                 w-full
@@ -84,9 +119,7 @@ export function AddToCartButton({
                 disabled:hover:shadow-[6px_6px_0_0_#000]
             "
         >
-            {soldOut
-                ? "Esgotado"
-                : "Adicionar ao carrinho"}
+            {getButtonLabel()}
         </button>
     );
 }

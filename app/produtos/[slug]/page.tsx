@@ -1,8 +1,18 @@
-import { notFound } from "next/navigation";
+import {
+    notFound,
+} from "next/navigation";
 
-import { AddToCartButton } from "@/components/cart/add-to-cart-button";
+import {
+    AddToCartButton,
+} from "@/components/cart/add-to-cart-button";
 
-import { createClient } from "@/lib/supabase/server";
+import {
+    createClient,
+} from "@/lib/supabase/server";
+
+import {
+    getUserAccess,
+} from "@/lib/auth";
 
 type ProductPageProps = {
     params: Promise<{
@@ -13,10 +23,18 @@ type ProductPageProps = {
 export default async function ProductPage({
     params,
 }: ProductPageProps) {
-    const { slug } = await params;
+    const {
+        slug,
+    } = await params;
 
     const supabase =
         await createClient();
+
+    const {
+        canSeeWholesalePrice,
+        isWholesale,
+    } = await getUserAccess(); await getUserAccess();
+
 
     const {
         data: product,
@@ -35,6 +53,7 @@ export default async function ProductPage({
             genre,
             format,
             catalog_number,
+            wholesale_price,
             description,
             stock,
             condition,
@@ -239,7 +258,49 @@ export default async function ProductPage({
                         </p>
                     )}
 
-                    <div className="border-t border-black pt-6">
+                <div className="border-t border-black pt-6">
+                    {canSeeWholesalePrice &&
+                    product.wholesale_price !== null ? (
+                        <div>
+                            <div className="flex items-baseline gap-3">
+                                <p className="text-lg line-through opacity-50">
+                                    {Number(
+                                        product.price,
+                                    ).toLocaleString(
+                                        "pt-BR",
+                                        {
+                                            style: "currency",
+                                            currency:
+                                                "BRL",
+                                        },
+                                    )}
+                                </p>
+
+                                <span className="rounded-full border border-black bg-black px-2 py-1 text-xs uppercase text-white">
+                                    Atacado
+                                </span>
+                            </div>
+
+                            <div className="mt-1 flex items-baseline gap-2">
+                                <p className="text-3xl font-medium">
+                                    {Number(
+                                        product.wholesale_price,
+                                    ).toLocaleString(
+                                        "pt-BR",
+                                        {
+                                            style: "currency",
+                                            currency:
+                                                "BRL",
+                                        },
+                                    )}
+                                </p>
+
+                                <span className="text-sm">
+                                    / unidade
+                                </span>
+                            </div>
+                        </div>
+                    ) : (
                         <p className="text-2xl">
                             {Number(
                                 product.price,
@@ -252,21 +313,20 @@ export default async function ProductPage({
                                 },
                             )}
                         </p>
+                    )}
 
-                        {product.pre_order ? (
-                            <p className="mt-2 text-sm">
-                                Produto em
-                                pré-venda
-                            </p>
-                        ) : (
-                            <p className="mt-2 text-sm">
-                                {product.stock >
-                                0
-                                    ? `${product.stock} em estoque`
-                                    : "Produto indisponível"}
-                            </p>
-                        )}
-                    </div>
+                    {product.pre_order ? (
+                        <p className="mt-2 text-sm">
+                            Produto em pré-venda
+                        </p>
+                    ) : (
+                        <p className="mt-2 text-sm">
+                            {product.stock > 0
+                                ? `${product.stock} em estoque`
+                                : "Produto indisponível"}
+                        </p>
+                    )}
+                </div>
 
                     <AddToCartButton
                         product={{
@@ -275,11 +335,22 @@ export default async function ProductPage({
                             slug: product.slug,
                             artist:
                                 product.artist,
-                            price: Number(
-                                product.price,
-                            ),
+                            price:
+                                canSeeWholesalePrice &&
+                                product.wholesale_price !== null
+                                    ? Number(
+                                        product.wholesale_price,
+                                    )
+                                    : Number(
+                                        product.price,
+                                    ),
                             stock:
                                 product.stock,
+                            minimumQuantity:
+                                isWholesale &&
+                                product.wholesale_price !== null
+                                    ? 2
+                                    : 1,
                             image:
                                 product
                                     .images?.[0],
