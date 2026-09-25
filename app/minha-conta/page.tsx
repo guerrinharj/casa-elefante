@@ -104,12 +104,9 @@ export default async function MinhaContaPage() {
     }
 
     /*
-     * Primeiro buscamos o profile
-     * e o cadastro de atacado.
-     *
-     * Precisamos saber o ID da
-     * wholesale_application antes
-     * de consultar os pedidos.
+     * Busca profile e cadastro
+     * de atacado pertencentes ao
+     * usuário autenticado.
      */
 
     const [
@@ -161,109 +158,76 @@ export default async function MinhaContaPage() {
     const wholesale =
         wholesaleResult.data;
 
+
     if (!profile) {
         redirect("/");
     }
 
     /*
-     * Verifica se existe um cadastro
-     * de atacado aprovado.
+     * Os pedidos de atacado pertencem
+     * à wholesale_application.
+     *
+     * user.id
+     *     ↓
+     * wholesale_applications.user_id
+     *     ↓
+     * wholesale.id
+     *     ↓
+     * orders.wholesale_application_id
      */
 
-    const isWholesale =
-        wholesale?.status ===
-        "approved";
+    let orders: Order[] = [];
 
-    /*
-     * Query base dos pedidos.
-     */
+    let ordersError:
+        | Error
+        | null = null;
 
-    let ordersQuery =
-        supabase
-            .from("orders")
-            .select(`
-                id,
-                user_id,
-                wholesale_application_id,
-                status,
-                subtotal,
-                shipping,
-                total,
-                shipped,
-                invoice_number,
-                shipping_service,
-                shipping_company,
-                delivery_time,
-                created_at,
-                order_items (
+    if (wholesale) {
+        const ordersResult =
+            await supabase
+                .from("orders")
+                .select(`
                     id,
-                    product_id,
-                    product_name,
-                    artist,
-                    format,
-                    quantity,
-                    unit_price
-                )
-            `);
-
-    /*
-     * Se for atacadista aprovado:
-     *
-     * buscamos pedidos vinculados
-     * diretamente ao cadastro de
-     * atacado.
-     *
-     * Também mantemos pedidos
-     * associados somente pelo
-     * user_id para preservar
-     * pedidos antigos.
-     */
-
-    if (
-        isWholesale &&
-        wholesale
-    ) {
-        ordersQuery =
-            ordersQuery.or(
-                `wholesale_application_id.eq.${wholesale.id},and(user_id.eq.${user.id},wholesale_application_id.is.null)`,
-            );
-    } else {
-        /*
-         * Conta normal:
-         *
-         * buscamos pedidos pelo
-         * usuário e garantimos que
-         * não sejam pedidos de
-         * atacado.
-         */
-
-        ordersQuery =
-            ordersQuery
+                    user_id,
+                    wholesale_application_id,
+                    status,
+                    subtotal,
+                    shipping,
+                    total,
+                    shipped,
+                    invoice_number,
+                    shipping_service,
+                    shipping_company,
+                    delivery_time,
+                    created_at,
+                    order_items (
+                        id,
+                        product_id,
+                        product_name,
+                        artist,
+                        format,
+                        quantity,
+                        unit_price
+                    )
+                `)
                 .eq(
-                    "user_id",
-                    user.id,
-                )
-                .is(
                     "wholesale_application_id",
-                    null,
+                    wholesale.id,
+                )
+                .order(
+                    "created_at",
+                    {
+                        ascending: false,
+                    },
                 );
+
+        orders =
+            (ordersResult.data ??
+                []) as Order[];
+
+        ordersError =
+            ordersResult.error;
     }
-
-    /*
-     * Executa a consulta.
-     */
-
-    const ordersResult =
-        await ordersQuery.order(
-            "created_at",
-            {
-                ascending: false,
-            },
-        );
-
-    const orders =
-        (ordersResult.data ??
-            []) as Order[];
 
     return (
         <main className="px-4 py-10 md:px-6">
@@ -375,7 +339,9 @@ export default async function MinhaContaPage() {
                                         {
                                             wholesale.city
                                         }
+
                                         {" — "}
+
                                         {
                                             wholesale.state
                                         }
@@ -456,12 +422,20 @@ export default async function MinhaContaPage() {
                         </p>
                     </div>
 
-                    {ordersResult.error ? (
+                    {ordersError ? (
                         <div className="border border-black p-6">
                             <p>
                                 Não foi possível
                                 carregar seus
                                 pedidos.
+                            </p>
+                        </div>
+                    ) : !wholesale ? (
+                        <div className="border border-black p-8">
+                            <p className="text-lg">
+                                Nenhum cadastro de
+                                atacado encontrado
+                                para esta conta.
                             </p>
                         </div>
                     ) : orders.length ===
