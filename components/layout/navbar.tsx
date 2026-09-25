@@ -8,6 +8,7 @@ import {
 
 export async function Navbar() {
     const {
+        name,
         isLoggedIn,
         isAdmin,
         isWholesale,
@@ -15,6 +16,7 @@ export async function Navbar() {
 
     return (
         <NavbarClient
+            name={name}
             isLoggedIn={isLoggedIn}
             isAdmin={isAdmin}
             isWholesale={isWholesale}
