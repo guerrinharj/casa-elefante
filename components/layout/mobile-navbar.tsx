@@ -13,12 +13,14 @@ import {
 type MobileNavbarProps = {
     isLoggedIn: boolean;
     isAdmin: boolean;
+    isWholesale: boolean;
     dark?: boolean;
 };
 
 export function MobileNavbar({
     isLoggedIn,
     isAdmin,
+    isWholesale,
     dark = false,
 }: MobileNavbarProps) {
     const [
@@ -105,7 +107,7 @@ export function MobileNavbar({
                     }
                     ${
                         open
-                            ? "max-h-[500px] opacity-100"
+                            ? "max-h-[600px] opacity-100"
                             : "pointer-events-none max-h-0 opacity-0"
                     }
                 `}
@@ -189,6 +191,33 @@ export function MobileNavbar({
                                 Carrinho
                             </Link>
                         </li>
+
+                        {!isLoggedIn && (
+                            <li>
+                                <Link
+                                    href="/login"
+                                    onClick={
+                                        closeMenu
+                                    }
+                                >
+                                    Login
+                                </Link>
+                            </li>
+                        )}
+
+                        {isWholesale &&
+                            !isAdmin && (
+                                <li className="text-blue-400">
+                                    <Link
+                                        href="/minha-conta"
+                                        onClick={
+                                            closeMenu
+                                        }
+                                    >
+                                        Atacadista
+                                    </Link>
+                                </li>
+                            )}
 
                         {isAdmin && (
                             <li className="text-blue-400">
