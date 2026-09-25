@@ -32,7 +32,8 @@ export default async function ProductPage({
 
     const {
         canSeeWholesalePrice,
-    } = await getUserAccess();
+        isWholesale,
+    } = await getUserAccess(); await getUserAccess();
 
 
     const {
@@ -346,7 +347,7 @@ export default async function ProductPage({
                             stock:
                                 product.stock,
                             minimumQuantity:
-                                canSeeWholesalePrice &&
+                                isWholesale &&
                                 product.wholesale_price !== null
                                     ? 2
                                     : 1,
