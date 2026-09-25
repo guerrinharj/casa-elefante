@@ -22,6 +22,7 @@ type Product = {
     slug: string;
     artist: string | null;
     price: number;
+    wholesale_price: number | null;
     format: string | null;
     year: number | null;
     stock: number;
@@ -178,6 +179,11 @@ export function EditProductForm({
             const year =
                 formData.get("year");
 
+            const wholesalePrice =
+                formData.get(
+                    "wholesale_price",
+                );
+
             const width =
                 formData.get("width");
 
@@ -282,6 +288,13 @@ export function EditProductForm({
                             "price",
                         ),
                     ),
+
+                    wholesale_price:
+                        wholesalePrice
+                            ? Number(
+                                  wholesalePrice,
+                              )
+                            : null,
 
                     stock: Number(
                         formData.get(
@@ -455,6 +468,18 @@ export function EditProductForm({
                         product.price
                     }
                     required
+                />
+
+                <Field
+                    label="Preço de atacado"
+                    name="wholesale_price"
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    defaultValue={
+                        product.wholesale_price ??
+                        ""
+                    }
                 />
             </div>
 

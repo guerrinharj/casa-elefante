@@ -191,6 +191,11 @@ export function ProductForm() {
             const priceValue =
                 formData.get("price");
 
+            const wholesalePriceValue =
+                formData.get(
+                    "wholesale_price",
+            );
+
             const stockValue =
                 formData.get("stock");
 
@@ -275,6 +280,13 @@ export function ProductForm() {
                                     priceValue,
                                 )
                                 : 0,
+
+                        wholesale_price:
+                            wholesalePriceValue
+                                ? Number(
+                                    wholesalePriceValue,
+                                )
+                                : null,
 
                         genre:
                             formData.get(
@@ -473,20 +485,48 @@ export function ProductForm() {
                 </div>
             </div>
 
-            <div className="flex flex-col gap-2">
-                <label htmlFor="price">
-                    Preço
-                </label>
+            <div className="grid gap-6 md:grid-cols-2">
+                <div className="flex flex-col gap-2">
+                    <label htmlFor="price">
+                        Preço
+                    </label>
 
-                <input
-                    id="price"
-                    name="price"
-                    type="number"
-                    step="0.01"
-                    min="0"
-                    required
-                    className="border border-black px-3 py-2"
-                />
+                    <input
+                        id="price"
+                        name="price"
+                        type="number"
+                        step="0.01"
+                        min="0"
+                        required
+                        className="border border-black px-3 py-2"
+                    />
+
+                    <p className="text-xs opacity-50">
+                        Preço normal de varejo.
+                    </p>
+                </div>
+
+                <div className="flex flex-col gap-2">
+                    <label htmlFor="wholesale_price">
+                        Preço de atacado
+                    </label>
+
+                    <input
+                        id="wholesale_price"
+                        name="wholesale_price"
+                        type="number"
+                        step="0.01"
+                        min="0"
+                        placeholder="Opcional"
+                        className="border border-black px-3 py-2"
+                    />
+
+                    <p className="text-xs opacity-50">
+                        Deixe vazio se o produto
+                        não estiver disponível
+                        para atacado.
+                    </p>
+                </div>
             </div>
 
             <div className="flex flex-col gap-2">
