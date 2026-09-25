@@ -334,11 +334,22 @@ export default async function ProductPage({
                             slug: product.slug,
                             artist:
                                 product.artist,
-                            price: Number(
-                                product.price,
-                            ),
+                            price:
+                                canSeeWholesalePrice &&
+                                product.wholesale_price !== null
+                                    ? Number(
+                                        product.wholesale_price,
+                                    )
+                                    : Number(
+                                        product.price,
+                                    ),
                             stock:
                                 product.stock,
+                            minimumQuantity:
+                                canSeeWholesalePrice &&
+                                product.wholesale_price !== null
+                                    ? 2
+                                    : 1,
                             image:
                                 product
                                     .images?.[0],
