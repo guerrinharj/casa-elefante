@@ -1,6 +1,7 @@
 "use client";
 
 import {
+    useRef,
     useState,
 } from "react";
 
@@ -34,6 +35,9 @@ type ProductAnalysis = {
 export function ProductForm() {
     const router = useRouter();
 
+    const formRef =
+        useRef<HTMLFormElement>(null);
+
     const [images, setImages] =
         useState<File[]>([]);
 
@@ -50,6 +54,89 @@ export function ProductForm() {
 
     const [error, setError] =
         useState<string | null>(null);
+
+    function fillFormWithAnalysis(
+        product: ProductAnalysis,
+    ) {
+        const form = formRef.current;
+
+        if (!form) {
+            return;
+        }
+
+        const setFieldValue = (
+            name: string,
+            value: string | number | null,
+        ) => {
+            if (
+                value === null ||
+                value === undefined
+            ) {
+                return;
+            }
+
+            const field =
+                form.elements.namedItem(
+                    name,
+                );
+
+            if (
+                field instanceof
+                    HTMLInputElement ||
+                field instanceof
+                    HTMLSelectElement ||
+                field instanceof
+                    HTMLTextAreaElement
+            ) {
+                field.value =
+                    String(value);
+
+                field.dispatchEvent(
+                    new Event(
+                        "change",
+                        {
+                            bubbles: true,
+                        },
+                    ),
+                );
+            }
+        };
+
+        setFieldValue(
+            "name",
+            product.name,
+        );
+
+        setFieldValue(
+            "artist",
+            product.artist,
+        );
+
+        setFieldValue(
+            "label",
+            product.label,
+        );
+
+        setFieldValue(
+            "catalog_number",
+            product.catalog_number,
+        );
+
+        setFieldValue(
+            "year",
+            product.year,
+        );
+
+        setFieldValue(
+            "genre",
+            product.genre,
+        );
+
+        setFieldValue(
+            "format",
+            product.format,
+        );
+    }
 
     async function handleAnalyze() {
         if (!images[0]) {
@@ -97,7 +184,14 @@ export function ProductForm() {
                 result,
             );
 
-            setAnalysis(result);
+            const product =
+                result as ProductAnalysis;
+
+            setAnalysis(product);
+
+            fillFormWithAnalysis(
+                product,
+            );
         } catch (error) {
             console.error(
                 "Erro ao identificar produto:",
@@ -194,7 +288,7 @@ export function ProductForm() {
             const wholesalePriceValue =
                 formData.get(
                     "wholesale_price",
-            );
+                );
 
             const stockValue =
                 formData.get("stock");
@@ -270,22 +364,22 @@ export function ProductForm() {
                         year:
                             yearValue
                                 ? Number(
-                                    yearValue,
-                                )
+                                      yearValue,
+                                  )
                                 : null,
 
                         price:
                             priceValue
                                 ? Number(
-                                    priceValue,
-                                )
+                                      priceValue,
+                                  )
                                 : 0,
 
                         wholesale_price:
                             wholesalePriceValue
                                 ? Number(
-                                    wholesalePriceValue,
-                                )
+                                      wholesalePriceValue,
+                                  )
                                 : null,
 
                         genre:
@@ -307,36 +401,36 @@ export function ProductForm() {
                         stock:
                             stockValue
                                 ? Number(
-                                    stockValue,
-                                )
+                                      stockValue,
+                                  )
                                 : 0,
 
                         width:
                             widthValue
                                 ? Number(
-                                    widthValue,
-                                )
+                                      widthValue,
+                                  )
                                 : null,
 
                         height:
                             heightValue
                                 ? Number(
-                                    heightValue,
-                                )
+                                      heightValue,
+                                  )
                                 : null,
 
                         length:
                             lengthValue
                                 ? Number(
-                                    lengthValue,
-                                )
+                                      lengthValue,
+                                  )
                                 : null,
 
                         weight:
                             weightValue
                                 ? Number(
-                                    weightValue,
-                                )
+                                      weightValue,
+                                  )
                                 : null,
 
                         pre_order:
@@ -396,6 +490,7 @@ export function ProductForm() {
 
     return (
         <form
+            ref={formRef}
             onSubmit={handleSubmit}
             className="flex flex-col gap-6"
         >
@@ -777,8 +872,8 @@ export function ProductForm() {
                         setImages(
                             files
                                 ? Array.from(
-                                    files,
-                                )
+                                      files,
+                                  )
                                 : [],
                         );
 

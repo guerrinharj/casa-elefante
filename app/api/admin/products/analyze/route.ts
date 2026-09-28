@@ -1,11 +1,45 @@
-import OpenAI from "openai";
-import {
-    NextResponse,
-} from "next/server";
+import { GoogleGenAI } from "@google/genai";
+import { NextResponse } from "next/server";
 
-const openai = new OpenAI({
-    apiKey: process.env.OPENAI_API_KEY,
+const ai = new GoogleGenAI({
+    apiKey: process.env.GEMINI_API_KEY,
 });
+
+const PRODUCT_GENRES = [
+    "AMBIENT / NEW AGE",
+    "AXÉ",
+    "BLUES",
+    "BOSSA NOVA",
+    "CHOROS",
+    "DISCO",
+    "FORRÓ",
+    "HARD ROCK / HEAVY METAL",
+    "HOUSE / DANCE",
+    "HUMOR",
+    "JAZZ",
+    "JOVEM GUARDA",
+    "LATINOS",
+    "MPB",
+    "NOVELAS",
+    "ORQUESTRAS NACIONAIS",
+    "POP / ALTERNATIVO",
+    "RAP / HIP HOP",
+    "REGGAE",
+    "REGIONAIS",
+    "ROCK",
+    "SAMBA / PAGODE / CARNAVAL / BATUCADA",
+    "SOUL / FUNK / R&B",
+    "VELHA GUARDA",
+];
+
+const PRODUCT_FORMATS = [
+    "Vinil",
+    "Compacto",
+    "CD",
+    "Cassette",
+    "VHS",
+    "LaserDisc",
+];
 
 export async function POST(
     request: Request,
@@ -14,11 +48,11 @@ export async function POST(
         /*
          * Verifica se a API key existe.
          */
-        if (!process.env.OPENAI_API_KEY) {
+        if (!process.env.GEMINI_API_KEY) {
             return NextResponse.json(
                 {
                     error:
-                        "OPENAI_API_KEY não configurada.",
+                        "GEMINI_API_KEY não configurada.",
                 },
                 {
                     status: 500,
@@ -74,9 +108,15 @@ export async function POST(
         /*
          * Converte a imagem para base64.
          *
-         * Exemplo:
+         * Diferente da OpenAI, não precisamos
+         * montar uma data URL.
          *
-         * data:image/jpeg;base64,/9j/4AAQ...
+         * O Gemini recebe:
+         *
+         * {
+         *     mimeType: "image/jpeg",
+         *     data: "base64..."
+         * }
          */
         const arrayBuffer =
             await image.arrayBuffer();
@@ -91,27 +131,10 @@ export async function POST(
                 "base64",
             );
 
-        const imageUrl =
-            `data:${image.type};base64,${base64}`;
-
         /*
-         * Envia a imagem para
-         * a OpenAI analisar.
+         * Prompt de identificação.
          */
-        const response =
-            await openai.responses.create({
-                model:
-                    "gpt-5.6-luna",
-
-                input: [
-                    {
-                        role: "user",
-                        content: [
-                            {
-                                type:
-                                    "input_text",
-
-                                text: `
+        const prompt = `
 Você está analisando uma fotografia de um produto
 para uma loja brasileira de discos chamada
 Casa Elefante.
@@ -137,83 +160,146 @@ Tente identificar:
 - gênero musical
 - formato
 
+IMPORTANTE:
+
 Não invente informações.
 
 Se alguma informação não puder ser identificada
 com segurança, retorne null para aquele campo.
 
+O número de catálogo deve representar a edição
+específica mostrada na fotografia quando ele
+puder ser identificado.
+
 Para "genre", quando possível, escolha
 EXATAMENTE uma destas categorias:
 
-AMBIENT / NEW AGE
-AXÉ
-BLUES
-BOSSA NOVA
-CHOROS
-DISCO
-FORRÓ
-HARD ROCK / HEAVY METAL
-HOUSE / DANCE
-HUMOR
-JAZZ
-JOVEM GUARDA
-LATINOS
-MPB
-NOVELAS
-ORQUESTRAS NACIONAIS
-POP / ALTERNATIVO
-RAP / HIP HOP
-REGGAE
-REGIONAIS
-ROCK
-SAMBA / PAGODE / CARNAVAL / BATUCADA
-SOUL / FUNK / R&B
-VELHA GUARDA
+${PRODUCT_GENRES.join("\n")}
 
 Para "format", escolha EXATAMENTE um destes:
 
-Vinil
-Compacto
-CD
-Cassette
-VHS
-LaserDisc
+${PRODUCT_FORMATS.join("\n")}
+        `.trim();
 
-Retorne SOMENTE JSON válido.
+        /*
+         * Envia a imagem para o Gemini.
+         *
+         * responseMimeType + responseSchema
+         * fazem o Gemini retornar JSON
+         * estruturado.
+         */
+        const response =
+            await ai.models.generateContent({
+                model:
+                    "gemini-3.5-flash-lite",
 
-Formato:
+                contents: [
+                    {
+                        role: "user",
 
-{
-    "name": string | null,
-    "artist": string | null,
-    "label": string | null,
-    "catalog_number": string | null,
-    "year": number | null,
-    "genre": string | null,
-    "format": string | null
-}
-                                `,
+                        parts: [
+                            {
+                                text:
+                                    prompt,
                             },
                             {
-                                type:
-                                    "input_image",
+                                inlineData: {
+                                    mimeType:
+                                        image.type,
 
-                                image_url:
-                                    imageUrl,
-
-                                detail:
-                                    "high",
+                                    data:
+                                        base64,
+                                },
                             },
                         ],
                     },
                 ],
+
+                config: {
+                    responseMimeType:
+                        "application/json",
+
+                    responseSchema: {
+                        type:
+                            "object",
+
+                        properties: {
+                            name: {
+                                type:
+                                    "string",
+                                nullable:
+                                    true,
+                            },
+
+                            artist: {
+                                type:
+                                    "string",
+                                nullable:
+                                    true,
+                            },
+
+                            label: {
+                                type:
+                                    "string",
+                                nullable:
+                                    true,
+                            },
+
+                            catalog_number: {
+                                type:
+                                    "string",
+                                nullable:
+                                    true,
+                            },
+
+                            year: {
+                                type:
+                                    "integer",
+                                nullable:
+                                    true,
+                            },
+
+                            genre: {
+                                type:
+                                    "string",
+                                nullable:
+                                    true,
+                                enum: [
+                                    ...PRODUCT_GENRES,
+                                    null,
+                                ],
+                            },
+
+                            format: {
+                                type:
+                                    "string",
+                                nullable:
+                                    true,
+                                enum: [
+                                    ...PRODUCT_FORMATS,
+                                    null,
+                                ],
+                            },
+                        },
+
+                        required: [
+                            "name",
+                            "artist",
+                            "label",
+                            "catalog_number",
+                            "year",
+                            "genre",
+                            "format",
+                        ],
+                    },
+                },
             });
 
         /*
-         * Texto retornado pela IA.
+         * Texto retornado pelo Gemini.
          */
         const output =
-            response.output_text;
+            response.text;
 
         if (!output) {
             return NextResponse.json(
@@ -228,41 +314,20 @@ Formato:
         }
 
         /*
-         * Às vezes um modelo pode retornar:
-         *
-         * ```json
-         * {...}
-         * ```
-         *
-         * Então removemos os fences
-         * antes do JSON.parse.
+         * Como estamos usando
+         * responseMimeType application/json,
+         * o Gemini deve retornar JSON puro.
          */
-        const cleanedOutput =
-            output
-                .replace(
-                    /^```json\s*/i,
-                    "",
-                )
-                .replace(
-                    /^```\s*/i,
-                    "",
-                )
-                .replace(
-                    /```$/i,
-                    "",
-                )
-                .trim();
-
         let product;
 
         try {
             product =
                 JSON.parse(
-                    cleanedOutput,
+                    output,
                 );
         } catch {
             console.error(
-                "JSON inválido retornado pela OpenAI:",
+                "JSON inválido retornado pelo Gemini:",
                 output,
             );
 
@@ -281,15 +346,15 @@ Formato:
         }
 
         /*
-         * Retorna os dados para
-         * o ProductForm.
+         * Retorna exatamente a mesma estrutura
+         * que o ProductForm já espera.
          */
         return NextResponse.json(
             product,
         );
     } catch (error) {
         console.error(
-            "Erro OpenAI:",
+            "Erro Gemini:",
             error,
         );
 
