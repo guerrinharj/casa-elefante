@@ -24,8 +24,8 @@ export function Footer() {
 
                 ${
                     isTodaTercaTem
-                        ? "border-white bg-black text-white"
-                        : "border-black bg-white text-black"
+                        ? "bg-black text-white"
+                        : "bg-white text-black"
                 }
             `}
         >

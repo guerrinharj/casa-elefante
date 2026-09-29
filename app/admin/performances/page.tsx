@@ -153,7 +153,7 @@ export default async function AdminPerformancesPage() {
                                                 px-2
                                                 py-1
                                                 text-xs
-                                                uppercase
+                                                
 
                                                 ${
                                                     performance.published

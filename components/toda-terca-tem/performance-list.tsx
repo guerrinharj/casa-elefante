@@ -46,7 +46,7 @@ export function PerformanceList({
         performances.length === 0
     ) {
         return (
-            <section className="border-t border-white p-4 md:p-6">
+            <section className="border-t  p-4 md:p-6">
                 <p className="text-sm uppercase">
                     Nenhuma apresentação
                     disponível no momento.
@@ -56,7 +56,7 @@ export function PerformanceList({
     }
 
     return (
-        <section className="border-t border-white">
+        <section className=" ">
             <div className="p-4 md:p-6">
                 <p className="text-sm uppercase">
                     Apresentações Passadas
@@ -88,8 +88,8 @@ export function PerformanceList({
                                     grid-cols-[1fr_auto]
                                     items-center
                                     gap-4
-                                    border-t
-                                    border-white
+                                    
+                                     
                                     p-4
                                     transition-colors
                                     duration-300
@@ -148,8 +148,6 @@ export function PerformanceList({
                                         items-center
                                         justify-center
                                         rounded-full
-                                        border
-                                        border-current
                                         transition-transform
                                         duration-200
                                         hover:scale-110

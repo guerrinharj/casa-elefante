@@ -226,7 +226,7 @@ export default async function MinhaContaPage() {
         <main className="px-4 py-10 md:px-6">
             <div className="mx-auto max-w-5xl">
                 <div className="mb-10">
-                    <p className="mb-2 text-sm uppercase opacity-50">
+                    <p className="mb-2 text-sm opacity-50">
                         Minha conta
                     </p>
 
@@ -248,7 +248,7 @@ export default async function MinhaContaPage() {
 
                         <div className="space-y-5">
                             <div>
-                                <p className="text-xs uppercase opacity-50">
+                                <p className="text-xs   opacity-50">
                                     Nome
                                 </p>
 
@@ -259,7 +259,7 @@ export default async function MinhaContaPage() {
                             </div>
 
                             <div>
-                                <p className="text-xs uppercase opacity-50">
+                                <p className="text-xs   opacity-50">
                                     E-mail
                                 </p>
 
@@ -271,7 +271,7 @@ export default async function MinhaContaPage() {
                             </div>
 
                             <div>
-                                <p className="text-xs uppercase opacity-50">
+                                <p className="text-xs   opacity-50">
                                     Telefone
                                 </p>
 
@@ -295,7 +295,7 @@ export default async function MinhaContaPage() {
                                     Atacado
                                 </h2>
 
-                                <span className="border border-black px-3 py-1 text-xs uppercase">
+                                <span className="border border-black px-3 py-1 text-xs  ">
                                     {wholesale.status ===
                                     "approved"
                                         ? "Aprovado"
@@ -308,7 +308,7 @@ export default async function MinhaContaPage() {
 
                             <div className="space-y-5">
                                 <div>
-                                    <p className="text-xs uppercase opacity-50">
+                                    <p className="text-xs   opacity-50">
                                         Empresa
                                     </p>
 
@@ -320,7 +320,7 @@ export default async function MinhaContaPage() {
                                 </div>
 
                                 <div>
-                                    <p className="text-xs uppercase opacity-50">
+                                    <p className="text-xs   opacity-50">
                                         CPF / CNPJ
                                     </p>
 
@@ -332,7 +332,7 @@ export default async function MinhaContaPage() {
                                 </div>
 
                                 <div>
-                                    <p className="text-xs uppercase opacity-50">
+                                    <p className="text-xs   opacity-50">
                                         Localização
                                     </p>
 
@@ -351,7 +351,7 @@ export default async function MinhaContaPage() {
 
                                 {wholesale.instagram && (
                                     <div>
-                                        <p className="text-xs uppercase opacity-50">
+                                        <p className="text-xs   opacity-50">
                                             Instagram
                                         </p>
 
@@ -365,7 +365,7 @@ export default async function MinhaContaPage() {
 
                                 {wholesale.website && (
                                     <div>
-                                        <p className="text-xs uppercase opacity-50">
+                                        <p className="text-xs   opacity-50">
                                             Site
                                         </p>
 
@@ -386,7 +386,7 @@ export default async function MinhaContaPage() {
 
                                 {wholesale.business_description && (
                                     <div>
-                                        <p className="text-xs uppercase opacity-50">
+                                        <p className="text-xs   opacity-50">
                                             Atividade
                                         </p>
 
@@ -411,7 +411,7 @@ export default async function MinhaContaPage() {
                 <section className="mt-12">
                     <div className="mb-6 flex items-end justify-between gap-4">
                         <div>
-                            <p className="mb-2 text-sm uppercase opacity-50">
+                            <p className="mb-2 text-sm   opacity-50">
                                 Histórico
                             </p>
 
@@ -486,12 +486,12 @@ export default async function MinhaContaPage() {
                                             <div className="flex flex-col gap-4 border-b border-black/20 pb-5 sm:flex-row sm:items-start sm:justify-between">
                                                 <div>
                                                     <div className="flex flex-wrap items-center gap-2">
-                                                        <p className="text-xs uppercase opacity-50">
+                                                        <p className="text-xs   opacity-50">
                                                             Pedido
                                                         </p>
 
                                                         {isWholesaleOrder && (
-                                                            <span className="border border-black bg-black px-2 py-0.5 text-[10px] uppercase text-white">
+                                                            <span className="border border-black bg-black px-2 py-0.5 text-[10px]   text-white">
                                                                 Atacado
                                                             </span>
                                                         )}
@@ -504,7 +504,7 @@ export default async function MinhaContaPage() {
                                                                 0,
                                                                 8,
                                                             )
-                                                            .toUpperCase()}
+                                                            .to ()}
                                                     </p>
 
                                                     <p className="mt-1 text-sm opacity-50">
@@ -517,7 +517,7 @@ export default async function MinhaContaPage() {
                                                 </div>
 
                                                 <div className="flex items-center gap-3">
-                                                    <span className="border border-black px-3 py-1 text-xs uppercase">
+                                                    <span className="border border-black px-3 py-1 text-xs  ">
                                                         {getStatusLabel(
                                                             order.status,
                                                         )}
@@ -549,7 +549,7 @@ export default async function MinhaContaPage() {
                                                             className="flex gap-4 py-4"
                                                         >
                                                             {item.product_image && (
-                                                                <div className="relative h-20 w-20 shrink-0 overflow-hidden border border-black/10 bg-[#f8f7ef]">
+                                                                <div className="relative h-20 w-20 shrink-0 overflow-hidden border border-black/10 bg-white">
                                                                     <Image
                                                                         src={
                                                                             item.product_image

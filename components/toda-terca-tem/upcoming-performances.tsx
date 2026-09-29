@@ -51,14 +51,9 @@ export function UpcomingPerformances({
                             relative
                             block
                             overflow-hidden
-                            border-b
-                            border-white
+                            
                             bg-black
                             text-white
-                            transition-colors
-                            duration-500
-                            hover:bg-white
-                            hover:text-black
                         "
                     >
                         {performance.cover_image && (
@@ -66,15 +61,16 @@ export function UpcomingPerformances({
                                 className="
                                     absolute
                                     inset-0
+                                    scale-100
                                     bg-cover
                                     bg-center
                                     grayscale
-                                    opacity-100
+                                    opacity-0
                                     transition-all
                                     duration-500
                                     ease-out
                                     group-hover:scale-[1.02]
-                                    group-hover:opacity-0
+                                    group-hover:opacity-100
                                 "
                                 style={{
                                     backgroundImage:
@@ -88,10 +84,10 @@ export function UpcomingPerformances({
                                 absolute
                                 inset-0
                                 bg-black/35
-                                opacity-100
+                                opacity-0
                                 transition-opacity
                                 duration-500
-                                group-hover:opacity-0
+                                group-hover:opacity-100
                             "
                         />
 
@@ -103,7 +99,7 @@ export function UpcomingPerformances({
                                 min-h-[55vh]
                                 grid-rows-[auto_1fr_auto]
                                 p-4
-                                md:min-h-[65vh]
+                                md:min-h-[10vh]
                                 md:p-6
                             "
                         >
@@ -128,8 +124,6 @@ export function UpcomingPerformances({
                                     flex
                                     items-center
                                     justify-end
-                                    py-12
-                                    md:py-16
                                 "
                             >
                                 <h2
@@ -178,8 +172,6 @@ export function UpcomingPerformances({
                                         items-center
                                         justify-center
                                         rounded-full
-                                        border
-                                        border-current
                                         transition-transform
                                         duration-300
                                         group-hover:translate-x-1

@@ -38,7 +38,6 @@ export default function CartPage() {
                             px-4
                             py-2
                             text-sm
-                            uppercase
                             shadow-[4px_4px_0_0_#000]
                             transition-all
                             duration-200

@@ -108,10 +108,10 @@ export function NavbarClient({
 
     const navbarBackground =
         isTodaTercaTem
-            ? "border-white bg-black text-white"
+            ? "bg-black text-white"
             : isWhite
-              ? "border-black bg-white text-black"
-              : "border-black bg-[#f8f7ef] text-black";
+              ? " bg-white text-black"
+              : " bg-white text-black";
 
     return (
         <header

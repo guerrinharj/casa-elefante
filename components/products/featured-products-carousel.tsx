@@ -99,7 +99,7 @@ export function FeaturedProductsCarousel({
 
     return (
         <section className="w-full">
-            <div className="relative overflow-hidden rounded-lg border border-black">
+            <div className="relative overflow-hidden rounded-lg border">
                 <div className="relative min-h-[420px] overflow-hidden md:min-h-[520px]">
                     {/* BACKGROUNDS */}
 

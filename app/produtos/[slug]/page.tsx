@@ -258,7 +258,7 @@ export default async function ProductPage({
                         </p>
                     )}
 
-                <div className="border-t border-black pt-6">
+                <div className="border-t pt-6">
                     {canSeeWholesalePrice &&
                     product.wholesale_price !== null ? (
                         <div>

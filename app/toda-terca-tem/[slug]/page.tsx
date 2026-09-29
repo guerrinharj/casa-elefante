@@ -81,14 +81,13 @@ export default async function PerformancePage({
 
     return (
         <main className="min-h-screen bg-black text-white">
-            <section className="border-b border-white">
+            <section className="border-b">
                 <div className="p-4 md:p-6">
                     <Link
                         href="/toda-terca-tem"
                         className="
                             inline-block
                             text-sm
-                            uppercase
                             transition-opacity
                             duration-200
                             hover:opacity-50
@@ -103,14 +102,14 @@ export default async function PerformancePage({
                 className="
                     grid
                     border-b
-                    border-white
+                    
                     md:grid-cols-[30%_1fr]
                 "
             >
                 <div
                     className="
                         border-b
-                        border-white
+                         
                         p-4
                         md:border-b-0
                         md:border-r
@@ -144,7 +143,7 @@ export default async function PerformancePage({
             </section>
 
             {performance.cover_image && (
-                <section className="border-b border-white">
+                <section className="border-b  ">
                     <img
                         src={
                             performance.cover_image
@@ -166,14 +165,14 @@ export default async function PerformancePage({
                     className="
                         grid
                         border-b
-                        border-white
+                         
                         md:grid-cols-[30%_1fr]
                     "
                 >
                     <div
                         className="
                             border-b
-                            border-white
+                             
                             p-4
                             md:border-b-0
                             md:border-r
@@ -207,14 +206,12 @@ export default async function PerformancePage({
                     className="
                         grid
                         border-b
-                        border-white
                         md:grid-cols-[30%_1fr]
                     "
                 >
                     <div
                         className="
                             border-b
-                            border-white
                             p-4
                             md:border-b-0
                             md:border-r

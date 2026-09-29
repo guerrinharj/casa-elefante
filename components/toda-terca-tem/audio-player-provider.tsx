@@ -432,7 +432,7 @@ export function AudioPlayerProvider({
 
             {currentPerformance &&
                 currentPerformance.audio_url && (
-                    <div className="fixed bottom-0 left-0 z-[100] w-full border-t border-white bg-black text-white">
+                    <div className="fixed bottom-0 left-0 z-[100] w-full border-t  bg-black text-white">
                         <audio
                             ref={
                                 audioRef
@@ -461,7 +461,7 @@ export function AudioPlayerProvider({
                                 onClick={
                                     togglePlay
                                 }
-                                className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full border border-white transition-colors duration-300 hover:bg-white hover:text-black"
+                                className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full border  transition-colors duration-300 hover:bg-white hover:text-black"
                                 aria-label={
                                     isPlaying
                                         ? "Pausar"

@@ -53,7 +53,7 @@ export function ScrollBackground() {
                 ${
                     isWhite
                         ? "bg-white"
-                        : "bg-[#f8f7ef]"
+                        : "bg-white"
                 }
             `}
         />

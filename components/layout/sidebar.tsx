@@ -437,7 +437,7 @@ export function Sidebar({
     const sidebarBackground =
         isWhite
             ? "bg-white"
-            : "bg-[#f8f7ef]";
+            : "bg-white";
 
     return (
         <aside
@@ -459,7 +459,7 @@ export function Sidebar({
                         w-64
                         overflow-y-auto
                         border-r
-                        border-black
+                        
                         p-6
                         transition-colors
                         duration-700
