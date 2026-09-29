@@ -30,6 +30,10 @@ import {
     OrderConfirmedBanner,
 } from "@/components/orders/order-confirmed-banner";
 
+import {
+    ScrollBackground,
+} from "@/components/layout/scroll-background";
+
 const grotesque = localFont({
     src: "./fonts/Grotesque.ttf",
     variable:
@@ -89,6 +93,7 @@ export default function RootLayout({
             `}
         >
             <body>
+                <ScrollBackground />
                 <CartProvider>
                     <AudioPlayerProvider>
                         <Suspense

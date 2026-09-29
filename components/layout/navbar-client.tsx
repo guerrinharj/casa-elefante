@@ -3,6 +3,11 @@
 import Link from "next/link";
 
 import {
+    useEffect,
+    useState,
+} from "react";
+
+import {
     usePathname,
 } from "next/navigation";
 
@@ -38,10 +43,47 @@ export function NavbarClient({
     const pathname =
         usePathname();
 
+    const [isWhite, setIsWhite] =
+        useState(false);
+
     const isTodaTercaTem =
         pathname.startsWith(
             "/toda-terca-tem",
         );
+
+    useEffect(() => {
+        const handleScroll = () => {
+            const interval =
+                window.innerHeight;
+
+            const currentSection =
+                Math.floor(
+                    window.scrollY /
+                        interval,
+                );
+
+            setIsWhite(
+                currentSection % 2 === 0,
+            );
+        };
+
+        handleScroll();
+
+        window.addEventListener(
+            "scroll",
+            handleScroll,
+            {
+                passive: true,
+            },
+        );
+
+        return () => {
+            window.removeEventListener(
+                "scroll",
+                handleScroll,
+            );
+        };
+    }, []);
 
     const linkClassName = `
         relative
@@ -64,6 +106,13 @@ export function NavbarClient({
         }
     `;
 
+    const navbarBackground =
+        isTodaTercaTem
+            ? "border-white bg-black text-white"
+            : isWhite
+              ? "border-black bg-white text-black"
+              : "border-black bg-[#f8f7ef] text-black";
+
     return (
         <header
             className={`
@@ -71,15 +120,11 @@ export function NavbarClient({
                 sticky
                 top-0
                 z-50
-                transition-colors
-                duration-500
                 border-b
-                border-black
-                ${
-                    isTodaTercaTem
-                        ? "border-white bg-black text-white"
-                        : "border-black bg-white text-black"
-                }
+                transition-colors
+                duration-700
+                ease-in-out
+                ${navbarBackground}
             `}
         >
             <div className="flex items-center justify-between px-4 py-2 md:px-6">

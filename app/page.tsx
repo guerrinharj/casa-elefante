@@ -120,8 +120,6 @@ export default async function HomePage({
                     ease-out
                     hover:translate-x-0
                     md:block
-                    border-r
-                    border-black
                 "
             >
                 <Suspense
@@ -132,18 +130,7 @@ export default async function HomePage({
                     <Sidebar />
                 </Suspense>
 
-                {/* Pequena área visível quando fechada */}
-                <div
-                    className="
-                        absolute
-                        right-0
-                        top-0
-                        h-full
-                        w-5
-                        border-black
-                        bg-white
-                    "
-                />
+
             </div>
 
             {/* CONTENT */}
