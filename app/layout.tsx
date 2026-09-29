@@ -30,6 +30,10 @@ import {
     OrderConfirmedBanner,
 } from "@/components/orders/order-confirmed-banner";
 
+import {
+    ScrollBackground,
+} from "@/components/layout/scroll-background";
+
 const grotesque = localFont({
     src: "./fonts/Grotesque.ttf",
     variable:
@@ -57,6 +61,12 @@ const anton = localFont({
     display: "swap",
 });
 
+const windsor = localFont({
+    src: "./fonts/WindsorProX.ttf",
+    variable: "--font-windsor",
+    display: "swap",
+});
+
 export const metadata:
     Metadata = {
         title:
@@ -79,9 +89,11 @@ export default function RootLayout({
                 ${gillSans.variable}
                 ${questrial.variable}
                 ${anton.variable}
+                ${windsor.variable}
             `}
         >
             <body>
+                <ScrollBackground />
                 <CartProvider>
                     <AudioPlayerProvider>
                         <Suspense

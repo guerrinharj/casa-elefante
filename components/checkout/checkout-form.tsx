@@ -609,10 +609,9 @@ export function CheckoutForm() {
                     <h2
                         className="
                             animate-checkout-field
-                            font-anton
+                            font-windsor
                             text-2xl
                             font-bold
-                            uppercase
                             opacity-0
                         "
                         style={{
@@ -701,10 +700,9 @@ export function CheckoutForm() {
                     <h2
                         className="
                             animate-checkout-field
-                            font-anton
+                            font-windsor
                             text-2xl
                             font-bold
-                            uppercase
                             opacity-0
                         "
                         style={{
@@ -1083,7 +1081,7 @@ export function CheckoutForm() {
                     <h2
                         className="
                             animate-checkout-field
-                            font-anton
+                            font-windsor
                             text-2xl
                             font-bold
                             uppercase
@@ -1380,7 +1378,7 @@ export function CheckoutForm() {
                     opacity-0
                 "
             >
-                <h2 className="font-anton text-2xl font-bold uppercase">
+                <h2 className="font-windsor text-2xl font-bold">
                     Seu pedido
                 </h2>
 

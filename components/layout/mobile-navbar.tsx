@@ -152,34 +152,12 @@ export function MobileNavbar({
 
                         <li>
                             <Link
-                                href="/contato"
-                                onClick={
-                                    closeMenu
-                                }
-                            >
-                                Contato
-                            </Link>
-                        </li>
-
-                        <li>
-                            <Link
                                 href="/newsletter"
                                 onClick={
                                     closeMenu
                                 }
                             >
                                 Newsletter
-                            </Link>
-                        </li>
-
-                        <li>
-                            <Link
-                                href="/atacado"
-                                onClick={
-                                    closeMenu
-                                }
-                            >
-                                Atacado
                             </Link>
                         </li>
 

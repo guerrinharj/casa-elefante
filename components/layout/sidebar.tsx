@@ -52,6 +52,11 @@ export function Sidebar({
     );
 
     const [
+        isWhite,
+        setIsWhite,
+    ] = useState(false);
+
+    const [
         openSections,
         setOpenSections,
     ] = useState<
@@ -67,6 +72,48 @@ export function Sidebar({
         country: false,
         year: false,
     });
+
+    /*
+     * BACKGROUND
+     */
+
+    useEffect(() => {
+        const handleScroll = () => {
+            const interval =
+                window.innerHeight;
+
+            const currentSection =
+                Math.floor(
+                    window.scrollY /
+                        interval,
+                );
+
+            setIsWhite(
+                currentSection % 2 === 0,
+            );
+        };
+
+        handleScroll();
+
+        window.addEventListener(
+            "scroll",
+            handleScroll,
+            {
+                passive: true,
+            },
+        );
+
+        return () => {
+            window.removeEventListener(
+                "scroll",
+                handleScroll,
+            );
+        };
+    }, []);
+
+    /*
+     * PRODUTOS
+     */
 
     useEffect(() => {
         const supabase =
@@ -387,6 +434,11 @@ export function Sidebar({
         `;
     }
 
+    const sidebarBackground =
+        isWhite
+            ? "bg-white"
+            : "bg-[#f8f7ef]";
+
     return (
         <aside
             className={
@@ -397,6 +449,10 @@ export function Sidebar({
                         px-4
                         pb-6
                         pt-2
+                        transition-colors
+                        duration-700
+                        ease-in-out
+                        ${sidebarBackground}
                     `
                     : `
                         h-[calc(100vh-64px)]
@@ -404,8 +460,11 @@ export function Sidebar({
                         overflow-y-auto
                         border-r
                         border-black
-                        bg-white
                         p-6
+                        transition-colors
+                        duration-700
+                        ease-in-out
+                        ${sidebarBackground}
                     `
             }
         >
@@ -426,7 +485,7 @@ export function Sidebar({
                         openSections.genre
                     }
                 >
-                    <h2 className="font-anton text-2xl font-bold uppercase">
+                    <h2 className="font-windsor text-4xl font-bold">
                         Gênero
                     </h2>
 
@@ -515,7 +574,7 @@ export function Sidebar({
                         openSections.format
                     }
                 >
-                    <h2 className="font-anton text-2xl font-bold uppercase">
+                    <h2 className="font-windsor text-4xl font-bold">
                         Formato
                     </h2>
 
@@ -604,7 +663,7 @@ export function Sidebar({
                         openSections.condition
                     }
                 >
-                    <h2 className="font-anton text-2xl font-bold uppercase">
+                    <h2 className="font-windsor text-4xl font-bold">
                         Condição
                     </h2>
 
@@ -700,7 +759,7 @@ export function Sidebar({
                         openSections.availability
                     }
                 >
-                    <h2 className="font-anton text-2xl font-bold uppercase">
+                    <h2 className="font-windsor text-4xl font-bold">
                         Disponibilidade
                     </h2>
 
@@ -804,7 +863,7 @@ export function Sidebar({
                         openSections.country
                     }
                 >
-                    <h2 className="font-anton text-2xl font-bold uppercase">
+                    <h2 className="font-windsor text-4xl font-bold">
                         País
                     </h2>
 
@@ -900,7 +959,7 @@ export function Sidebar({
                         openSections.year
                     }
                 >
-                    <h2 className="font-anton text-2xl font-bold uppercase">
+                    <h2 className="font-windsor text-4xl font-bold">
                         Ano
                     </h2>
 

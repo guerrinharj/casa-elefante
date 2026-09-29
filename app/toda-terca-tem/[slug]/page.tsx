@@ -127,7 +127,7 @@ export default async function PerformancePage({
                 <div className="p-4 md:p-6">
                     <h1
                         className="
-                            font-anton
+                            font-windsor
                             text-5xl
                             uppercase
                             leading-[0.9]

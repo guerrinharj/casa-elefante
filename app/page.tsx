@@ -130,19 +130,7 @@ export default async function HomePage({
                     <Sidebar />
                 </Suspense>
 
-                {/* Pequena área visível quando fechada */}
-                <div
-                    className="
-                        absolute
-                        right-0
-                        top-0
-                        h-full
-                        w-5
-                        border-r
-                        border-black
-                        bg-white
-                    "
-                />
+
             </div>
 
             {/* CONTENT */}

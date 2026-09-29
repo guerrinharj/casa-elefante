@@ -110,9 +110,8 @@ export function UpcomingPerformances({
                             <div>
                                 <p
                                     className="
-                                        font-anton
+                                        font-windsor
                                         text-3xl
-                                        uppercase
                                         leading-none
                                         md:text-5xl
                                         lg:text-6xl
@@ -137,9 +136,8 @@ export function UpcomingPerformances({
                                     className="
                                         max-w-6xl
                                         text-right
-                                        font-anton
+                                        font-windsor
                                         text-6xl
-                                        uppercase
                                         leading-[0.85]
                                         md:text-8xl
                                         lg:text-9xl

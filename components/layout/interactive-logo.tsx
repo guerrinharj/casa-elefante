@@ -13,12 +13,11 @@ export function InteractiveLogo({
         <Link
             href="/"
             className="
-                font-anton
+                font-windsor
                 relative
                 z-[60]
-                text-4xl
+                text-6xl
                 font-bold
-                uppercase
             "
         >
             {text}

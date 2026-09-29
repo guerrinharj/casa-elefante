@@ -102,7 +102,7 @@ export default function NewsletterPage() {
     return (
         <main className="p-4 md:p-6">
             <div className="mx-auto max-w-3xl">
-                <h1 className="text-4xl font-anton uppercase">
+                <h1 className="text-6xl font-windsor">
                     Newsletter
                 </h1>
 

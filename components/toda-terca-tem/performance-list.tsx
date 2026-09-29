@@ -113,9 +113,8 @@ export function PerformanceList({
                                 <Link
                                     href={`/toda-terca-tem/${performance.slug}`}
                                     className="
-                                        font-anton
+                                        font-windsor
                                         text-xl
-                                        uppercase
                                         transition-opacity
                                         duration-200
                                         hover:opacity-60

@@ -128,7 +128,7 @@ export default async function ProductPage({
                             </div>
                         )}
 
-                        <h1 className="font-anton text-4xl font-bold uppercase">
+                        <h1 className="font-windsor text-6xl font-bold">
                             {product.name}
                         </h1>
 
