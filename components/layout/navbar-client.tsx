@@ -73,6 +73,8 @@ export function NavbarClient({
                 z-50
                 transition-colors
                 duration-500
+                border-b
+                border-black
                 ${
                     isTodaTercaTem
                         ? "border-white bg-black text-white"
@@ -80,7 +82,7 @@ export function NavbarClient({
                 }
             `}
         >
-            <div className="flex items-center justify-between px-4 py-4 md:px-6">
+            <div className="flex items-center justify-between px-4 py-2 md:px-6">
                 <InteractiveLogo
                     text={
                         isTodaTercaTem

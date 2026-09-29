@@ -402,6 +402,8 @@ export function Sidebar({
                         h-[calc(100vh-64px)]
                         w-64
                         overflow-y-auto
+                        border-r
+                        border-black
                         bg-white
                         p-6
                     `
@@ -424,7 +426,7 @@ export function Sidebar({
                         openSections.genre
                     }
                 >
-                    <h2 className="font-windsor text-2xl font-bold">
+                    <h2 className="font-windsor text-4xl font-bold ">
                         Gênero
                     </h2>
 
@@ -513,7 +515,7 @@ export function Sidebar({
                         openSections.format
                     }
                 >
-                    <h2 className="font-windsor text-2xl font-bold">
+                    <h2 className="font-windsor text-4xl font-bold ">
                         Formato
                     </h2>
 
@@ -602,7 +604,7 @@ export function Sidebar({
                         openSections.condition
                     }
                 >
-                    <h2 className="font-windsor text-2xl font-bold">
+                    <h2 className="font-windsor text-4xl font-bold ">
                         Condição
                     </h2>
 
@@ -698,7 +700,7 @@ export function Sidebar({
                         openSections.availability
                     }
                 >
-                    <h2 className="font-windsor text-2xl font-bold">
+                    <h2 className="font-windsor text-4xl font-bold ">
                         Disponibilidade
                     </h2>
 
@@ -802,7 +804,7 @@ export function Sidebar({
                         openSections.country
                     }
                 >
-                    <h2 className="font-windsor text-2xl font-bold">
+                    <h2 className="font-windsor text-4xl font-bold ">
                         País
                     </h2>
 
@@ -898,7 +900,7 @@ export function Sidebar({
                         openSections.year
                     }
                 >
-                    <h2 className="font-windsor text-2xl font-bold">
+                    <h2 className="font-windsor text-4xl font-bold ">
                         Ano
                     </h2>
 

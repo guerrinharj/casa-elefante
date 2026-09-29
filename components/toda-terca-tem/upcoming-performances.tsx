@@ -112,7 +112,6 @@ export function UpcomingPerformances({
                                     className="
                                         font-windsor
                                         text-3xl
-                                        uppercase
                                         leading-none
                                         md:text-5xl
                                         lg:text-6xl

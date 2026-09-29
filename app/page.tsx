@@ -120,6 +120,8 @@ export default async function HomePage({
                     ease-out
                     hover:translate-x-0
                     md:block
+                    border-r
+                    border-black
                 "
             >
                 <Suspense
