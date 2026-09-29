@@ -1084,7 +1084,6 @@ export function CheckoutForm() {
                             font-windsor
                             text-2xl
                             font-bold
-                            uppercase
                             opacity-0
                         "
                         style={{
