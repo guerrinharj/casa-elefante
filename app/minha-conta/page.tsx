@@ -497,15 +497,7 @@ export default async function MinhaContaPage() {
                                                         )}
                                                     </div>
 
-                                                    <p className="mt-1 font-medium">
-                                                        #
-                                                        {order.id
-                                                            .slice(
-                                                                0,
-                                                                8,
-                                                            )
-                                                            .to ()}
-                                                    </p>
+
 
                                                     <p className="mt-1 text-sm opacity-50">
                                                         {dateFormatter.format(
