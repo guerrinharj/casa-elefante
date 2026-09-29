@@ -71,7 +71,6 @@ export function NavbarClient({
                 sticky
                 top-0
                 z-50
-                border-b
                 transition-colors
                 duration-500
                 ${

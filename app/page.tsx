@@ -138,7 +138,6 @@ export default async function HomePage({
                         top-0
                         h-full
                         w-5
-                        border-r
                         border-black
                         bg-white
                     "
