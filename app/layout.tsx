@@ -62,7 +62,7 @@ const anton = localFont({
 });
 
 const windsor = localFont({
-    src: "./fonts/WindsorProX.ttf",
+    src: "./fonts/WindsorProX.TTF",
     variable: "--font-windsor",
     display: "swap",
 });
