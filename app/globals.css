@@ -86,6 +86,11 @@
     letter-spacing: -1px
 }
 
+.font-windsor {
+    font-family: var(--font-windsor), sans-serif;
+    letter-spacing: -1px
+}
+
 body {
     font-family: var(--font-questrial), sans-serif;
     letter-spacing: -0.7px;
