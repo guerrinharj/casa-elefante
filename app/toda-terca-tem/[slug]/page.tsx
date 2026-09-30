@@ -1,18 +1,27 @@
+"use client";
+
 import Link from "next/link";
 
 import {
-    notFound,
+    useParams,
 } from "next/navigation";
 
 import {
-    createClient,
-} from "@/lib/supabase/server";
+    useEffect,
+    useState,
+} from "react";
 
-type PerformancePageProps = {
-    params: Promise<{
-        slug: string;
-    }>;
-};
+import {
+    useAudioPlayer,
+} from "@/components/toda-terca-tem/audio-player-provider";
+
+import {
+    createClient,
+} from "@/lib/supabase/client";
+
+import type {
+    Performance,
+} from "@/lib/performances";
 
 function formatDate(
     date: string | null,
@@ -34,50 +43,111 @@ function formatDate(
     );
 }
 
-export default async function PerformancePage({
-    params,
-}: PerformancePageProps) {
-    const {
-        slug,
-    } = await params;
-
-    const supabase =
-        await createClient();
+export default function PerformancePage() {
+    const params =
+        useParams<{
+            slug: string;
+        }>();
 
     const {
-        data: performance,
-        error,
-    } = await supabase
-        .from("performances")
-        .select(`
-            id,
-            name,
-            slug,
-            description,
-            performance_date,
-            video_url,
-            audio_url,
-            cover_image,
-            published,
-            created_at,
-            updated_at
-        `)
-        .eq(
-            "slug",
-            slug,
-        )
-        .eq(
-            "published",
-            true,
-        )
-        .single();
+        playPerformance,
+        currentPerformance,
+    } = useAudioPlayer();
 
-    if (
-        error ||
-        !performance
-    ) {
-        notFound();
+    const [
+        performance,
+        setPerformance,
+    ] =
+        useState<Performance | null>(
+            null,
+        );
+
+    const [
+        loading,
+        setLoading,
+    ] = useState(true);
+
+    useEffect(() => {
+        async function loadPerformance() {
+            const supabase =
+                createClient();
+
+            const {
+                data,
+                error,
+            } = await supabase
+                .from("performances")
+                .select(`
+                    id,
+                    name,
+                    slug,
+                    description,
+                    performance_date,
+                    video_url,
+                    audio_url,
+                    cover_image,
+                    published,
+                    created_at,
+                    updated_at
+                `)
+                .eq(
+                    "slug",
+                    params.slug,
+                )
+                .eq(
+                    "published",
+                    true,
+                )
+                .single();
+
+            if (
+                error ||
+                !data
+            ) {
+                setPerformance(
+                    null,
+                );
+
+                setLoading(
+                    false,
+                );
+
+                return;
+            }
+
+            setPerformance(
+                data as Performance,
+            );
+
+            setLoading(
+                false,
+            );
+        }
+
+        loadPerformance();
+    }, [
+        params.slug,
+    ]);
+
+    if (loading) {
+        return (
+            <main className="min-h-screen bg-black text-white" />
+        );
     }
+
+    if (!performance) {
+        return (
+            <main className="flex min-h-screen items-center justify-center bg-black text-white">
+                <p>
+                    Apresentação não encontrada.
+                </p>
+            </main>
+        );
+    }
+
+    const isCurrentPerformance =
+        currentPerformance?.id ===
+        performance.id;
 
     return (
         <main className="min-h-screen bg-black text-white">
@@ -102,14 +172,12 @@ export default async function PerformancePage({
                 className="
                     grid
                     border-b
-                    
                     md:grid-cols-[30%_1fr]
                 "
             >
                 <div
                     className="
                         border-b
-                         
                         p-4
                         md:border-b-0
                         md:border-r
@@ -123,27 +191,64 @@ export default async function PerformancePage({
                     </p>
                 </div>
 
-                <div className="p-4 md:p-6">
+                <div
+                    className="
+                        flex
+                        items-center
+                        gap-5
+                        p-4
+                        md:p-6
+                    "
+                >
                     <h1
                         className="
                             font-windsor
                             text-5xl
-                            uppercase
                             leading-[0.9]
                             md:text-7xl
                             lg:text-8xl
                             xl:text-9xl
                         "
                     >
-                        {
-                            performance.name
-                        }
+                        {performance.name}
                     </h1>
+
+                    {performance.audio_url && (
+                        <button
+                            type="button"
+                            onClick={() =>
+                                playPerformance(
+                                    performance,
+                                )
+                            }
+                            aria-label={`Reproduzir ${performance.name}`}
+                            className="
+                                flex
+                                h-12
+                                w-12
+                                shrink-0
+                                items-center
+                                justify-center
+                                rounded-full
+                                border
+                                border-white
+                                text-base
+                                transition-colors
+                                duration-300
+                                hover:bg-white
+                                hover:text-black
+                                md:h-14
+                                md:w-14
+                            "
+                        >
+                            ▶
+                        </button>
+                    )}
                 </div>
             </section>
 
             {performance.cover_image && (
-                <section className="border-b  ">
+                <section className="border-b">
                     <img
                         src={
                             performance.cover_image
@@ -165,14 +270,12 @@ export default async function PerformancePage({
                     className="
                         grid
                         border-b
-                         
                         md:grid-cols-[30%_1fr]
                     "
                 >
                     <div
                         className="
                             border-b
-                             
                             p-4
                             md:border-b-0
                             md:border-r
