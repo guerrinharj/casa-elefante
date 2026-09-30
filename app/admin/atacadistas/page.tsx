@@ -121,6 +121,52 @@ function StatusBadge({
     );
 }
 
+function StatusForm({
+    applicationId,
+    status,
+    label,
+    primary = false,
+}: {
+    applicationId: string;
+    status:
+        | "pending"
+        | "approved"
+        | "rejected";
+    label: string;
+    primary?: boolean;
+}) {
+    return (
+        <form
+            action={
+                updateApplicationStatus
+            }
+        >
+            <input
+                type="hidden"
+                name="applicationId"
+                value={applicationId}
+            />
+
+            <input
+                type="hidden"
+                name="status"
+                value={status}
+            />
+
+            <button
+                type="submit"
+                className={
+                    primary
+                        ? "rounded-md border border-black bg-black px-5 py-2 text-sm uppercase text-white transition-opacity hover:opacity-70"
+                        : "rounded-md border border-black px-5 py-2 text-sm uppercase transition-colors hover:bg-black hover:text-white"
+                }
+            >
+                {label}
+            </button>
+        </form>
+    );
+}
+
 function ApplicationCard({
     application,
 }: {
@@ -255,92 +301,57 @@ function ApplicationCard({
             {application.status ===
                 "pending" && (
                 <div className="mt-6 flex flex-wrap gap-3 border-t border-black/20 pt-6">
-                    <form
-                        action={
-                            updateApplicationStatus
+                    <StatusForm
+                        applicationId={
+                            application.id
                         }
-                    >
-                        <input
-                            type="hidden"
-                            name="applicationId"
-                            value={
-                                application.id
-                            }
-                        />
+                        status="approved"
+                        label="Aprovar"
+                        primary
+                    />
 
-                        <input
-                            type="hidden"
-                            name="status"
-                            value="approved"
-                        />
-
-                        <button
-                            type="submit"
-                            className="rounded-md border border-black bg-black px-5 py-2 text-sm uppercase text-white transition-opacity hover:opacity-70"
-                        >
-                            Aprovar
-                        </button>
-                    </form>
-
-                    <form
-                        action={
-                            updateApplicationStatus
+                    <StatusForm
+                        applicationId={
+                            application.id
                         }
-                    >
-                        <input
-                            type="hidden"
-                            name="applicationId"
-                            value={
-                                application.id
-                            }
-                        />
-
-                        <input
-                            type="hidden"
-                            name="status"
-                            value="rejected"
-                        />
-
-                        <button
-                            type="submit"
-                            className="rounded-md border border-black px-5 py-2 text-sm uppercase transition-colors hover:bg-black hover:text-white"
-                        >
-                            Recusar
-                        </button>
-                    </form>
+                        status="rejected"
+                        label="Recusar"
+                    />
                 </div>
             )}
 
             {application.status ===
                 "approved" && (
                 <div className="mt-6 flex flex-wrap gap-3 border-t border-black/20 pt-6">
-                    <form
-                        action={
-                            updateApplicationStatus
+                    <StatusForm
+                        applicationId={
+                            application.id
                         }
-                    >
-                        <input
-                            type="hidden"
-                            name="applicationId"
-                            value={
-                                application.id
-                            }
-                        />
+                        status="pending"
+                        label="Remover acesso ao atacado"
+                    />
+                </div>
+            )}
 
-                        <input
-                            type="hidden"
-                            name="status"
-                            value="pending"
-                        />
+            {application.status ===
+                "rejected" && (
+                <div className="mt-6 flex flex-wrap gap-3 border-t border-black/20 pt-6">
+                    <StatusForm
+                        applicationId={
+                            application.id
+                        }
+                        status="approved"
+                        label="Aprovar"
+                        primary
+                    />
 
-                        <button
-                            type="submit"
-                            className="rounded-md border border-black px-5 py-2 text-sm uppercase transition-colors hover:bg-black hover:text-white"
-                        >
-                            Remover acesso ao
-                            atacado
-                        </button>
-                    </form>
+                    <StatusForm
+                        applicationId={
+                            application.id
+                        }
+                        status="pending"
+                        label="Voltar para pendente"
+                    />
                 </div>
             )}
         </article>
