@@ -14,12 +14,45 @@ type Product = {
     stock: number;
 };
 
+type Performance = {
+    id: string;
+    name: string;
+    slug: string;
+    description: string | null;
+    performance_date: string | null;
+    cover_image: string | null;
+    video_url: string | null;
+    audio_url: string | null;
+};
+
 type NewsletterEditorProps = {
     products: Product[];
+    performances: Performance[];
 };
+
+function formatPerformanceDate(
+    date: string | null,
+) {
+    if (!date) {
+        return "";
+    }
+
+    return new Intl.DateTimeFormat(
+        "pt-BR",
+        {
+            day: "2-digit",
+            month: "long",
+            year: "numeric",
+            timeZone: "UTC",
+        },
+    ).format(
+        new Date(date),
+    );
+}
 
 export function NewsletterEditor({
     products,
+    performances,
 }: NewsletterEditorProps) {
     const [
         subject,
@@ -39,6 +72,11 @@ export function NewsletterEditor({
     const [
         selectedProducts,
         setSelectedProducts,
+    ] = useState<string[]>([]);
+
+    const [
+        selectedPerformances,
+        setSelectedPerformances,
     ] = useState<string[]>([]);
 
     function toggleProduct(
@@ -61,6 +99,31 @@ export function NewsletterEditor({
                 return [
                     ...current,
                     productId,
+                ];
+            },
+        );
+    }
+
+    function togglePerformance(
+        performanceId: string,
+    ) {
+        setSelectedPerformances(
+            (current) => {
+                if (
+                    current.includes(
+                        performanceId,
+                    )
+                ) {
+                    return current.filter(
+                        (id) =>
+                            id !==
+                            performanceId,
+                    );
+                }
+
+                return [
+                    ...current,
+                    performanceId,
                 ];
             },
         );
@@ -149,6 +212,8 @@ export function NewsletterEditor({
                     </div>
                 </div>
 
+                {/* PRODUCTS */}
+
                 <div className="mt-10">
                     <h2 className="text-xl font-bold uppercase">
                         Produtos
@@ -219,7 +284,110 @@ export function NewsletterEditor({
                         )}
                     </div>
                 </div>
+
+                {/* PERFORMANCES */}
+
+                <div className="mt-10">
+                    <h2 className="text-xl font-bold uppercase">
+                        Apresentações
+                    </h2>
+
+                    <div className="mt-4 max-h-[500px] overflow-y-auto rounded-xl border border-black bg-white">
+                        {performances.length ===
+                            0 && (
+                            <div className="p-4 text-sm opacity-60">
+                                Nenhuma
+                                apresentação
+                                disponível.
+                            </div>
+                        )}
+
+                        {performances.map(
+                            (
+                                performance,
+                            ) => {
+                                const selected =
+                                    selectedPerformances.includes(
+                                        performance.id,
+                                    );
+
+                                return (
+                                    <button
+                                        key={
+                                            performance.id
+                                        }
+                                        type="button"
+                                        onClick={() =>
+                                            togglePerformance(
+                                                performance.id,
+                                            )
+                                        }
+                                        className="flex w-full items-center gap-4 border-b border-black p-3 text-left last:border-b-0"
+                                    >
+                                        <div className="h-14 w-14 shrink-0 overflow-hidden rounded-lg bg-neutral-100">
+                                            {performance.cover_image && (
+                                                <img
+                                                    src={
+                                                        performance.cover_image
+                                                    }
+                                                    alt=""
+                                                    className="h-full w-full object-cover"
+                                                />
+                                            )}
+                                        </div>
+
+                                        <div className="min-w-0 flex-1">
+                                            <p className="truncate font-medium">
+                                                {
+                                                    performance.name
+                                                }
+                                            </p>
+
+                                            {performance.performance_date && (
+                                                <p className="text-sm">
+                                                    {formatPerformanceDate(
+                                                        performance.performance_date,
+                                                    )}
+                                                </p>
+                                            )}
+
+                                            {(performance.audio_url ||
+                                                performance.video_url) && (
+                                                <div className="mt-1 flex gap-2 text-xs uppercase">
+                                                    {performance.audio_url && (
+                                                        <span>
+                                                            Áudio
+                                                        </span>
+                                                    )}
+
+                                                    {performance.video_url && (
+                                                        <span>
+                                                            Vídeo
+                                                        </span>
+                                                    )}
+                                                </div>
+                                            )}
+                                        </div>
+
+                                        <div
+                                            className={`flex h-6 w-6 items-center justify-center rounded-md border border-black ${
+                                                selected
+                                                    ? "bg-black text-white"
+                                                    : "bg-white"
+                                            }`}
+                                        >
+                                            {selected &&
+                                                "✓"}
+                                        </div>
+                                    </button>
+                                );
+                            },
+                        )}
+                    </div>
+                </div>
             </div>
+
+            {/* PREVIEW */}
 
             <div>
                 <div className="sticky top-24">
@@ -244,69 +412,164 @@ export function NewsletterEditor({
                             </p>
                         )}
 
+                        {/* PRODUCTS PREVIEW */}
+
                         {selectedProducts.length >
                             0 && (
-                            <div className="mt-10 grid grid-cols-2 gap-4">
-                                {products
-                                    .filter(
-                                        (
-                                            product,
-                                        ) =>
-                                            selectedProducts.includes(
-                                                product.id,
+                            <div className="mt-10">
+                                <h3 className="mb-4 text-lg font-bold uppercase">
+                                    Discos
+                                </h3>
+
+                                <div className="grid grid-cols-2 gap-4">
+                                    {products
+                                        .filter(
+                                            (
+                                                product,
+                                            ) =>
+                                                selectedProducts.includes(
+                                                    product.id,
+                                                ),
+                                        )
+                                        .map(
+                                            (
+                                                product,
+                                            ) => (
+                                                <div
+                                                    key={
+                                                        product.id
+                                                    }
+                                                >
+                                                    <div className="aspect-square overflow-hidden rounded-xl bg-neutral-100">
+                                                        {product
+                                                            .images?.[0] && (
+                                                            <img
+                                                                src={
+                                                                    product
+                                                                        .images[0]
+                                                                }
+                                                                alt=""
+                                                                className="h-full w-full object-cover"
+                                                            />
+                                                        )}
+                                                    </div>
+
+                                                    <p className="mt-2 font-medium">
+                                                        {
+                                                            product.name
+                                                        }
+                                                    </p>
+
+                                                    <p className="text-sm">
+                                                        {
+                                                            product.artist
+                                                        }
+                                                    </p>
+
+                                                    <p className="mt-1 text-sm">
+                                                        {Number(
+                                                            product.price,
+                                                        ).toLocaleString(
+                                                            "pt-BR",
+                                                            {
+                                                                style:
+                                                                    "currency",
+                                                                currency:
+                                                                    "BRL",
+                                                            },
+                                                        )}
+                                                    </p>
+                                                </div>
                                             ),
-                                    )
-                                    .map(
-                                        (
-                                            product,
-                                        ) => (
-                                            <div
-                                                key={
-                                                    product.id
-                                                }
-                                            >
-                                                <div className="aspect-square overflow-hidden rounded-xl bg-neutral-100">
-                                                    {product
-                                                        .images?.[0] && (
-                                                        <img
-                                                            src={
-                                                                product
-                                                                    .images[0]
+                                        )}
+                                </div>
+                            </div>
+                        )}
+
+                        {/* PERFORMANCES PREVIEW */}
+
+                        {selectedPerformances.length >
+                            0 && (
+                            <div className="mt-12">
+                                <h3 className="mb-5 text-lg font-bold uppercase">
+                                    Apresentações
+                                </h3>
+
+                                <div className="flex flex-col gap-8">
+                                    {performances
+                                        .filter(
+                                            (
+                                                performance,
+                                            ) =>
+                                                selectedPerformances.includes(
+                                                    performance.id,
+                                                ),
+                                        )
+                                        .map(
+                                            (
+                                                performance,
+                                            ) => (
+                                                <div
+                                                    key={
+                                                        performance.id
+                                                    }
+                                                >
+                                                    {performance.cover_image && (
+                                                        <div className="aspect-video overflow-hidden rounded-xl bg-neutral-100">
+                                                            <img
+                                                                src={
+                                                                    performance.cover_image
+                                                                }
+                                                                alt=""
+                                                                className="h-full w-full object-cover"
+                                                            />
+                                                        </div>
+                                                    )}
+
+                                                    {performance.performance_date && (
+                                                        <p className="mt-3 text-xs uppercase">
+                                                            {formatPerformanceDate(
+                                                                performance.performance_date,
+                                                            )}
+                                                        </p>
+                                                    )}
+
+                                                    <p className="mt-1 text-xl font-bold uppercase">
+                                                        {
+                                                            performance.name
+                                                        }
+                                                    </p>
+
+                                                    {performance.description && (
+                                                        <p className="mt-2 text-sm">
+                                                            {
+                                                                performance.description
                                                             }
-                                                            alt=""
-                                                            className="h-full w-full object-cover"
-                                                        />
+                                                        </p>
+                                                    )}
+
+                                                    {(performance.audio_url ||
+                                                        performance.video_url) && (
+                                                        <div className="mt-3 flex gap-3 text-xs font-medium uppercase">
+                                                            {performance.audio_url && (
+                                                                <span>
+                                                                    Ouvir
+                                                                    áudio
+                                                                </span>
+                                                            )}
+
+                                                            {performance.video_url && (
+                                                                <span>
+                                                                    Assistir
+                                                                    vídeo
+                                                                </span>
+                                                            )}
+                                                        </div>
                                                     )}
                                                 </div>
-
-                                                <p className="mt-2 font-medium">
-                                                    {
-                                                        product.name
-                                                    }
-                                                </p>
-
-                                                <p className="text-sm">
-                                                    {
-                                                        product.artist
-                                                    }
-                                                </p>
-
-                                                <p className="mt-1 text-sm">
-                                                    {Number(
-                                                        product.price,
-                                                    ).toLocaleString(
-                                                        "pt-BR",
-                                                        {
-                                                            style:
-                                                                "currency",
-                                                            currency:
-                                                                "BRL",
-                                                        },
-                                                    )}
-                                                </p>
-                                            </div>
-                                        ),
-                                    )}
+                                            ),
+                                        )}
+                                </div>
                             </div>
                         )}
                     </div>

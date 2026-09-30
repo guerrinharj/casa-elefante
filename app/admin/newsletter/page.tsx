@@ -10,32 +10,64 @@ export default async function AdminNewsletterPage() {
     const supabase =
         await createClient();
 
-    const {
-        data: products,
-        error,
-    } = await supabase
-        .from("products")
-        .select(`
-            id,
-            name,
-            slug,
-            artist,
-            price,
-            images,
-            stock
-        `)
-        .gt("stock", 0)
-        .order(
-            "created_at",
-            {
-                ascending: false,
-            },
-        );
+    const [
+        productsResult,
+        performancesResult,
+    ] = await Promise.all([
+        supabase
+            .from("products")
+            .select(`
+                id,
+                name,
+                slug,
+                artist,
+                price,
+                images,
+                stock
+            `)
+            .gt("stock", 0)
+            .order(
+                "created_at",
+                {
+                    ascending: false,
+                },
+            ),
 
-    if (error) {
+        supabase
+            .from("performances")
+            .select(`
+                id,
+                name,
+                slug,
+                description,
+                performance_date,
+                cover_image,
+                video_url,
+                audio_url
+            `)
+            .eq(
+                "published",
+                true,
+            )
+            .order(
+                "performance_date",
+                {
+                    ascending: false,
+                },
+            ),
+    ]);
+
+    if (productsResult.error) {
         console.error(
             "Newsletter products error:",
-            error,
+            productsResult.error,
+        );
+    }
+
+    if (performancesResult.error) {
+        console.error(
+            "Newsletter performances error:",
+            performancesResult.error,
         );
     }
 
@@ -48,7 +80,12 @@ export default async function AdminNewsletterPage() {
 
                 <NewsletterEditor
                     products={
-                        products ?? []
+                        productsResult.data ??
+                        []
+                    }
+                    performances={
+                        performancesResult.data ??
+                        []
                     }
                 />
             </div>
