@@ -33,6 +33,7 @@ export default async function ProductPage({
     const {
         canSeeWholesalePrice,
         isWholesale,
+        isAdmin,
     } = await getUserAccess();
 
     const {
@@ -85,7 +86,8 @@ export default async function ProductPage({
 
     const unavailableForUser =
         product.wholesale_only &&
-        !isWholesale;
+        !isWholesale &&
+        !isAdmin;
 
     return (
         <main className="p-4 md:p-6">

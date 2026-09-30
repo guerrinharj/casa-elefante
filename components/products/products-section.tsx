@@ -1,12 +1,20 @@
 import Link from "next/link";
 
-import { InfiniteProductList } from "@/components/products/infinite-product-list";
+import {
+    InfiniteProductList,
+} from "@/components/products/infinite-product-list";
 
-import { ProductSearch } from "@/components/products/product-search";
+import {
+    ProductSearch,
+} from "@/components/products/product-search";
 
-import { getUserAccess } from "@/lib/auth";
+import {
+    getUserAccess,
+} from "@/lib/auth";
 
-import { createClient } from "@/lib/supabase/server";
+import {
+    createClient,
+} from "@/lib/supabase/server";
 
 const PRODUCTS_PER_PAGE = 24;
 
@@ -36,10 +44,23 @@ export async function ProductsSection({
     const {
         isWholesale,
         isAdmin,
+        wholesaleStatus,
     } = await getUserAccess();
 
+    /*
+     * Pode enxergar produtos exclusivos:
+     *
+     * admin    -> sim
+     * approved -> sim
+     * pending  -> sim, mas card bloqueado
+     * rejected -> não
+     * comum    -> não
+     */
     const canSeeWholesaleOnly =
-        isWholesale || isAdmin;
+        isAdmin ||
+        isWholesale ||
+        wholesaleStatus ===
+            "pending";
 
     let query = supabase
         .from("products")
@@ -74,10 +95,8 @@ export async function ProductsSection({
         );
 
     /*
-     * Usuários comuns não recebem produtos
-     * exclusivos para atacadistas.
-     *
-     * Admin e atacadista aprovado enxergam todos.
+     * Rejected e usuários comuns
+     * não recebem produtos exclusivos.
      */
     if (!canSeeWholesaleOnly) {
         query = query.eq(
@@ -261,7 +280,11 @@ export async function ProductsSection({
                         filters
                     }
                     isWholesale={
-                        isWholesale
+                        isWholesale ||
+                        isAdmin
+                    }
+                    wholesaleStatus={
+                        wholesaleStatus
                     }
                 />
             )}

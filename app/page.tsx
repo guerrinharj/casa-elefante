@@ -22,6 +22,10 @@ import {
     createClient,
 } from "@/lib/supabase/server";
 
+import {
+    getUserAccess,
+} from "@/lib/auth";
+
 type HomePageProps = {
     searchParams: Promise<{
         genre?: string;
@@ -39,49 +43,89 @@ type HomePageProps = {
 export default async function HomePage({
     searchParams,
 }: HomePageProps) {
-    const filters = await searchParams;
+    const filters =
+        await searchParams;
 
-    const hasActiveFilters = Object.values(
-        filters,
-    ).some((value) => {
-        return (
-            typeof value === "string" &&
-            value.trim() !== ""
-        );
-    });
+    const hasActiveFilters =
+        Object.values(
+            filters,
+        ).some((value) => {
+            return (
+                typeof value ===
+                    "string" &&
+                value.trim() !== ""
+            );
+        });
 
     const supabase =
         await createClient();
 
     const {
+        isWholesale,
+        isAdmin,
+        wholesaleStatus,
+    } = await getUserAccess();
+
+    /*
+     * Quem pode enxergar produtos
+     * exclusivos no carrossel:
+     *
+     * admin     -> sim
+     * approved  -> sim
+     * pending   -> sim
+     * rejected  -> não
+     * comum     -> não
+     */
+    const canSeeWholesaleOnly =
+        isAdmin ||
+        isWholesale ||
+        wholesaleStatus ===
+            "pending";
+
+    let featuredQuery =
+        supabase
+            .from("products")
+            .select(`
+                id,
+                name,
+                slug,
+                artist,
+                price,
+                format,
+                year,
+                images,
+                wholesale_only
+            `)
+            .eq(
+                "is_featured",
+                true,
+            )
+            .gt(
+                "stock",
+                0,
+            );
+
+    /*
+     * Rejected e usuários comuns
+     * não recebem produtos exclusivos.
+     */
+    if (!canSeeWholesaleOnly) {
+        featuredQuery =
+            featuredQuery.eq(
+                "wholesale_only",
+                false,
+            );
+    }
+
+    const {
         data: featuredProducts,
         error: featuredError,
-    } = await supabase
-        .from("products")
-        .select(`
-            id,
-            name,
-            slug,
-            artist,
-            price,
-            format,
-            year,
-            images
-        `)
-        .eq(
-            "is_featured",
-            true,
-        )
-        .gt(
-            "stock",
-            0,
-        )
-        .order(
-            "created_at",
-            {
-                ascending: false,
-            },
-        );
+    } = await featuredQuery.order(
+        "created_at",
+        {
+            ascending: false,
+        },
+    );
 
     if (featuredError) {
         console.error(
@@ -129,8 +173,6 @@ export default async function HomePage({
                 >
                     <Sidebar />
                 </Suspense>
-
-
             </div>
 
             {/* CONTENT */}

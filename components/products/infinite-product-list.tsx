@@ -12,6 +12,12 @@ import {
 
 const PRODUCTS_PER_PAGE = 24;
 
+type WholesaleStatus =
+    | "pending"
+    | "approved"
+    | "rejected"
+    | null;
+
 type Product = {
     id: string;
     name: string;
@@ -22,6 +28,7 @@ type Product = {
     format: string;
     images: string[];
     stock: number;
+    wholesale_only?: boolean;
 };
 
 type Filters = {
@@ -40,18 +47,64 @@ type InfiniteProductListProps = {
     initialProducts: Product[];
     filters: Filters;
     isWholesale: boolean;
+    wholesaleStatus: WholesaleStatus;
 };
 
 export function InfiniteProductList({
     initialProducts,
     filters,
     isWholesale,
+    wholesaleStatus,
 }: InfiniteProductListProps) {
+    const filterProducts = (
+        productList: Product[],
+    ) => {
+        /*
+         * APPROVED
+         *
+         * Pode ver todos os produtos,
+         * incluindo wholesale_only.
+         */
+        if (
+            wholesaleStatus ===
+                "approved" ||
+            isWholesale
+        ) {
+            return productList;
+        }
+
+        /*
+         * PENDING
+         *
+         * Pode ver os produtos exclusivos,
+         * mas o ProductCard irá
+         * desabilitá-los.
+         */
+        if (
+            wholesaleStatus ===
+            "pending"
+        ) {
+            return productList;
+        }
+
+        /*
+         * REJECTED ou usuário comum
+         *
+         * Produtos exclusivos não aparecem.
+         */
+        return productList.filter(
+            (product) =>
+                !product.wholesale_only,
+        );
+    };
+
     const [
         products,
         setProducts,
-    ] = useState(
-        initialProducts,
+    ] = useState<Product[]>(
+        filterProducts(
+            initialProducts,
+        ),
     );
 
     const [
@@ -92,7 +145,9 @@ export function InfiniteProductList({
             filters;
 
         setProducts(
-            initialProducts,
+            filterProducts(
+                initialProducts,
+            ),
         );
 
         pageRef.current = 1;
@@ -123,6 +178,8 @@ export function InfiniteProductList({
         filters.condition,
         filters.availability,
         filters.pre_order,
+        wholesaleStatus,
+        isWholesale,
     ]);
 
     async function loadMore() {
@@ -236,6 +293,11 @@ export function InfiniteProductList({
                 Product[] =
                 await response.json();
 
+            const visibleNextProducts =
+                filterProducts(
+                    nextProducts,
+                );
+
             setProducts(
                 (
                     currentProducts,
@@ -251,7 +313,7 @@ export function InfiniteProductList({
                         );
 
                     const uniqueProducts =
-                        nextProducts.filter(
+                        visibleNextProducts.filter(
                             (
                                 product,
                             ) =>
@@ -269,6 +331,16 @@ export function InfiniteProductList({
 
             pageRef.current += 1;
 
+            /*
+             * IMPORTANTE:
+             *
+             * usamos nextProducts aqui,
+             * e não visibleNextProducts.
+             *
+             * O servidor pode ter retornado
+             * 24 produtos, mesmo que alguns
+             * sejam escondidos localmente.
+             */
             const newHasMore =
                 nextProducts.length ===
                 PRODUCTS_PER_PAGE;
@@ -349,6 +421,9 @@ export function InfiniteProductList({
                                 }
                                 isWholesale={
                                     isWholesale
+                                }
+                                wholesaleStatus={
+                                    wholesaleStatus
                                 }
                             />
                         </div>
