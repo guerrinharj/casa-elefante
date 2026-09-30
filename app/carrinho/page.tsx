@@ -67,13 +67,9 @@ export default function CartPage() {
                             item,
                             index,
                         ) => {
-                            const isWholesale =
-                                item.minimumQuantity >
-                                1;
-
                             const isAtMinimum =
                                 item.quantity <=
-                                item.minimumQuantity;
+                                1;
 
                             const isAtMaximum =
                                 item.quantity >=
@@ -127,50 +123,16 @@ export default function CartPage() {
                                                 }
                                             </p>
 
-                                            {isWholesale ? (
-                                                <div className="mt-3">
-                                                    <span className="inline-block rounded-full border border-black bg-black px-2 py-1 text-xs uppercase text-white">
-                                                        Atacado
-                                                    </span>
-
-                                                    <div className="mt-2 flex items-baseline gap-1">
-                                                        <p className="text-xl font-medium">
-                                                            {item.price.toLocaleString(
-                                                                "pt-BR",
-                                                                {
-                                                                    style: "currency",
-                                                                    currency:
-                                                                        "BRL",
-                                                                },
-                                                            )}
-                                                        </p>
-
-                                                        <span className="text-sm">
-                                                            /
-                                                            unidade
-                                                        </span>
-                                                    </div>
-
-                                                    <p className="mt-1 text-xs opacity-60">
-                                                        Quantidade
-                                                        mínima:{" "}
-                                                        {
-                                                            item.minimumQuantity
-                                                        }
-                                                    </p>
-                                                </div>
-                                            ) : (
-                                                <p className="mt-2">
-                                                    {item.price.toLocaleString(
-                                                        "pt-BR",
-                                                        {
-                                                            style: "currency",
-                                                            currency:
-                                                                "BRL",
-                                                        },
-                                                    )}
-                                                </p>
-                                            )}
+                                            <p className="mt-2">
+                                                {item.price.toLocaleString(
+                                                    "pt-BR",
+                                                    {
+                                                        style: "currency",
+                                                        currency:
+                                                            "BRL",
+                                                    },
+                                                )}
+                                            </p>
                                         </div>
 
                                         <button
@@ -240,12 +202,6 @@ export default function CartPage() {
                                         </div>
 
                                         <div className="mt-4 text-right">
-                                            {isWholesale && (
-                                                <p className="mb-1 text-xs uppercase opacity-60">
-                                                    Total
-                                                </p>
-                                            )}
-
                                             <p className="text-lg">
                                                 {(
                                                     item.price *

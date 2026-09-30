@@ -33,8 +33,7 @@ export default async function ProductPage({
     const {
         canSeeWholesalePrice,
         isWholesale,
-    } = await getUserAccess(); await getUserAccess();
-
+    } = await getUserAccess();
 
     const {
         data: product,
@@ -54,6 +53,7 @@ export default async function ProductPage({
             format,
             catalog_number,
             wholesale_price,
+            wholesale_only,
             description,
             stock,
             condition,
@@ -83,6 +83,10 @@ export default async function ProductPage({
         product.height ||
         product.length;
 
+    const unavailableForUser =
+        product.wholesale_only &&
+        !isWholesale;
+
     return (
         <main className="p-4 md:p-6">
             <div className="mx-auto grid max-w-6xl gap-8 md:grid-cols-2">
@@ -94,9 +98,7 @@ export default async function ProductPage({
                                 index: number,
                             ) => (
                                 <div
-                                    key={
-                                        image
-                                    }
+                                    key={image}
                                     className="aspect-square rounded-xl border border-black bg-white p-3 shadow-[6px_6px_0_0_#000]"
                                 >
                                     <div className="h-full w-full overflow-hidden rounded-lg">
@@ -124,6 +126,15 @@ export default async function ProductPage({
                             <div className="mb-3">
                                 <span className="inline-block rounded-full border border-black bg-black px-3 py-1 text-xs font-medium uppercase text-white">
                                     Pré-venda
+                                </span>
+                            </div>
+                        )}
+
+                        {product.wholesale_only && (
+                            <div className="mb-3">
+                                <span className="inline-block rounded-full border border-black bg-white px-3 py-1 text-xs font-medium uppercase">
+                                    Exclusivo para
+                                    atacadistas
                                 </span>
                             </div>
                         )}
@@ -170,8 +181,7 @@ export default async function ProductPage({
                     {product.catalog_number && (
                         <p className="text-sm">
                             <span className="underline">
-                                Número de
-                                catálogo:
+                                Número de catálogo:
                             </span>
 
                             <br />
@@ -190,9 +200,7 @@ export default async function ProductPage({
 
                             <br />
 
-                            {
-                                product.country
-                            }
+                            {product.country}
                         </p>
                     )}
 
@@ -204,9 +212,7 @@ export default async function ProductPage({
 
                             <br />
 
-                            {
-                                product.condition
-                            }
+                            {product.condition}
                         </p>
                     )}
 
@@ -258,104 +264,112 @@ export default async function ProductPage({
                         </p>
                     )}
 
-                <div className="border-t pt-6">
-                    {canSeeWholesalePrice &&
-                    product.wholesale_price !== null ? (
-                        <div>
-                            <div className="flex items-baseline gap-3">
-                                <p className="text-lg line-through opacity-50">
-                                    {Number(
-                                        product.price,
-                                    ).toLocaleString(
-                                        "pt-BR",
-                                        {
-                                            style: "currency",
-                                            currency:
-                                                "BRL",
-                                        },
-                                    )}
-                                </p>
+                    <div className="border-t pt-6">
+                        {canSeeWholesalePrice &&
+                        product.wholesale_price !==
+                            null ? (
+                            <div>
+                                <div className="flex items-baseline gap-3">
+                                    <p className="text-lg line-through opacity-50">
+                                        {Number(
+                                            product.price,
+                                        ).toLocaleString(
+                                            "pt-BR",
+                                            {
+                                                style: "currency",
+                                                currency:
+                                                    "BRL",
+                                            },
+                                        )}
+                                    </p>
 
-                                <span className="rounded-full border border-black bg-black px-2 py-1 text-xs uppercase text-white">
-                                    Atacado
-                                </span>
+                                    <span className="rounded-full border border-black bg-black px-2 py-1 text-xs uppercase text-white">
+                                        Atacado
+                                    </span>
+                                </div>
+
+                                <div className="mt-1 flex items-baseline gap-2">
+                                    <p className="text-3xl font-medium">
+                                        {Number(
+                                            product.wholesale_price,
+                                        ).toLocaleString(
+                                            "pt-BR",
+                                            {
+                                                style: "currency",
+                                                currency:
+                                                    "BRL",
+                                            },
+                                        )}
+                                    </p>
+
+                                    <span className="text-sm">
+                                        / unidade
+                                    </span>
+                                </div>
                             </div>
+                        ) : (
+                            <p className="text-2xl">
+                                {Number(
+                                    product.price,
+                                ).toLocaleString(
+                                    "pt-BR",
+                                    {
+                                        style: "currency",
+                                        currency:
+                                            "BRL",
+                                    },
+                                )}
+                            </p>
+                        )}
 
-                            <div className="mt-1 flex items-baseline gap-2">
-                                <p className="text-3xl font-medium">
-                                    {Number(
-                                        product.wholesale_price,
-                                    ).toLocaleString(
-                                        "pt-BR",
-                                        {
-                                            style: "currency",
-                                            currency:
-                                                "BRL",
-                                        },
-                                    )}
-                                </p>
+                        {product.pre_order ? (
+                            <p className="mt-2 text-sm">
+                                Produto em
+                                pré-venda
+                            </p>
+                        ) : (
+                            <p className="mt-2 text-sm">
+                                {product.stock >
+                                0
+                                    ? `${product.stock} em estoque`
+                                    : "Produto indisponível"}
+                            </p>
+                        )}
+                    </div>
 
-                                <span className="text-sm">
-                                    / unidade
-                                </span>
-                            </div>
+                    {unavailableForUser ? (
+                        <div className="rounded-xl border border-black bg-white p-4 text-sm">
+                            Este produto é
+                            exclusivo para
+                            clientes atacadistas
+                            aprovados.
                         </div>
                     ) : (
-                        <p className="text-2xl">
-                            {Number(
-                                product.price,
-                            ).toLocaleString(
-                                "pt-BR",
-                                {
-                                    style: "currency",
-                                    currency:
-                                        "BRL",
-                                },
-                            )}
-                        </p>
+                        <AddToCartButton
+                            product={{
+                                id: product.id,
+                                name: product.name,
+                                slug: product.slug,
+                                artist:
+                                    product.artist,
+                                price:
+                                    canSeeWholesalePrice &&
+                                    product.wholesale_price !==
+                                        null
+                                        ? Number(
+                                              product.wholesale_price,
+                                          )
+                                        : Number(
+                                              product.price,
+                                          ),
+                                stock:
+                                    product.stock,
+                                image:
+                                    product
+                                        .images?.[0],
+                            }}
+                        />
                     )}
-
-                    {product.pre_order ? (
-                        <p className="mt-2 text-sm">
-                            Produto em pré-venda
-                        </p>
-                    ) : (
-                        <p className="mt-2 text-sm">
-                            {product.stock > 0
-                                ? `${product.stock} em estoque`
-                                : "Produto indisponível"}
-                        </p>
-                    )}
-                </div>
-
-                    <AddToCartButton
-                        product={{
-                            id: product.id,
-                            name: product.name,
-                            slug: product.slug,
-                            artist:
-                                product.artist,
-                            price:
-                                canSeeWholesalePrice &&
-                                product.wholesale_price !== null
-                                    ? Number(
-                                        product.wholesale_price,
-                                    )
-                                    : Number(
-                                        product.price,
-                                    ),
-                            stock:
-                                product.stock,
-                            minimumQuantity:
-                                isWholesale &&
-                                product.wholesale_price !== null
-                                    ? 2
-                                    : 1,
-                            image:
-                                product
-                                    .images?.[0],
-                        }}
-                    />
                 </div>
             </div>
         </main>

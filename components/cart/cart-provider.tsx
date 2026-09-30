@@ -15,93 +15,88 @@ type CartProduct = {
     price: number;
     image?: string;
     stock: number;
-    minimumQuantity?: number;
 };
 
 export type CartItem = CartProduct & {
     quantity: number;
-    minimumQuantity: number;
 };
 
 type CartContextType = {
     items: CartItem[];
-
-    addItem: (
-        product: CartProduct,
-    ) => void;
-
-    removeItem: (
-        productId: string,
-    ) => void;
-
+    addItem: (product: CartProduct) => void;
+    removeItem: (productId: string) => void;
     updateQuantity: (
         productId: string,
         quantity: number,
     ) => void;
-
     clearCart: () => void;
-
     totalItems: number;
-
     subtotal: number;
 };
 
-const CartContext = createContext<
-    CartContextType | undefined
->(undefined);
+const CartContext =
+    createContext<CartContextType | undefined>(
+        undefined,
+    );
 
-const STORAGE_KEY =
-    "casa-elefante-cart";
+const STORAGE_KEY = "casa-elefante-cart";
 
 export function CartProvider({
     children,
 }: {
     children: React.ReactNode;
 }) {
-    const [
-        items,
-        setItems,
-    ] = useState<CartItem[]>([]);
+    const [items, setItems] = useState<CartItem[]>(
+        [],
+    );
 
-    const [
-        loaded,
-        setLoaded,
-    ] = useState(false);
+    const [loaded, setLoaded] = useState(false);
 
     useEffect(() => {
         const storedCart =
-            localStorage.getItem(
-                STORAGE_KEY,
-            );
+            localStorage.getItem(STORAGE_KEY);
 
         if (storedCart) {
             try {
                 const parsedCart =
-                    JSON.parse(
-                        storedCart,
-                    );
+                    JSON.parse(storedCart);
 
-                /*
-                 * Carrinhos antigos podem não
-                 * possuir minimumQuantity.
-                 *
-                 * Nesse caso assumimos varejo.
-                 */
-                const normalizedCart =
-                    parsedCart.map(
-                        (
-                            item: CartItem,
-                        ) => ({
-                            ...item,
-                            minimumQuantity:
-                                item.minimumQuantity ??
-                                1,
-                        }),
-                    );
+                if (Array.isArray(parsedCart)) {
+                    const normalizedCart =
+                        parsedCart.map((item) => {
+                            const stock = Math.max(
+                                0,
+                                Number(item.stock) || 0,
+                            );
 
-                setItems(
-                    normalizedCart,
-                );
+                            const quantity =
+                                stock > 0
+                                    ? Math.max(
+                                          1,
+                                          Math.min(
+                                              Number(
+                                                  item.quantity,
+                                              ) || 1,
+                                              stock,
+                                          ),
+                                      )
+                                    : 1;
+
+                            const {
+                                minimumQuantity:
+                                    _minimumQuantity,
+                                ...cartItem
+                            } = item;
+
+                            return {
+                                ...cartItem,
+                                stock,
+                                quantity,
+                            };
+                        });
+
+                    setItems(normalizedCart);
+                }
             } catch {
                 localStorage.removeItem(
                     STORAGE_KEY,
@@ -123,73 +118,52 @@ export function CartProvider({
         );
     }, [items, loaded]);
 
-    function addItem(
-        product: CartProduct,
-    ) {
-        setItems(
-            (currentItems) => {
-                const minimumQuantity =
-                    product.minimumQuantity ??
-                    1;
+    function addItem(product: CartProduct) {
+        setItems((currentItems) => {
+            const existingItem =
+                currentItems.find(
+                    (item) =>
+                        item.id === product.id,
+                );
 
-                const existingItem =
-                    currentItems.find(
-                        (item) =>
-                            item.id ===
-                            product.id,
-                    );
+            if (existingItem) {
+                return currentItems.map(
+                    (item) => {
+                        if (
+                            item.id !== product.id
+                        ) {
+                            return item;
+                        }
 
-                if (existingItem) {
-                    return currentItems.map(
-                        (item) => {
-                            if (
-                                item.id !==
-                                product.id
-                            ) {
-                                return item;
-                            }
-
-                            return {
-                                ...item,
-                                price:
-                                    product.price,
-                                stock:
-                                    product.stock,
-                                minimumQuantity,
-                                quantity:
-                                    Math.min(
-                                        item.quantity +
-                                            1,
-                                        product.stock,
-                                    ),
-                            };
-                        },
-                    );
-                }
-
-                return [
-                    ...currentItems,
-                    {
-                        ...product,
-                        minimumQuantity,
-                        quantity:
-                            minimumQuantity,
+                        return {
+                            ...item,
+                            price: product.price,
+                            stock: product.stock,
+                            quantity: Math.min(
+                                item.quantity + 1,
+                                product.stock,
+                            ),
+                        };
                     },
-                ];
-            },
-        );
+                );
+            }
+
+            return [
+                ...currentItems,
+                {
+                    ...product,
+                    quantity: 1,
+                },
+            ];
+        });
     }
 
-    function removeItem(
-        productId: string,
-    ) {
-        setItems(
-            (currentItems) =>
-                currentItems.filter(
-                    (item) =>
-                        item.id !==
-                        productId,
-                ),
+    function removeItem(productId: string) {
+        setItems((currentItems) =>
+            currentItems.filter(
+                (item) =>
+                    item.id !== productId,
+            ),
         );
     }
 
@@ -197,30 +171,23 @@ export function CartProvider({
         productId: string,
         quantity: number,
     ) {
-        setItems(
-            (currentItems) =>
-                currentItems.map(
-                    (item) => {
-                        if (
-                            item.id !==
-                            productId
-                        ) {
-                            return item;
-                        }
+        setItems((currentItems) =>
+            currentItems.map((item) => {
+                if (item.id !== productId) {
+                    return item;
+                }
 
-                        return {
-                            ...item,
-                            quantity:
-                                Math.max(
-                                    item.minimumQuantity,
-                                    Math.min(
-                                        quantity,
-                                        item.stock,
-                                    ),
-                                ),
-                        };
-                    },
-                ),
+                return {
+                    ...item,
+                    quantity: Math.max(
+                        1,
+                        Math.min(
+                            quantity,
+                            item.stock,
+                        ),
+                    ),
+                };
+            }),
         );
     }
 
@@ -228,28 +195,18 @@ export function CartProvider({
         setItems([]);
     }
 
-    const totalItems =
-        items.reduce(
-            (
-                total,
-                item,
-            ) =>
-                total +
-                item.quantity,
-            0,
-        );
+    const totalItems = items.reduce(
+        (total, item) =>
+            total + item.quantity,
+        0,
+    );
 
-    const subtotal =
-        items.reduce(
-            (
-                total,
-                item,
-            ) =>
-                total +
-                item.price *
-                    item.quantity,
-            0,
-        );
+    const subtotal = items.reduce(
+        (total, item) =>
+            total +
+            item.price * item.quantity,
+        0,
+    );
 
     return (
         <CartContext.Provider

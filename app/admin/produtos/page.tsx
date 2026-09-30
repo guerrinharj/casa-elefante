@@ -32,7 +32,8 @@ export default async function AdminProductsPage({
             year,
             stock,
             images,
-            created_at
+            created_at,
+            wholesale_only
         `)
         .order("created_at", {
             ascending: false,
