@@ -56,7 +56,8 @@ async function updateApplicationStatus(
 
     if (
         status !== "approved" &&
-        status !== "rejected"
+        status !== "rejected" &&
+        status !== "pending"
     ) {
         return;
     }
@@ -73,7 +74,9 @@ async function updateApplicationStatus(
         .update({
             status,
             reviewed_at:
-                new Date().toISOString(),
+                status === "pending"
+                    ? null
+                    : new Date().toISOString(),
         })
         .eq(
             "id",
@@ -303,6 +306,39 @@ function ApplicationCard({
                             className="rounded-md border border-black px-5 py-2 text-sm uppercase transition-colors hover:bg-black hover:text-white"
                         >
                             Recusar
+                        </button>
+                    </form>
+                </div>
+            )}
+
+            {application.status ===
+                "approved" && (
+                <div className="mt-6 flex flex-wrap gap-3 border-t border-black/20 pt-6">
+                    <form
+                        action={
+                            updateApplicationStatus
+                        }
+                    >
+                        <input
+                            type="hidden"
+                            name="applicationId"
+                            value={
+                                application.id
+                            }
+                        />
+
+                        <input
+                            type="hidden"
+                            name="status"
+                            value="pending"
+                        />
+
+                        <button
+                            type="submit"
+                            className="rounded-md border border-black px-5 py-2 text-sm uppercase transition-colors hover:bg-black hover:text-white"
+                        >
+                            Remover acesso ao
+                            atacado
                         </button>
                     </form>
                 </div>

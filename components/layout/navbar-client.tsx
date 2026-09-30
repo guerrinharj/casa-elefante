@@ -27,11 +27,18 @@ import {
     CartIcon,
 } from "@/components/cart/cart-icon";
 
+type WholesaleStatus =
+    | "pending"
+    | "approved"
+    | "rejected"
+    | null;
+
 type NavbarClientProps = {
     name: string | null;
     isLoggedIn: boolean;
     isAdmin: boolean;
     isWholesale: boolean;
+    wholesaleStatus: WholesaleStatus;
 };
 
 export function NavbarClient({
@@ -39,6 +46,7 @@ export function NavbarClient({
     isLoggedIn,
     isAdmin,
     isWholesale,
+    wholesaleStatus,
 }: NavbarClientProps) {
     const pathname =
         usePathname();
@@ -110,8 +118,8 @@ export function NavbarClient({
         isTodaTercaTem
             ? "bg-black text-white"
             : isWhite
-              ? " bg-white text-black"
-              : " bg-white text-black";
+              ? "bg-white text-black"
+              : "bg-white text-black";
 
     return (
         <header
@@ -226,6 +234,34 @@ export function NavbarClient({
                                 </Link>
                             </li>
                         )}
+
+                        {isLoggedIn &&
+                            !isAdmin &&
+                            wholesaleStatus ===
+                                "pending" && (
+                                <li>
+                                    <Link
+                                        href="/minha-conta"
+                                        className="text-xs uppercase opacity-50"
+                                    >
+                                        Atacado pendente
+                                    </Link>
+                                </li>
+                            )}
+
+                        {isLoggedIn &&
+                            !isAdmin &&
+                            wholesaleStatus ===
+                                "rejected" && (
+                                <li>
+                                    <Link
+                                        href="/minha-conta"
+                                        className="text-xs uppercase opacity-50"
+                                    >
+                                        Atacado recusado
+                                    </Link>
+                                </li>
+                            )}
 
                         {isLoggedIn && (
                             <li>

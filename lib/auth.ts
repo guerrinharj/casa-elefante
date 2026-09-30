@@ -67,6 +67,7 @@ export async function getUserAccess() {
             isLoggedIn: false,
             isAdmin: false,
             isWholesale: false,
+            wholesaleStatus: null,
             canSeeWholesalePrice: false,
         };
     }
@@ -108,8 +109,12 @@ export async function getUserAccess() {
         profileResult.data?.role ===
         "admin";
 
+    const wholesaleStatus =
+        wholesaleResult.data?.status ??
+        null;
+
     const isWholesale =
-        wholesaleResult.data?.status ===
+        wholesaleStatus ===
         "approved";
 
     return {
@@ -118,6 +123,7 @@ export async function getUserAccess() {
         isLoggedIn: true,
         isAdmin,
         isWholesale,
+        wholesaleStatus,
         canSeeWholesalePrice:
             isAdmin ||
             isWholesale,
