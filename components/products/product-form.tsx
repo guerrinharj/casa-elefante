@@ -66,7 +66,10 @@ export function ProductForm() {
 
         const setFieldValue = (
             name: string,
-            value: string | number | null,
+            value:
+                | string
+                | number
+                | null,
         ) => {
             if (
                 value === null ||
@@ -217,7 +220,9 @@ export function ProductForm() {
         setError(null);
 
         const formData =
-            new FormData(e.currentTarget);
+            new FormData(
+                e.currentTarget,
+            );
 
         const supabase =
             createClient();
@@ -315,6 +320,11 @@ export function ProductForm() {
                     "is_featured",
                 ) === "on";
 
+            const wholesaleOnly =
+                formData.get(
+                    "wholesale_only",
+                ) === "on";
+
             const name =
                 String(
                     formData.get(
@@ -381,6 +391,9 @@ export function ProductForm() {
                                       wholesalePriceValue,
                                   )
                                 : null,
+
+                        wholesale_only:
+                            wholesaleOnly,
 
                         genre:
                             formData.get(
@@ -846,6 +859,19 @@ export function ProductForm() {
 
                     <label htmlFor="is_featured">
                         Produto destacado
+                    </label>
+                </div>
+
+                <div className="flex items-center gap-3">
+                    <input
+                        id="wholesale_only"
+                        name="wholesale_only"
+                        type="checkbox"
+                        className="h-4 w-4"
+                    />
+
+                    <label htmlFor="wholesale_only">
+                        Exclusivo para atacadistas
                     </label>
                 </div>
             </div>

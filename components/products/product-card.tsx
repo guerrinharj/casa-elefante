@@ -11,6 +11,7 @@ type ProductCardProps = {
         format: string | null;
         images: string[] | null;
         stock: number;
+        wholesale_only?: boolean;
     };
     isWholesale?: boolean;
 };
@@ -19,12 +20,11 @@ export function ProductCard({
     product,
     isWholesale = false,
 }: ProductCardProps) {
-    const image =
-        product.images?.[0];
+    const image = product.images?.[0];
 
-    const unavailableForWholesale =
-        isWholesale &&
-        product.stock === 1;
+    const unavailable =
+        product.wholesale_only === true &&
+        !isWholesale;
 
     return (
         <Link
@@ -47,7 +47,7 @@ export function ProductCard({
                 hover:-translate-y-1
                 hover:shadow-[-9px_9px_0_0_#000]
                 ${
-                    unavailableForWholesale
+                    unavailable
                         ? "opacity-50"
                         : ""
                 }
@@ -56,12 +56,8 @@ export function ProductCard({
             <div className="relative aspect-square overflow-hidden rounded-lg bg-neutral-100">
                 {image ? (
                     <img
-                        src={
-                            image
-                        }
-                        alt={
-                            product.name
-                        }
+                        src={image}
+                        alt={product.name}
                         className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.02]"
                     />
                 ) : (
@@ -70,11 +66,10 @@ export function ProductCard({
                     </div>
                 )}
 
-                {unavailableForWholesale && (
+                {product.wholesale_only && (
                     <div className="absolute inset-x-2 bottom-2">
                         <span className="inline-block rounded-full border border-black bg-white px-2 py-1 text-xs uppercase">
-                            Indisponível
-                            para atacado
+                            Exclusivo para atacadistas
                         </span>
                     </div>
                 )}
@@ -93,17 +88,13 @@ export function ProductCard({
                     <div className="flex gap-2">
                         {product.format && (
                             <span>
-                                {
-                                    product.format
-                                }
+                                {product.format}
                             </span>
                         )}
 
                         {product.year && (
                             <span>
-                                {
-                                    product.year
-                                }
+                                {product.year}
                             </span>
                         )}
                     </div>
@@ -115,8 +106,7 @@ export function ProductCard({
                             "pt-BR",
                             {
                                 style: "currency",
-                                currency:
-                                    "BRL",
+                                currency: "BRL",
                             },
                         )}
                     </span>

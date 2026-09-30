@@ -23,6 +23,7 @@ type Product = {
     artist: string | null;
     price: number;
     wholesale_price: number | null;
+    wholesale_only: boolean;
     format: string | null;
     year: number | null;
     stock: number;
@@ -206,6 +207,11 @@ export function EditProductForm({
                     "is_featured",
                 ) === "on";
 
+            const wholesaleOnly =
+                formData.get(
+                    "wholesale_only",
+                ) === "on";
+
             const {
                 error: updateError,
             } = await supabase
@@ -295,6 +301,9 @@ export function EditProductForm({
                                   wholesalePrice,
                               )
                             : null,
+
+                    wholesale_only:
+                        wholesaleOnly,
 
                     stock: Number(
                         formData.get(
@@ -573,6 +582,21 @@ export function EditProductForm({
 
                         <span className="text-sm">
                             Produto destacado
+                        </span>
+                    </label>
+
+                    <label className="flex w-fit cursor-pointer items-center gap-3">
+                        <input
+                            name="wholesale_only"
+                            type="checkbox"
+                            defaultChecked={
+                                product.wholesale_only
+                            }
+                            className="h-4 w-4"
+                        />
+
+                        <span className="text-sm">
+                            Exclusivo para atacadistas
                         </span>
                     </label>
                 </div>

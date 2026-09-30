@@ -423,6 +423,7 @@ export async function createOrder(
             name,
             price,
             wholesale_price,
+            wholesale_only,
             stock
         `)
         .in(
@@ -511,20 +512,12 @@ export async function createOrder(
                 item.productId,
             );
 
-        /*
-         * Produto não encontrado.
-         */
-
         if (!product) {
             return {
                 success: false,
                 error: "Produto não encontrado.",
             };
         }
-
-        /*
-         * Verifica estoque.
-         */
 
         if (
             product.stock <
@@ -536,74 +529,32 @@ export async function createOrder(
             };
         }
 
-        /*
-         * Verifica se o produto
-         * possui preço de atacado.
-         */
+        if (
+            product.wholesale_only &&
+            !isWholesale
+        ) {
+            return {
+                success: false,
+                error: `${product.name} é exclusivo para clientes atacadistas.`,
+            };
+        }
 
         const hasWholesalePrice =
             product.wholesale_price !==
             null;
 
-        /*
-         * Este item será vendido
-         * como atacado somente se:
-         *
-         * 1. o comprador for um
-         *    atacadista aprovado;
-         *
-         * 2. o produto possuir
-         *    wholesale_price.
-         */
-
         const isWholesaleItem =
             isWholesale &&
             hasWholesalePrice;
 
-        /*
-         * Quantidade mínima.
-         *
-         * Atacado = 2
-         * Varejo = 1
-         */
-
-        const minimumQuantity =
-            isWholesaleItem
-                ? 2
-                : 1;
-
-        /*
-         * Validação da quantidade
-         * mínima no servidor.
-         */
-
-        if (
-            item.quantity <
-            minimumQuantity
-        ) {
-            return {
-                success: false,
-                error: `A quantidade mínima para comprar ${product.name} no atacado é ${minimumQuantity} unidades.`,
-            };
-        }
-
-        /*
-         * Define o preço real
-         * no servidor.
-         */
-
         const unitPrice =
             isWholesaleItem
                 ? Number(
-                      product.wholesale_price,
-                  )
+                    product.wholesale_price,
+                )
                 : Number(
-                      product.price,
-                  );
-
-        /*
-         * Valida o preço.
-         */
+                    product.price,
+                );
 
         if (
             !Number.isFinite(
@@ -617,18 +568,9 @@ export async function createOrder(
             };
         }
 
-        /*
-         * Soma ao subtotal.
-         */
-
         subtotal +=
             unitPrice *
             item.quantity;
-
-        /*
-         * Prepara o item
-         * para salvar no pedido.
-         */
 
         orderItems.push({
             product_id:
