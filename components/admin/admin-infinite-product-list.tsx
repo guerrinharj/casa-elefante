@@ -23,6 +23,7 @@ type Product = {
     stock: number | null;
     images: string[];
     created_at: string;
+    wholesale_only: boolean;
 };
 
 type AdminInfiniteProductListProps = {
@@ -359,39 +360,53 @@ export function AdminInfiniteProductList({
                                 </div>
 
                                 <div className="min-w-0 transition-opacity hover:opacity-60">
-                                    <h2 className="truncate font-medium">
-                                        {
-                                            product.name
-                                        }
-                                    </h2>
+                                    <div className="flex items-center gap-2">
+                                        <h2 className="truncate font-medium">
+                                            {product.name}
+                                        </h2>
+
+                                        {product.wholesale_only && (
+                                            <span
+                                                className="
+                                                    shrink-0
+                                                    rounded-full
+                                                    border
+                                                    border-black
+                                                    bg-black
+                                                    px-2
+                                                    py-0.5
+                                                    text-[9px]
+                                                    font-medium
+                                                    uppercase
+                                                    tracking-wide
+                                                    text-white
+                                                "
+                                            >
+                                                Exclusivo atacado
+                                            </span>
+                                        )}
+                                    </div>
 
                                     <p className="truncate text-sm">
-                                        {
-                                            product.artist
-                                        }
+                                        {product.artist}
                                     </p>
 
                                     <div className="mt-1 flex flex-wrap gap-x-3 text-xs">
                                         {product.format && (
                                             <span>
-                                                {
-                                                    product.format
-                                                }
+                                                {product.format}
                                             </span>
                                         )}
 
                                         {product.year && (
                                             <span>
-                                                {
-                                                    product.year
-                                                }
+                                                {product.year}
                                             </span>
                                         )}
 
                                         <span>
                                             Estoque:{" "}
-                                            {product.stock ??
-                                                0}
+                                            {product.stock ?? 0}
                                         </span>
                                     </div>
                                 </div>
