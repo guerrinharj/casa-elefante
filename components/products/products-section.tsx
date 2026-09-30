@@ -35,7 +35,11 @@ export async function ProductsSection({
 
     const {
         isWholesale,
+        isAdmin,
     } = await getUserAccess();
+
+    const canSeeWholesaleOnly =
+        isWholesale || isAdmin;
 
     let query = supabase
         .from("products")
@@ -51,7 +55,8 @@ export async function ProductsSection({
                 images,
                 stock,
                 condition,
-                pre_order
+                pre_order,
+                wholesale_only
             `,
             {
                 count: "exact",
@@ -67,6 +72,19 @@ export async function ProductsSection({
                 ascending: false,
             },
         );
+
+    /*
+     * Usuários comuns não recebem produtos
+     * exclusivos para atacadistas.
+     *
+     * Admin e atacadista aprovado enxergam todos.
+     */
+    if (!canSeeWholesaleOnly) {
+        query = query.eq(
+            "wholesale_only",
+            false,
+        );
+    }
 
     if (filters.genre) {
         query = query.eq(

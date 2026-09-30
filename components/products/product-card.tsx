@@ -18,18 +18,14 @@ type ProductCardProps = {
 
 export function ProductCard({
     product,
-    isWholesale = false,
 }: ProductCardProps) {
-    const image = product.images?.[0];
-
-    const unavailable =
-        product.wholesale_only === true &&
-        !isWholesale;
+    const image =
+        product.images?.[0];
 
     return (
         <Link
             href={`/produtos/${product.slug}`}
-            className={`
+            className="
                 group
                 flex
                 flex-col
@@ -46,12 +42,7 @@ export function ProductCard({
                 hover:translate-x-1
                 hover:-translate-y-1
                 hover:shadow-[-9px_9px_0_0_#000]
-                ${
-                    unavailable
-                        ? "opacity-50"
-                        : ""
-                }
-            `}
+            "
         >
             <div className="relative aspect-square overflow-hidden rounded-lg bg-neutral-100">
                 {image ? (
@@ -67,9 +58,22 @@ export function ProductCard({
                 )}
 
                 {product.wholesale_only && (
-                    <div className="absolute inset-x-2 bottom-2">
-                        <span className="inline-block rounded-full border border-black bg-white px-2 py-1 text-xs uppercase">
-                            Exclusivo para atacadistas
+                    <div className="absolute bottom-2 left-2">
+                        <span className="
+                            inline-block
+                            rounded-full
+                            border
+                            border-black
+                            bg-white
+                            px-2
+                            py-1
+                            text-[10px]
+                            font-medium
+                            uppercase
+                            tracking-wide
+                            shadow-[2px_2px_0_0_#000]
+                        ">
+                            Exclusivo atacadistas
                         </span>
                     </div>
                 )}
@@ -88,13 +92,17 @@ export function ProductCard({
                     <div className="flex gap-2">
                         {product.format && (
                             <span>
-                                {product.format}
+                                {
+                                    product.format
+                                }
                             </span>
                         )}
 
                         {product.year && (
                             <span>
-                                {product.year}
+                                {
+                                    product.year
+                                }
                             </span>
                         )}
                     </div>
@@ -106,7 +114,8 @@ export function ProductCard({
                             "pt-BR",
                             {
                                 style: "currency",
-                                currency: "BRL",
+                                currency:
+                                    "BRL",
                             },
                         )}
                     </span>
