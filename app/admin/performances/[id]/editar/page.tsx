@@ -44,7 +44,8 @@ export default async function EditPerformancePage({
             video_url,
             audio_url,
             cover_image,
-            published
+            published,
+            location
         `)
         .eq(
             "id",
