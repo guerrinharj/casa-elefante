@@ -37,6 +37,7 @@ export function UpcomingPerformances({
         return null;
     }
 
+
     return (
         <section>
             {performances.map(
@@ -103,7 +104,7 @@ export function UpcomingPerformances({
                                 md:p-6
                             "
                         >
-                            <div>
+                            <div className="flex flex-col gap-2">
                                 <p
                                     className="
                                         font-windsor
@@ -117,6 +118,21 @@ export function UpcomingPerformances({
                                         performance.performance_date,
                                     )}
                                 </p>
+
+
+                                {performance.location && (
+                                    <p
+                                        className="
+                                            font-windsor
+                                            text-xl
+                                            leading-none
+                                            md:text-2xl
+                                            lg:text-3xl
+                                        "
+                                    >
+                                        {performance.location}
+                                    </p>
+                                )}
                             </div>
 
                             <div

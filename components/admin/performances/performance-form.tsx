@@ -78,6 +78,11 @@ export function PerformanceForm() {
     ] = useState("");
 
     const [
+        location,
+        setLocation,
+    ] = useState("");
+
+    const [
         videoUrl,
         setVideoUrl,
     ] = useState("");
@@ -286,6 +291,10 @@ export function PerformanceForm() {
                             performanceDate ||
                             null,
 
+                        location:
+                            location.trim() ||
+                            null,
+
                         video_url:
                             videoUrl.trim() ||
                             null,
@@ -452,6 +461,38 @@ export function PerformanceForm() {
                         )
                     }
                     className="rounded-md border border-black bg-white px-4 py-3 outline-none"
+                />
+            </div>
+
+            <div className="flex flex-col gap-2">
+                <label
+                    htmlFor="location"
+                    className="text-sm"
+                >
+                    Local
+
+                    <span className="ml-2 text-xs opacity-50">
+                        Opcional
+                    </span>
+                </label>
+
+                <input
+                    id="location"
+                    type="text"
+                    value={
+                        location
+                    }
+                    onChange={(
+                        event,
+                    ) =>
+                        setLocation(
+                            event
+                                .target
+                                .value,
+                        )
+                    }
+                    className="rounded-md border border-black bg-white px-4 py-3 outline-none"
+                    placeholder="Ex: Casa Elefante, São Paulo"
                 />
             </div>
 

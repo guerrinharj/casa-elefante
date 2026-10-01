@@ -19,6 +19,7 @@ export type Performance = {
     video_url: string | null;
     audio_url: string | null;
     cover_image: string | null;
+    location: string | null;
 };
 
 export default async function TodaTercaTemPage() {
@@ -38,7 +39,8 @@ export default async function TodaTercaTemPage() {
             performance_date,
             video_url,
             audio_url,
-            cover_image
+            cover_image,
+            location
         `)
         .eq(
             "published",

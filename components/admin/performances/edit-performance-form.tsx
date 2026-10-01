@@ -19,6 +19,7 @@ type Performance = {
     slug: string;
     description: string | null;
     performance_date: string | null;
+    location: string | null;
     video_url: string | null;
     audio_url: string | null;
     cover_image: string | null;
@@ -140,6 +141,14 @@ export function EditPerformanceForm({
         setPerformanceDate,
     ] = useState(
         performance.performance_date ??
+            "",
+    );
+
+    const [
+        location,
+        setLocation,
+    ] = useState(
+        performance.location ??
             "",
     );
 
@@ -399,6 +408,10 @@ export function EditPerformanceForm({
 
                         performance_date:
                             performanceDate ||
+                            null,
+
+                        location:
+                            location.trim() ||
                             null,
 
                         video_url:
@@ -704,6 +717,37 @@ export function EditPerformanceForm({
                         isBusy
                     }
                     className="rounded-md border border-black bg-white px-4 py-3 outline-none disabled:opacity-50"
+                />
+            </div>
+
+            <div className="flex flex-col gap-2">
+                <label
+                    htmlFor="location"
+                    className="text-sm"
+                >
+                    Local
+                </label>
+
+                <input
+                    id="location"
+                    type="text"
+                    value={
+                        location
+                    }
+                    onChange={(
+                        event,
+                    ) =>
+                        setLocation(
+                            event
+                                .target
+                                .value,
+                        )
+                    }
+                    disabled={
+                        isBusy
+                    }
+                    className="rounded-md border border-black bg-white px-4 py-3 outline-none disabled:opacity-50"
+                    placeholder="Ex: Casa Elefante, São Paulo"
                 />
             </div>
 
