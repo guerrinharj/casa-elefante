@@ -83,6 +83,7 @@ export default function PerformancePage() {
                     slug,
                     description,
                     performance_date,
+                    location,
                     video_url,
                     audio_url,
                     cover_image,
@@ -145,6 +146,7 @@ export default function PerformancePage() {
         );
     }
 
+
     const isCurrentPerformance =
         currentPerformance?.id ===
         performance.id;
@@ -177,6 +179,10 @@ export default function PerformancePage() {
             >
                 <div
                     className="
+                        flex
+                        flex-col
+                        justify-between
+                        gap-4
                         border-b
                         p-4
                         md:border-b-0
@@ -184,11 +190,19 @@ export default function PerformancePage() {
                         md:p-6
                     "
                 >
-                    <p className="text-sm uppercase">
-                        {formatDate(
-                            performance.performance_date,
-                        )}
-                    </p>
+                    {performance.performance_date && (
+                        <p className="text-sm uppercase">
+                            {formatDate(
+                                performance.performance_date,
+                            )}
+                        </p>
+                    )}
+
+                    {performance.location && (
+                        <p className="text-sm uppercase">
+                            {performance.location}
+                        </p>
+                    )}
                 </div>
 
                 <div
@@ -247,21 +261,54 @@ export default function PerformancePage() {
                 </div>
             </section>
 
-            {performance.cover_image && (
+            {(
+                performance.video_url ||
+                performance.cover_image
+            ) && (
                 <section className="border-b">
-                    <img
-                        src={
-                            performance.cover_image
-                        }
-                        alt={
-                            performance.name
-                        }
-                        className="
-                            aspect-video
-                            w-full
-                            object-cover
-                        "
-                    />
+                    {performance.video_url ? (
+                        <div
+                            className="
+                                aspect-video
+                                w-full
+                                overflow-hidden
+                                bg-neutral-900
+                            "
+                        >
+                            <iframe
+                                src={
+                                    performance.video_url
+                                }
+                                title={
+                                    performance.name
+                                }
+                                className="h-full w-full"
+                                allow="
+                                    accelerometer;
+                                    autoplay;
+                                    clipboard-write;
+                                    encrypted-media;
+                                    gyroscope;
+                                    picture-in-picture
+                                "
+                                allowFullScreen
+                            />
+                        </div>
+                    ) : (
+                        <img
+                            src={
+                                performance.cover_image!
+                            }
+                            alt={
+                                performance.name
+                            }
+                            className="
+                                aspect-video
+                                w-full
+                                object-cover
+                            "
+                        />
+                    )}
                 </section>
             )}
 
@@ -300,59 +347,6 @@ export default function PerformancePage() {
                                 performance.description
                             }
                         </p>
-                    </div>
-                </section>
-            )}
-
-            {performance.video_url && (
-                <section
-                    className="
-                        grid
-                        border-b
-                        md:grid-cols-[30%_1fr]
-                    "
-                >
-                    <div
-                        className="
-                            border-b
-                            p-4
-                            md:border-b-0
-                            md:border-r
-                            md:p-6
-                        "
-                    >
-                        <p className="text-sm uppercase">
-                            Vídeo
-                        </p>
-                    </div>
-
-                    <div className="p-4 md:p-6">
-                        <div
-                            className="
-                                aspect-video
-                                overflow-hidden
-                                bg-neutral-900
-                            "
-                        >
-                            <iframe
-                                src={
-                                    performance.video_url
-                                }
-                                title={
-                                    performance.name
-                                }
-                                className="h-full w-full"
-                                allow="
-                                    accelerometer;
-                                    autoplay;
-                                    clipboard-write;
-                                    encrypted-media;
-                                    gyroscope;
-                                    picture-in-picture
-                                "
-                                allowFullScreen
-                            />
-                        </div>
                     </div>
                 </section>
             )}

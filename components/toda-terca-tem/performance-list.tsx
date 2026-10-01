@@ -46,7 +46,7 @@ export function PerformanceList({
         performances.length === 0
     ) {
         return (
-            <section className="border-t  p-4 md:p-6">
+            <section className="border-t p-4 md:p-6">
                 <p className="text-sm uppercase">
                     Nenhuma apresentação
                     disponível no momento.
@@ -56,7 +56,7 @@ export function PerformanceList({
     }
 
     return (
-        <section className=" ">
+        <section>
             <div className="p-4 md:p-6">
                 <p className="text-sm uppercase">
                     Apresentações Passadas
@@ -80,7 +80,9 @@ export function PerformanceList({
 
                         return (
                             <div
-                                key={performance.id}
+                                key={
+                                    performance.id
+                                }
                                 className={`
                                     group
                                     grid
@@ -88,8 +90,6 @@ export function PerformanceList({
                                     grid-cols-[1fr_auto]
                                     items-center
                                     gap-4
-                                    
-                                     
                                     p-4
                                     transition-colors
                                     duration-300
@@ -104,11 +104,34 @@ export function PerformanceList({
                                     }
                                 `}
                             >
-                                <span className="hidden text-sm md:block">
-                                    {formatDate(
-                                        performance.performance_date,
+                                <div
+                                    className="
+                                        hidden
+                                        flex-col
+                                        gap-1
+                                        md:flex
+                                    "
+                                >
+                                    <span className="text-sm">
+                                        {formatDate(
+                                            performance.performance_date,
+                                        )}
+                                    </span>
+
+                                    {performance.location && (
+                                        <span
+                                            className="
+                                                font-windsor
+                                                text-xl
+                                                leading-none
+                                            "
+                                        >
+                                            {
+                                                performance.location
+                                            }
+                                        </span>
                                     )}
-                                </span>
+                                </div>
 
                                 <Link
                                     href={`/toda-terca-tem/${performance.slug}`}
