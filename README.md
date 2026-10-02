@@ -1,109 +1,403 @@
-<a href="https://demo-nextjs-with-supabase.vercel.app/">
-  <img alt="Next.js and Supabase Starter Kit - the fastest way to build apps with Next.js and Supabase" src="https://demo-nextjs-with-supabase.vercel.app/opengraph-image.png">
-  <h1 align="center">Next.js and Supabase Starter Kit</h1>
-</a>
+# Casa Elefante — Documentação Técnica
 
-<p align="center">
- The fastest way to build apps with Next.js and Supabase
-</p>
+## 1. Visão geral
 
-<p align="center">
-  <a href="#features"><strong>Features</strong></a> ·
-  <a href="#demo"><strong>Demo</strong></a> ·
-  <a href="#deploy-to-vercel"><strong>Deploy to Vercel</strong></a> ·
-  <a href="#clone-and-run-locally"><strong>Clone and run locally</strong></a> ·
-  <a href="#feedback-and-issues"><strong>Feedback and issues</strong></a>
-  <a href="#more-supabase-examples"><strong>More Examples</strong></a>
-</p>
-<br/>
+A **Casa Elefante** é uma plataforma de e-commerce desenvolvida para a loja de discos Casa Elefante.
 
-## Features
+Além das funcionalidades tradicionais de uma loja virtual, o projeto reúne catálogo de discos, vendas para clientes e atacadistas, gerenciamento de estoque, pedidos, pagamentos, frete, newsletter e a plataforma de conteúdo **Toda Terça Tem**, dedicada às apresentações e conteúdos audiovisuais da Casa Elefante.
 
-- Works across the entire [Next.js](https://nextjs.org) stack
-  - App Router
-  - Pages Router
-  - Proxy
-  - Client
-  - Server
-  - It just works!
-- supabase-ssr. A package to configure Supabase Auth to use cookies
-- Password-based authentication block installed via the [Supabase UI Library](https://supabase.com/ui/docs/nextjs/password-based-auth)
-- Styling with [Tailwind CSS](https://tailwindcss.com)
-- Components with [shadcn/ui](https://ui.shadcn.com/)
-- Optional deployment with [Supabase Vercel Integration and Vercel deploy](#deploy-your-own)
-  - Environment variables automatically assigned to Vercel project
+O sistema foi desenvolvido de forma que grande parte da operação cotidiana possa ser realizada através do próprio painel administrativo, sem necessidade de alteração direta no código.
 
-## Demo
+### Principais funcionalidades
 
-You can view a fully working demo at [demo-nextjs-with-supabase.vercel.app](https://demo-nextjs-with-supabase.vercel.app/).
+- Catálogo de produtos
+- Busca e filtros de produtos
+- Controle de estoque
+- Produtos em destaque
+- Produtos exclusivos para atacado
+- Preços específicos para atacadistas
+- Carrinho de compras
+- Checkout
+- Cadastro e autenticação de usuários
+- Cadastro e aprovação de atacadistas
+- Área do cliente
+- Histórico de pedidos
+- Painel administrativo
+- Gerenciamento de produtos
+- Gerenciamento de pedidos
+- Gerenciamento de apresentações
+- Newsletter
+- Integração de pagamentos
+- Integração de frete
+- Envio de e-mails transacionais
+- Plataforma **Toda Terça Tem**
+- Reprodução de áudio das apresentações
 
-## Deploy to Vercel
+---
 
-Vercel deployment will guide you through creating a Supabase account and project.
+# 2. Stack tecnológica
 
-After installation of the Supabase integration, all relevant environment variables will be assigned to the project so the deployment is fully functioning.
+## Front-end
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fvercel%2Fnext.js%2Ftree%2Fcanary%2Fexamples%2Fwith-supabase&project-name=nextjs-with-supabase&repository-name=nextjs-with-supabase&demo-title=nextjs-with-supabase&demo-description=This+starter+configures+Supabase+Auth+to+use+cookies%2C+making+the+user%27s+session+available+throughout+the+entire+Next.js+app+-+Client+Components%2C+Server+Components%2C+Route+Handlers%2C+Server+Actions+and+Middleware.&demo-url=https%3A%2F%2Fdemo-nextjs-with-supabase.vercel.app%2F&external-id=https%3A%2F%2Fgithub.com%2Fvercel%2Fnext.js%2Ftree%2Fcanary%2Fexamples%2Fwith-supabase&demo-image=https%3A%2F%2Fdemo-nextjs-with-supabase.vercel.app%2Fopengraph-image.png)
+### Next.js
 
-The above will also clone the Starter kit to your GitHub, you can clone that locally and develop locally.
+A aplicação utiliza **Next.js com App Router** como framework principal.
 
-If you wish to just develop locally and not deploy to Vercel, [follow the steps below](#clone-and-run-locally).
+O Next.js é responsável tanto pela interface da loja quanto por partes da lógica executada no servidor.
 
-## Clone and run locally
+A estrutura principal da aplicação encontra-se em:
 
-1. You'll first need a Supabase project which can be made [via the Supabase dashboard](https://database.new)
+```text
+/app
+```
 
-2. Create a Next.js app using the Supabase Starter template npx command
+Cada diretório dentro de `app` representa uma rota ou um grupo de funcionalidades da aplicação.
 
-   ```bash
-   npx create-next-app --example with-supabase with-supabase-app
-   ```
+Exemplos:
 
-   ```bash
-   yarn create next-app --example with-supabase with-supabase-app
-   ```
+```text
+/app
+├── page.tsx
+├── produtos/
+├── carrinho/
+├── checkout/
+├── login/
+├── minha-conta/
+├── toda-terca-tem/
+├── newsletter/
+└── admin/
+```
 
-   ```bash
-   pnpm create next-app --example with-supabase with-supabase-app
-   ```
+---
 
-3. Use `cd` to change into the app's directory
+## TypeScript
 
-   ```bash
-   cd with-supabase-app
-   ```
+Todo o projeto utiliza **TypeScript**.
 
-4. Rename `.env.example` to `.env.local` and update the following:
+Além de melhorar a manutenção do código, isso permite definir explicitamente estruturas importantes utilizadas pelo sistema, como:
 
-  ```env
-  NEXT_PUBLIC_SUPABASE_URL=[INSERT SUPABASE PROJECT URL]
-  NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=[INSERT SUPABASE PROJECT API PUBLISHABLE OR ANON KEY]
-  ```
-  > [!NOTE]
-  > This example uses `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`, which refers to Supabase's new **publishable** key format.
-  > Both legacy **anon** keys and new **publishable** keys can be used with this variable name during the transition period. Supabase's dashboard may show `NEXT_PUBLIC_SUPABASE_ANON_KEY`; its value can be used in this example.
-  > See the [full announcement](https://github.com/orgs/supabase/discussions/29260) for more information.
+```text
+Product
+Order
+Performance
+Profile
+WholesaleApplication
+```
 
-  Both `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` can be found in [your Supabase project's API settings](https://supabase.com/dashboard/project/_?showConnect=true)
+Sempre que um campo novo for adicionado ao banco de dados, é importante verificar se os tipos TypeScript correspondentes também precisam ser atualizados.
 
-5. You can now run the Next.js local development server:
+---
 
-   ```bash
-   npm run dev
-   ```
+## Tailwind CSS
 
-   The starter kit should now be running on [localhost:3000](http://localhost:3000/).
+A interface utiliza **Tailwind CSS** para estilização.
 
-6. This template comes with the default shadcn/ui style initialized. If you instead want other ui.shadcn styles, delete `components.json` and [re-install shadcn/ui](https://ui.shadcn.com/docs/installation/next)
+A maior parte do estilo dos componentes é definida diretamente através das classes Tailwind.
 
-> Check out [the docs for Local Development](https://supabase.com/docs/guides/getting-started/local-development) to also run Supabase locally.
+Estilos globais e comportamentos compartilhados pela aplicação podem ser encontrados em:
 
-## Feedback and issues
+```text
+app/globals.css
+```
 
-Please file feedback and issues over on the [Supabase GitHub org](https://github.com/supabase/supabase/issues/new/choose).
+---
 
-## More Supabase examples
+# 3. Backend e banco de dados
 
-- [Next.js Subscription Payments Starter](https://github.com/vercel/nextjs-subscription-payments)
-- [Cookie-based Auth and the Next.js 13 App Router (free course)](https://youtube.com/playlist?list=PL5S4mPUpp4OtMhpnp93EFSo42iQ40XjbF)
-- [Supabase Auth and the Next.js App Router](https://github.com/supabase/supabase/tree/master/examples/auth/nextjs)
+## Supabase
+
+O **Supabase** funciona como principal infraestrutura de backend da Casa Elefante.
+
+Ele é utilizado para:
+
+- banco de dados PostgreSQL;
+- autenticação;
+- gerenciamento de usuários;
+- Storage de arquivos e imagens;
+- políticas de acesso;
+- comunicação entre aplicação e banco.
+
+A aplicação possui clientes Supabase específicos para diferentes contextos.
+
+Por exemplo:
+
+```text
+lib/supabase/
+```
+
+Pode conter clientes destinados ao browser e ao servidor.
+
+É importante utilizar o cliente correspondente ao ambiente em que o código está sendo executado.
+
+---
+
+# 4. Banco de dados
+
+O banco de dados principal utiliza **PostgreSQL**, administrado através do Supabase.
+
+Entre as principais tabelas da aplicação estão:
+
+```text
+products
+orders
+order_items
+performances
+subscribers
+profiles
+wholesale_applications
+```
+
+## products
+
+Armazena o catálogo de produtos da loja.
+
+Entre as informações de um produto podem estar:
+
+```text
+id
+name
+slug
+artist
+description
+price
+wholesale_price
+format
+genre
+year
+label
+catalog_number
+country
+condition
+stock
+images
+is_featured
+```
+
+A tabela também pode possuir campos relacionados às regras específicas de venda para atacadistas.
+
+O estoque disponível é controlado através de:
+
+```text
+stock
+```
+
+Produtos sem estoque não devem estar disponíveis para compra.
+
+---
+
+## orders
+
+Armazena os pedidos realizados através da loja.
+
+Um pedido representa a compra como um todo e contém informações relacionadas ao cliente, endereço, pagamento, frete e status da compra.
+
+---
+
+## order_items
+
+Armazena os produtos pertencentes a cada pedido.
+
+A separação entre `orders` e `order_items` permite que um único pedido possua vários produtos.
+
+A relação conceitual é:
+
+```text
+ORDER
+  │
+  ├── ORDER ITEM
+  │      └── PRODUCT
+  │
+  ├── ORDER ITEM
+  │      └── PRODUCT
+  │
+  └── ORDER ITEM
+         └── PRODUCT
+```
+
+---
+
+## profiles
+
+Contém informações adicionais relacionadas aos usuários autenticados.
+
+O perfil pode ser utilizado para determinar permissões e características específicas do usuário, incluindo acesso administrativo ou atacadista.
+
+---
+
+## wholesale_applications
+
+Armazena solicitações de cadastro para acesso ao sistema de atacado.
+
+O fluxo geral é:
+
+```text
+Usuário solicita cadastro
+        ↓
+wholesale_applications
+        ↓
+Administrador analisa
+        ↓
+Solicitação aprovada
+        ↓
+Usuário recebe acesso ao atacado
+```
+
+---
+
+## performances
+
+Armazena as apresentações utilizadas na plataforma **Toda Terça Tem**.
+
+Entre os campos utilizados estão:
+
+```text
+id
+name
+slug
+description
+performance_date
+location
+video_url
+audio_url
+cover_image
+published
+```
+
+Uma performance pode possuir conteúdo de áudio, vídeo ou ambos.
+
+A data também permite diferenciar apresentações futuras de apresentações já realizadas.
+
+---
+
+## subscribers
+
+Armazena os usuários cadastrados para receber a newsletter da Casa Elefante.
+
+---
+
+# 5. Arquitetura geral
+
+De forma simplificada, a arquitetura da aplicação funciona da seguinte maneira:
+
+```text
+                    USUÁRIO
+                       │
+                       ▼
+                 CASA ELEFANTE
+                    Next.js
+                       │
+          ┌────────────┼────────────┐
+          │            │            │
+          ▼            ▼            ▼
+       Supabase     PagBank     Melhor Envio
+          │
+   ┌──────┼──────┐
+   │      │      │
+   ▼      ▼      ▼
+Database Auth  Storage
+```
+
+O Next.js funciona como a camada central da aplicação.
+
+Ele é responsável por apresentar a interface para o usuário e coordenar a comunicação com os demais serviços.
+
+### Supabase
+
+Responsável por:
+
+```text
+Banco de dados
+Autenticação
+Usuários
+Storage
+Permissões
+```
+
+### PagBank
+
+Responsável pelo processamento dos pagamentos realizados através do checkout.
+
+As credenciais utilizadas pela aplicação devem ser armazenadas através de variáveis de ambiente e nunca diretamente no código.
+
+### Melhor Envio
+
+Responsável pelas funcionalidades relacionadas ao cálculo e gerenciamento de frete.
+
+As credenciais também devem permanecer em variáveis de ambiente.
+
+### Resend
+
+Utilizado para o envio de e-mails da aplicação.
+
+Pode ser utilizado para mensagens como:
+
+```text
+Confirmação de pedido
+Atualizações de compra
+Newsletter
+Outras comunicações transacionais
+```
+
+### Vercel
+
+A aplicação Next.js é hospedada na **Vercel**.
+
+O fluxo de publicação é, de maneira simplificada:
+
+```text
+Código
+  ↓
+Git
+  ↓
+Vercel
+  ↓
+Build
+  ↓
+Deploy
+  ↓
+Casa Elefante
+```
+
+As variáveis de ambiente necessárias para produção também precisam estar configuradas no projeto da Vercel.
+
+---
+
+# 6. Separação de responsabilidades
+
+A arquitetura pode ser entendida através de quatro grandes camadas:
+
+```text
+INTERFACE
+Next.js + React + Tailwind
+
+        ↓
+
+LÓGICA DA APLICAÇÃO
+Server Components
+Client Components
+API Routes / Server logic
+
+        ↓
+
+DADOS
+Supabase
+PostgreSQL
+Auth
+Storage
+
+        ↓
+
+SERVIÇOS EXTERNOS
+PagBank
+Melhor Envio
+Resend
+Vercel
+```
+
+Essa separação é importante para manutenção do projeto.
+
+Uma alteração visual normalmente acontece na camada de interface.
+
+Uma alteração relacionada a produtos, pedidos ou usuários pode envolver tanto a lógica da aplicação quanto o banco de dados.
+
+Alterações relacionadas a pagamento, frete ou envio de e-mails podem envolver serviços externos e suas respectivas credenciais.
