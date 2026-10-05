@@ -30,7 +30,7 @@ export type FeaturedPerformance = {
 
 type FeaturedProductsCarouselProps = {
     products: FeaturedProduct[];
-    performances?: FeaturedPerformance[];
+    performances: FeaturedPerformance[];
 };
 
 type CarouselSlide = {
