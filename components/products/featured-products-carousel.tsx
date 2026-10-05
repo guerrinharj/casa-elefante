@@ -19,13 +19,94 @@ export type FeaturedProduct = {
     images: string[] | null;
 };
 
+export type FeaturedPerformance = {
+    id: string;
+    name: string;
+    slug: string;
+    performance_date: string | null;
+    cover_image: string | null;
+    location: string | null;
+};
+
 type FeaturedProductsCarouselProps = {
     products: FeaturedProduct[];
+    performances?: FeaturedPerformance[];
 };
+
+type CarouselSlide = {
+    id: string;
+    type: "product" | "performance";
+    name: string;
+    image: string | null;
+    href: string;
+    eyebrow: string;
+    secondary: string | null;
+};
+
+function formatDate(
+    date: string | null,
+) {
+    if (!date) {
+        return "";
+    }
+
+    return new Intl.DateTimeFormat(
+        "pt-BR",
+        {
+            day: "2-digit",
+            month: "long",
+            year: "numeric",
+            timeZone: "UTC",
+        },
+    ).format(
+        new Date(date),
+    );
+}
 
 export function FeaturedProductsCarousel({
     products,
+    performances,
 }: FeaturedProductsCarouselProps) {
+    const slides: CarouselSlide[] = [
+        ...products.map(
+            (product): CarouselSlide => ({
+                id: `product-${product.id}`,
+                type: "product",
+                name: product.name,
+                image:
+                    product.images?.[0] ??
+                    null,
+                href: `/produtos/${product.slug}`,
+                eyebrow: "Destaque",
+                secondary:
+                    product.artist,
+            }),
+        ),
+
+        ...performances.map(
+            (
+                performance,
+            ): CarouselSlide => ({
+                id: `performance-${performance.id}`,
+                type: "performance",
+                name: performance.name,
+                image:
+                    performance.cover_image,
+                href: `/toda-terca-tem/${performance.slug}`,
+                eyebrow:
+                    "Próxima apresentação",
+                secondary: [
+                    formatDate(
+                        performance.performance_date,
+                    ),
+                    performance.location,
+                ]
+                    .filter(Boolean)
+                    .join(" · "),
+            }),
+        ),
+    ];
+
     const [
         currentIndex,
         setCurrentIndex,
@@ -34,7 +115,7 @@ export function FeaturedProductsCarousel({
     const nextSlide =
         useCallback(() => {
             if (
-                products.length <= 1
+                slides.length <= 1
             ) {
                 return;
             }
@@ -42,14 +123,14 @@ export function FeaturedProductsCarousel({
             setCurrentIndex(
                 (current) =>
                     (current + 1) %
-                    products.length,
+                    slides.length,
             );
-        }, [products.length]);
+        }, [slides.length]);
 
     const previousSlide =
         useCallback(() => {
             if (
-                products.length <= 1
+                slides.length <= 1
             ) {
                 return;
             }
@@ -58,14 +139,14 @@ export function FeaturedProductsCarousel({
                 (current) =>
                     (current -
                         1 +
-                        products.length) %
-                    products.length,
+                        slides.length) %
+                    slides.length,
             );
-        }, [products.length]);
+        }, [slides.length]);
 
     useEffect(() => {
         if (
-            products.length <= 1
+            slides.length <= 1
         ) {
             return;
         }
@@ -85,17 +166,29 @@ export function FeaturedProductsCarousel({
         };
     }, [
         nextSlide,
-        products.length,
+        slides.length,
+    ]);
+
+    useEffect(() => {
+        if (
+            currentIndex >=
+            slides.length
+        ) {
+            setCurrentIndex(0);
+        }
+    }, [
+        currentIndex,
+        slides.length,
     ]);
 
     if (
-        products.length === 0
+        slides.length === 0
     ) {
         return null;
     }
 
-    const product =
-        products[currentIndex];
+    const slide =
+        slides[currentIndex];
 
     return (
         <section className="w-full">
@@ -104,18 +197,13 @@ export function FeaturedProductsCarousel({
                     {/* BACKGROUNDS */}
 
                     <div className="absolute inset-0">
-                        {products.map(
+                        {slides.map(
                             (
                                 item,
                                 index,
                             ) => {
-                                const image =
-                                    item
-                                        .images?.[0] ??
-                                    null;
-
                                 if (
-                                    !image
+                                    !item.image
                                 ) {
                                     return null;
                                 }
@@ -141,8 +229,7 @@ export function FeaturedProductsCarousel({
                                             }
                                         `}
                                         style={{
-                                            backgroundImage:
-                                                `url("${image}")`,
+                                            backgroundImage: `url("${item.image}")`,
                                         }}
                                     />
                                 );
@@ -152,22 +239,26 @@ export function FeaturedProductsCarousel({
 
                     <div className="absolute inset-0" />
 
-                    {/* CLICKABLE PRODUCT AREA */}
+                    {/* CLICKABLE AREA */}
 
                     <Link
-                        href={`/produtos/${product.slug}`}
-                        aria-label={`Ver ${product.name}`}
+                        href={
+                            slide.href
+                        }
+                        aria-label={`Ver ${slide.name}`}
                         className="absolute inset-0 z-10 cursor-pointer"
                     >
                         <div className="flex min-h-[420px] items-end p-6 text-white md:min-h-[520px] md:p-8 lg:p-10">
                             <div
                                 key={
-                                    product.id
+                                    slide.id
                                 }
                                 className="animate-[fadeIn_700ms_ease-out]"
                             >
                                 <p className="mb-3 text-xs uppercase tracking-[0.2em]">
-                                    Destaque
+                                    {
+                                        slide.eyebrow
+                                    }
                                 </p>
 
                                 <div
@@ -184,19 +275,28 @@ export function FeaturedProductsCarousel({
                                         md:p-6
                                     "
                                 >
-                                    {product.artist && (
+                                    {slide.secondary && (
                                         <p className="mb-2 text-lg md:text-xl">
                                             {
-                                                product.artist
+                                                slide.secondary
                                             }
                                         </p>
                                     )}
 
                                     <h2 className="font-windsor text-4xl leading-none md:text-6xl lg:text-7xl">
                                         {
-                                            product.name
+                                            slide.name
                                         }
                                     </h2>
+
+                                    {slide.type ===
+                                        "performance" && (
+                                        <p className="mt-4 text-xs uppercase tracking-[0.2em]">
+                                            Toda
+                                            Terça
+                                            Tem
+                                        </p>
+                                    )}
                                 </div>
                             </div>
                         </div>
@@ -204,7 +304,7 @@ export function FeaturedProductsCarousel({
 
                     {/* CAROUSEL CONTROLS */}
 
-                    {products.length >
+                    {slides.length >
                         1 && (
                         <div className="absolute bottom-6 right-6 z-20 flex items-center gap-3 rounded-full border border-white/50 bg-black/20 px-3 py-2 text-white backdrop-blur-md md:bottom-10 md:right-10 lg:bottom-12 lg:right-12">
                             <button
@@ -212,14 +312,14 @@ export function FeaturedProductsCarousel({
                                 onClick={
                                     previousSlide
                                 }
-                                aria-label="Produto anterior"
+                                aria-label="Destaque anterior"
                                 className="flex h-8 w-8 items-center justify-center rounded-full transition-colors hover:bg-white hover:text-black"
                             >
                                 ←
                             </button>
 
                             <div className="flex items-center gap-2">
-                                {products.map(
+                                {slides.map(
                                     (
                                         item,
                                         index,
@@ -234,7 +334,10 @@ export function FeaturedProductsCarousel({
                                                     index,
                                                 )
                                             }
-                                            aria-label={`Ir para destaque ${index + 1}`}
+                                            aria-label={`Ir para destaque ${
+                                                index +
+                                                1
+                                            }`}
                                             className={`h-2 w-2 rounded-full border border-white transition-colors duration-300 ${
                                                 index ===
                                                 currentIndex
@@ -251,7 +354,7 @@ export function FeaturedProductsCarousel({
                                 onClick={
                                     nextSlide
                                 }
-                                aria-label="Próximo produto"
+                                aria-label="Próximo destaque"
                                 className="flex h-8 w-8 items-center justify-center rounded-full transition-colors hover:bg-white hover:text-black"
                             >
                                 →

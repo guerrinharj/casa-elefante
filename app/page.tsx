@@ -82,6 +82,9 @@ export default async function HomePage({
         wholesaleStatus ===
             "pending";
 
+    /*
+     * PRODUTOS DESTACADOS
+     */
     let featuredQuery =
         supabase
             .from("products")
@@ -134,9 +137,66 @@ export default async function HomePage({
         );
     }
 
+    /*
+     * APRESENTAÇÕES FUTURAS
+     */
+
+    const today =
+        new Date()
+            .toISOString()
+            .split("T")[0];
+
+    const {
+        data: upcomingPerformances,
+        error: performancesError,
+    } = await supabase
+        .from("performances")
+        .select(`
+            id,
+            name,
+            slug,
+            performance_date,
+            cover_image,
+            location
+        `)
+        .eq(
+            "published",
+            true,
+        )
+        .gte(
+            "performance_date",
+            today,
+        )
+        .order(
+            "performance_date",
+            {
+                ascending: true,
+            },
+        );
+
+    if (performancesError) {
+        console.error(
+            "Erro ao buscar apresentações futuras:",
+            performancesError,
+        );
+    }
+
+    /*
+     * Define se existe algum conteúdo
+     * para mostrar no carousel.
+     */
+    const hasFeaturedContent =
+        (featuredProducts?.length ??
+            0) >
+            0 ||
+        (upcomingPerformances?.length ??
+            0) >
+            0;
+
     return (
         <div className="w-full max-w-full overflow-x-hidden">
             {/* MOBILE FILTERS */}
+
             <div className="md:hidden">
                 <Suspense
                     fallback={
@@ -150,6 +210,7 @@ export default async function HomePage({
             </div>
 
             {/* DESKTOP SIDEBAR */}
+
             <div
                 className="
                     group
@@ -176,22 +237,29 @@ export default async function HomePage({
             </div>
 
             {/* CONTENT */}
+
             <main className="w-full overflow-hidden p-4 md:py-6 md:pr-6 md:pl-24">
-                {/* FEATURED PRODUCTS */}
+
+                {/* FEATURED CAROUSEL */}
+
                 {!hasActiveFilters &&
-                    featuredProducts &&
-                    featuredProducts.length >
-                        0 && (
+                    hasFeaturedContent && (
                         <div className="mb-8">
                             <FeaturedProductsCarousel
                                 products={
-                                    featuredProducts
+                                    featuredProducts ??
+                                    []
+                                }
+                                performances={
+                                    upcomingPerformances ??
+                                    []
                                 }
                             />
                         </div>
                     )}
 
                 {/* PRODUCTS */}
+
                 <Suspense
                     fallback={<p></p>}
                 >
