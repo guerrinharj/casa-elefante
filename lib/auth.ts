@@ -49,6 +49,52 @@ export async function requireAdmin() {
     };
 }
 
+export async function requireProductManager() {
+    const supabase =
+        await createClient();
+
+    const {
+        data: {
+            user,
+        },
+    } =
+        await supabase.auth.getUser();
+
+    if (!user) {
+        redirect("/login");
+    }
+
+    const {
+        data: profile,
+        error,
+    } = await supabase
+        .from("profiles")
+        .select(
+            "name, role",
+        )
+        .eq(
+            "id",
+            user.id,
+        )
+        .single();
+
+    if (
+        error ||
+        !profile ||
+        ![
+            "admin",
+            "collaborator",
+        ].includes(profile.role)
+    ) {
+        redirect("/");
+    }
+
+    return {
+        user,
+        profile,
+    };
+}
+
 export async function getUserAccess() {
     const supabase =
         await createClient();
@@ -66,6 +112,7 @@ export async function getUserAccess() {
             name: null,
             isLoggedIn: false,
             isAdmin: false,
+            isCollaborator: false,
             isWholesale: false,
             wholesaleStatus: null,
             canSeeWholesalePrice: false,
@@ -105,9 +152,15 @@ export async function getUserAccess() {
         profileResult.data?.name ??
         null;
 
+    const role =
+        profileResult.data?.role ??
+        null;
+
     const isAdmin =
-        profileResult.data?.role ===
-        "admin";
+        role === "admin";
+
+    const isCollaborator =
+        role === "collaborator";
 
     const wholesaleStatus =
         wholesaleResult.data?.status ??
@@ -122,6 +175,7 @@ export async function getUserAccess() {
         name,
         isLoggedIn: true,
         isAdmin,
+        isCollaborator,
         isWholesale,
         wholesaleStatus,
         canSeeWholesalePrice:

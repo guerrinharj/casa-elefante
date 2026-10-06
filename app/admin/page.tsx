@@ -1,17 +1,17 @@
 import Link from "next/link";
 
 import {
-    createClient,
-} from "@/lib/supabase/server";
+    requireProductManager,
+} from "@/lib/auth";
 
 export default async function AdminPage() {
-    const supabase =
-        await createClient();
-
     const {
-        data: { user },
-    } =
-        await supabase.auth.getUser();
+        user,
+        profile,
+    } = await requireProductManager();
+
+    const isCollaborator =
+        profile.role === "collaborator";
 
     return (
         <main className="p-6">
@@ -23,7 +23,7 @@ export default async function AdminPage() {
                         </h1>
 
                         <p className="mt-1 text-sm">
-                            {user?.email}
+                            {user.email}
                         </p>
                     </div>
                 </div>
@@ -42,70 +42,130 @@ export default async function AdminPage() {
                         </p>
                     </Link>
 
-                    <Link
-                        href="/admin/pedidos"
-                        className="border border-black p-6 transition-opacity hover:opacity-60"
-                    >
-                        <h2 className="text-xl">
-                            Pedidos
-                        </h2>
+                    {isCollaborator ? (
+                        <div className="cursor-not-allowed border border-black p-6 opacity-30">
+                            <h2 className="text-xl">
+                                Pedidos
+                            </h2>
 
-                        <p className="mt-2 text-sm">
-                            Visualizar e gerenciar pedidos.
-                        </p>
-                    </Link>
+                            <p className="mt-2 text-sm">
+                                Visualizar e gerenciar pedidos.
+                            </p>
+                        </div>
+                    ) : (
+                        <Link
+                            href="/admin/pedidos"
+                            className="border border-black p-6 transition-opacity hover:opacity-60"
+                        >
+                            <h2 className="text-xl">
+                                Pedidos
+                            </h2>
 
-                    <Link
-                        href="/admin/cupons"
-                        className="border border-black p-6 transition-opacity hover:opacity-60"
-                    >
-                        <h2 className="text-xl">
-                            Cupons
-                        </h2>
+                            <p className="mt-2 text-sm">
+                                Visualizar e gerenciar pedidos.
+                            </p>
+                        </Link>
+                    )}
 
-                        <p className="mt-2 text-sm">
-                            Criar e gerenciar cupons de desconto.
-                        </p>
-                    </Link>
+                    {isCollaborator ? (
+                        <div className="cursor-not-allowed border border-black p-6 opacity-30">
+                            <h2 className="text-xl">
+                                Cupons
+                            </h2>
 
-                    <Link
-                        href="/admin/atacadistas"
-                        className="border border-black p-6 transition-opacity hover:opacity-60"
-                    >
-                        <h2 className="text-xl">
-                            Atacadistas
-                        </h2>
+                            <p className="mt-2 text-sm">
+                                Criar e gerenciar cupons de desconto.
+                            </p>
+                        </div>
+                    ) : (
+                        <Link
+                            href="/admin/cupons"
+                            className="border border-black p-6 transition-opacity hover:opacity-60"
+                        >
+                            <h2 className="text-xl">
+                                Cupons
+                            </h2>
 
-                        <p className="mt-2 text-sm">
-                            Aprovar e gerenciar cadastros de atacadistas.
-                        </p>
-                    </Link>
+                            <p className="mt-2 text-sm">
+                                Criar e gerenciar cupons de desconto.
+                            </p>
+                        </Link>
+                    )}
 
-                    <Link
-                        href="/admin/performances"
-                        className="border border-black p-6 transition-opacity hover:opacity-60"
-                    >
-                        <h2 className="text-xl">
-                            Toda Terça Tem
-                        </h2>
+                    {isCollaborator ? (
+                        <div className="cursor-not-allowed border border-black p-6 opacity-30">
+                            <h2 className="text-xl">
+                                Atacadistas
+                            </h2>
 
-                        <p className="mt-2 text-sm">
-                            Adicionar, editar e remover apresentações.
-                        </p>
-                    </Link>
+                            <p className="mt-2 text-sm">
+                                Aprovar e gerenciar cadastros de atacadistas.
+                            </p>
+                        </div>
+                    ) : (
+                        <Link
+                            href="/admin/atacadistas"
+                            className="border border-black p-6 transition-opacity hover:opacity-60"
+                        >
+                            <h2 className="text-xl">
+                                Atacadistas
+                            </h2>
 
-                    <Link
-                        href="/admin/newsletter"
-                        className="border border-black p-6 transition-opacity hover:opacity-60"
-                    >
-                        <h2 className="text-xl">
-                            Newsletter
-                        </h2>
+                            <p className="mt-2 text-sm">
+                                Aprovar e gerenciar cadastros de atacadistas.
+                            </p>
+                        </Link>
+                    )}
 
-                        <p className="mt-2 text-sm">
-                            Criar e enviar newsletters para os assinantes.
-                        </p>
-                    </Link>
+                    {isCollaborator ? (
+                        <div className="cursor-not-allowed border border-black p-6 opacity-30">
+                            <h2 className="text-xl">
+                                Toda Terça Tem
+                            </h2>
+
+                            <p className="mt-2 text-sm">
+                                Adicionar, editar e remover apresentações.
+                            </p>
+                        </div>
+                    ) : (
+                        <Link
+                            href="/admin/performances"
+                            className="border border-black p-6 transition-opacity hover:opacity-60"
+                        >
+                            <h2 className="text-xl">
+                                Toda Terça Tem
+                            </h2>
+
+                            <p className="mt-2 text-sm">
+                                Adicionar, editar e remover apresentações.
+                            </p>
+                        </Link>
+                    )}
+
+                    {isCollaborator ? (
+                        <div className="cursor-not-allowed border border-black p-6 opacity-30">
+                            <h2 className="text-xl">
+                                Newsletter
+                            </h2>
+
+                            <p className="mt-2 text-sm">
+                                Criar e enviar newsletters para os assinantes.
+                            </p>
+                        </div>
+                    ) : (
+                        <Link
+                            href="/admin/newsletter"
+                            className="border border-black p-6 transition-opacity hover:opacity-60"
+                        >
+                            <h2 className="text-xl">
+                                Newsletter
+                            </h2>
+
+                            <p className="mt-2 text-sm">
+                                Criar e enviar newsletters para os assinantes.
+                            </p>
+                        </Link>
+                    )}
                 </div>
             </div>
         </main>
