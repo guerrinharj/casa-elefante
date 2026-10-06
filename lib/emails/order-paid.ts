@@ -37,11 +37,18 @@ export function orderPaidEmail({
     total,
     items,
 }: OrderPaidEmailProps) {
+    /*
+     * Produtos do pedido.
+     */
     const itemsHtml = items
         .map(
             (item) => `
                 <tr>
-                    <td style="padding: 12px 0;">
+                    <td
+                        style="
+                            padding: 12px 0;
+                        "
+                    >
                         ${item.product_name}
                         × ${item.quantity}
                     </td>
@@ -62,6 +69,10 @@ export function orderPaidEmail({
         )
         .join("");
 
+    /*
+     * Subtotal depois da aplicação
+     * do cupom.
+     */
     const discountedSubtotal =
         Math.max(
             0,
@@ -69,6 +80,12 @@ export function orderPaidEmail({
                 discountAmount,
         );
 
+    /*
+     * Informações do cupom.
+     *
+     * Só aparecem quando realmente
+     * houve aplicação de desconto.
+     */
     const couponHtml =
         couponCode &&
         discountAmount > 0
@@ -150,9 +167,14 @@ export function orderPaidEmail({
                     </p>
 
                     <p>
-                        <strong>Pedido:</strong>
+                        <strong>
+                            Pedido:
+                        </strong>
+
                         ${orderId}
                     </p>
+
+                    <!-- PRODUTOS -->
 
                     <table
                         style="
@@ -164,19 +186,22 @@ export function orderPaidEmail({
                         ${itemsHtml}
                     </table>
 
+                    <!-- RESUMO FINANCEIRO -->
+
                     <table
                         style="
                             width: 100%;
                             border-collapse: collapse;
                             margin-top: 24px;
-                            padding-top: 16px;
                             border-top: 1px solid #000000;
                         "
                     >
+                        <!-- SUBTOTAL -->
+
                         <tr>
                             <td
                                 style="
-                                    padding: 8px 0;
+                                    padding: 16px 0 8px 0;
                                 "
                             >
                                 Subtotal
@@ -184,7 +209,7 @@ export function orderPaidEmail({
 
                             <td
                                 style="
-                                    padding: 8px 0;
+                                    padding: 16px 0 8px 0;
                                     text-align: right;
                                 "
                             >
@@ -194,7 +219,11 @@ export function orderPaidEmail({
                             </td>
                         </tr>
 
+                        <!-- CUPOM -->
+
                         ${couponHtml}
+
+                        <!-- FRETE -->
 
                         <tr>
                             <td
@@ -216,6 +245,8 @@ export function orderPaidEmail({
                                 )}
                             </td>
                         </tr>
+
+                        <!-- TOTAL -->
 
                         <tr>
                             <td
