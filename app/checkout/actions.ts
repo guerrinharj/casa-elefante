@@ -857,10 +857,16 @@ export async function createOrder(
      * Total do pedido.
      */
 
-    const total =
-        subtotal +
-        shipping;
+    const discountedSubtotal =
+        Math.max(
+            0,
+            subtotal -
+                discountAmount,
+        );
 
+    const total =
+        discountedSubtotal +
+        shipping;
     /*
      * Cria o pedido.
      *
