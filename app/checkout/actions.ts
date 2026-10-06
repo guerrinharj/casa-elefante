@@ -1182,6 +1182,15 @@ export async function createOrder(
                             orderId:
                                 order.id,
 
+                            subtotal,
+
+                            couponCode:
+                                appliedCouponCode,
+
+                            discountAmount,
+
+                            shipping,
+
                             total,
 
                             items:
