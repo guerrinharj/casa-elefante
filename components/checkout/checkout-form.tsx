@@ -1460,62 +1460,63 @@ export function CheckoutForm() {
                  * Resumo financeiro.
                  */}
                 <div className="flex flex-col gap-3">
+                    {/* Subtotal */}
                     <div className="flex justify-between">
                         <span>
                             Subtotal
                         </span>
-
-                        {coupon && (
-                            <div className="flex justify-between">
-                                <span>
-                                    Cupom {coupon.code}
-                                </span>
-
-                                <span>
-                                    -{" "}
-                                    {discountAmount.toLocaleString(
-                                        "pt-BR",
-                                        {
-                                            style: "currency",
-                                            currency:
-                                                "BRL",
-                                        },
-                                    )}
-                                </span>
-                            </div>
-                        )}
-
-                        {coupon && (
-                            <div className="flex justify-between">
-                                <span>
-                                    Subtotal com desconto
-                                </span>
-
-                                <span>
-                                    {discountedSubtotal.toLocaleString(
-                                        "pt-BR",
-                                        {
-                                            style: "currency",
-                                            currency:
-                                                "BRL",
-                                        },
-                                    )}
-                                </span>
-                            </div>
-                        )}
 
                         <span>
                             {subtotal.toLocaleString(
                                 "pt-BR",
                                 {
                                     style: "currency",
-                                    currency:
-                                        "BRL",
+                                    currency: "BRL",
                                 },
                             )}
                         </span>
                     </div>
 
+                    {/* Cupom */}
+                    {coupon && (
+                        <div className="flex justify-between">
+                            <span>
+                                Cupom {coupon.code}
+                            </span>
+
+                            <span>
+                                -{" "}
+                                {discountAmount.toLocaleString(
+                                    "pt-BR",
+                                    {
+                                        style: "currency",
+                                        currency: "BRL",
+                                    },
+                                )}
+                            </span>
+                        </div>
+                    )}
+
+                    {/* Subtotal com desconto */}
+                    {coupon && (
+                        <div className="flex justify-between">
+                            <span>
+                                Subtotal com desconto
+                            </span>
+
+                            <span>
+                                {discountedSubtotal.toLocaleString(
+                                    "pt-BR",
+                                    {
+                                        style: "currency",
+                                        currency: "BRL",
+                                    },
+                                )}
+                            </span>
+                        </div>
+                    )}
+
+                    {/* Frete */}
                     <div className="flex justify-between">
                         <span>
                             Frete
@@ -1524,17 +1525,17 @@ export function CheckoutForm() {
                         <span>
                             {selectedShipping
                                 ? shipping.toLocaleString(
-                                      "pt-BR",
-                                      {
-                                          style: "currency",
-                                          currency:
-                                              "BRL",
-                                      },
-                                  )
+                                    "pt-BR",
+                                    {
+                                        style: "currency",
+                                        currency: "BRL",
+                                    },
+                                )
                                 : "—"}
                         </span>
                     </div>
 
+                    {/* Total */}
                     <div className="flex justify-between border-t border-black pt-4 text-xl">
                         <strong>
                             Total
@@ -1545,8 +1546,7 @@ export function CheckoutForm() {
                                 "pt-BR",
                                 {
                                     style: "currency",
-                                    currency:
-                                        "BRL",
+                                    currency: "BRL",
                                 },
                             )}
                         </strong>
