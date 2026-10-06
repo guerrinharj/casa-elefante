@@ -120,6 +120,31 @@ export default async function AdminPage() {
                     {isCollaborator ? (
                         <div className="cursor-not-allowed border border-black p-6 opacity-30">
                             <h2 className="text-xl">
+                                Colaboradores
+                            </h2>
+
+                            <p className="mt-2 text-sm">
+                                Criar e gerenciar colaboradores.
+                            </p>
+                        </div>
+                    ) : (
+                        <Link
+                            href="/admin/colaboradores"
+                            className="border border-black p-6 transition-opacity hover:opacity-60"
+                        >
+                            <h2 className="text-xl">
+                                Colaboradores
+                            </h2>
+
+                            <p className="mt-2 text-sm">
+                                Criar e gerenciar colaboradores.
+                            </p>
+                        </Link>
+                    )}
+
+                    {isCollaborator ? (
+                        <div className="cursor-not-allowed border border-black p-6 opacity-30">
+                            <h2 className="text-xl">
                                 Toda Terça Tem
                             </h2>
 
