@@ -589,6 +589,243 @@ export async function createOrder(
         });
     }
 
+
+        /*
+        * CUPOM
+        *
+        * O código vindo do browser nunca é
+        * considerado confiável.
+        *
+        * Validamos novamente o cupom usando
+        * o subtotal calculado pelo servidor.
+        */
+
+        const couponCode =
+            input.couponCode
+                ?.trim()
+                .toUpperCase() || null;
+
+        let couponId:
+            string | null = null;
+
+        let appliedCouponCode:
+            string | null = null;
+
+        let discountAmount = 0;
+
+        let couponUsageCount:
+            number | null = null;
+
+        if (couponCode) {
+            const {
+                data: coupon,
+                error: couponError,
+            } = await supabase
+                .from("coupons")
+                .select(`
+                    id,
+                    code,
+                    discount_type,
+                    discount_value,
+                    minimum_order_value,
+                    starts_at,
+                    expires_at,
+                    max_uses,
+                    usage_count,
+                    wholesale_only,
+                    active
+                `)
+                .eq(
+                    "code",
+                    couponCode,
+                )
+                .maybeSingle();
+
+            if (couponError) {
+                console.error(
+                    "Erro ao validar cupom:",
+                    couponError,
+                );
+
+                return {
+                    success: false,
+                    error:
+                        "Não foi possível validar o cupom.",
+                };
+            }
+
+            if (!coupon) {
+                return {
+                    success: false,
+                    error:
+                        "Cupom inválido.",
+                };
+            }
+
+            if (!coupon.active) {
+                return {
+                    success: false,
+                    error:
+                        "Este cupom não está ativo.",
+                };
+            }
+
+            const now =
+                new Date();
+
+            if (
+                coupon.starts_at &&
+                new Date(
+                    coupon.starts_at,
+                ) > now
+            ) {
+                return {
+                    success: false,
+                    error:
+                        "Este cupom ainda não está disponível.",
+                };
+            }
+
+            if (
+                coupon.expires_at &&
+                new Date(
+                    coupon.expires_at,
+                ) < now
+            ) {
+                return {
+                    success: false,
+                    error:
+                        "Este cupom expirou.",
+                };
+            }
+
+            const usageCount =
+                Number(
+                    coupon.usage_count,
+                ) || 0;
+
+            if (
+                coupon.max_uses !==
+                    null &&
+                usageCount >=
+                    coupon.max_uses
+            ) {
+                return {
+                    success: false,
+                    error:
+                        "Este cupom atingiu o limite de usos.",
+                };
+            }
+
+            const minimumOrderValue =
+                Number(
+                    coupon.minimum_order_value,
+                ) || 0;
+
+            if (
+                subtotal <
+                minimumOrderValue
+            ) {
+                return {
+                    success: false,
+                    error:
+                        `Este cupom exige um pedido mínimo de ${minimumOrderValue.toLocaleString(
+                            "pt-BR",
+                            {
+                                style:
+                                    "currency",
+                                currency:
+                                    "BRL",
+                            },
+                        )}.`,
+                };
+            }
+
+            if (
+                coupon.wholesale_only &&
+                !isWholesale
+            ) {
+                return {
+                    success: false,
+                    error:
+                        "Este cupom é exclusivo para clientes atacadistas.",
+                };
+            }
+
+            const discountValue =
+                Number(
+                    coupon.discount_value,
+                );
+
+            if (
+                !Number.isFinite(
+                    discountValue,
+                ) ||
+                discountValue <= 0
+            ) {
+                return {
+                    success: false,
+                    error:
+                        "Este cupom possui um desconto inválido.",
+                };
+            }
+
+            if (
+                coupon.discount_type ===
+                "percentage"
+            ) {
+                discountAmount =
+                    subtotal *
+                    (
+                        discountValue /
+                        100
+                    );
+            } else if (
+                coupon.discount_type ===
+                "fixed"
+            ) {
+                discountAmount =
+                    discountValue;
+            } else {
+                return {
+                    success: false,
+                    error:
+                        "Este cupom possui um tipo de desconto inválido.",
+                };
+            }
+
+            /*
+            * O desconto nunca pode
+            * ultrapassar o subtotal.
+            */
+
+            discountAmount =
+                Math.min(
+                    discountAmount,
+                    subtotal,
+                );
+
+            /*
+            * Evita valores com várias
+            * casas decimais.
+            */
+
+            discountAmount =
+                Math.round(
+                    discountAmount *
+                        100,
+                ) / 100;
+
+            couponId =
+                coupon.id;
+
+            appliedCouponCode =
+                coupon.code;
+
+            couponUsageCount =
+                usageCount;
+        }
+
     /*
      * Frete selecionado
      * pelo cliente.
@@ -669,6 +906,15 @@ export async function createOrder(
                 input.shipping.deliveryTime,
 
             subtotal,
+
+            coupon_id:
+                couponId,
+
+            coupon_code:
+                appliedCouponCode,
+
+            discount_amount:
+                discountAmount,
 
             total,
         })
@@ -789,6 +1035,41 @@ export async function createOrder(
             error: "Não foi possível processar o pagamento.",
         };
     }
+
+    /*
+    * Registra o uso do cupom
+    * somente depois do pagamento
+    * ter sido aprovado.
+    */
+
+    if (
+            couponId &&
+            couponUsageCount !== null
+        ) {
+            const {
+                error:
+                    couponUsageError,
+            } = await supabase
+                .from("coupons")
+                .update({
+                    usage_count:
+                        couponUsageCount +
+                        1,
+                })
+                .eq(
+                    "id",
+                    couponId,
+                );
+
+            if (
+                couponUsageError
+            ) {
+                console.error(
+                    "Erro ao atualizar uso do cupom:",
+                    couponUsageError,
+                );
+            }
+        }
 
     /*
      * Atualiza o estoque
