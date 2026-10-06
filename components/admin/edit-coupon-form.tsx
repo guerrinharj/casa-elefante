@@ -13,61 +13,129 @@ import {
     createClient,
 } from "@/lib/supabase/client";
 
-export function CouponForm() {
-    const router = useRouter();
+type Coupon = {
+    id: string;
+    code: string;
+    discount_type: "percentage" | "fixed";
+    discount_value: number;
+    minimum_order_value: number | null;
+    starts_at: string | null;
+    expires_at: string | null;
+    max_uses: number | null;
+    usage_count: number;
+    wholesale_only: boolean;
+    active: boolean;
+};
 
+type EditCouponFormProps = {
+    coupon: Coupon;
+};
+
+function toDateTimeLocal(
+    value: string | null,
+) {
+    if (!value) {
+        return "";
+    }
+
+    const date = new Date(value);
+
+    const offset =
+        date.getTimezoneOffset();
+
+    const localDate = new Date(
+        date.getTime() -
+            offset * 60 * 1000,
+    );
+
+    return localDate
+        .toISOString()
+        .slice(0, 16);
+}
+
+export function EditCouponForm({
+    coupon,
+}: EditCouponFormProps) {
+    const router = useRouter();
     const supabase = createClient();
 
-    const [
-        code,
-        setCode,
-    ] = useState("");
+    const [code, setCode] =
+        useState(coupon.code);
 
     const [
         discountType,
         setDiscountType,
-    ] = useState<
-        "percentage" | "fixed"
-    >("percentage");
+    ] = useState<"percentage" | "fixed">(
+        coupon.discount_type,
+    );
 
     const [
         discountValue,
         setDiscountValue,
-    ] = useState("");
+    ] = useState(
+        String(coupon.discount_value),
+    );
 
     const [
         minimumOrderValue,
         setMinimumOrderValue,
-    ] = useState("");
+    ] = useState(
+        coupon.minimum_order_value !== null
+            ? String(
+                  coupon.minimum_order_value,
+              )
+            : "",
+    );
 
     const [
         startsAt,
         setStartsAt,
-    ] = useState("");
+    ] = useState(
+        toDateTimeLocal(
+            coupon.starts_at,
+        ),
+    );
 
     const [
         expiresAt,
         setExpiresAt,
-    ] = useState("");
+    ] = useState(
+        toDateTimeLocal(
+            coupon.expires_at,
+        ),
+    );
 
     const [
         maxUses,
         setMaxUses,
-    ] = useState("");
+    ] = useState(
+        coupon.max_uses !== null
+            ? String(coupon.max_uses)
+            : "",
+    );
 
     const [
         wholesaleOnly,
         setWholesaleOnly,
-    ] = useState(false);
+    ] = useState(
+        coupon.wholesale_only,
+    );
 
     const [
         active,
         setActive,
-    ] = useState(true);
+    ] = useState(
+        coupon.active,
+    );
 
     const [
         loading,
         setLoading,
+    ] = useState(false);
+
+    const [
+        deleting,
+        setDeleting,
     ] = useState(false);
 
     const [
@@ -108,11 +176,28 @@ export function CouponForm() {
         }
 
         if (
-            discountType === "percentage" &&
+            discountType ===
+                "percentage" &&
             parsedDiscountValue > 100
         ) {
             setError(
                 "O desconto percentual não pode ser maior que 100%.",
+            );
+            return;
+        }
+
+        const parsedMinimumOrderValue =
+            minimumOrderValue
+                ? Number(
+                      minimumOrderValue,
+                  )
+                : 0;
+
+        if (
+            parsedMinimumOrderValue < 0
+        ) {
+            setError(
+                "O valor mínimo do pedido não pode ser negativo.",
             );
             return;
         }
@@ -149,13 +234,24 @@ export function CouponForm() {
             return;
         }
 
+        if (
+            parsedMaxUses !== null &&
+            parsedMaxUses <
+                coupon.usage_count
+        ) {
+            setError(
+                `Este cupom já foi usado ${coupon.usage_count} vez(es). O limite não pode ser menor que isso.`,
+            );
+            return;
+        }
+
         setLoading(true);
 
         const {
-            error: insertError,
+            error: updateError,
         } = await supabase
             .from("coupons")
-            .insert({
+            .update({
                 code: normalizedCode,
 
                 discount_type:
@@ -165,11 +261,7 @@ export function CouponForm() {
                     parsedDiscountValue,
 
                 minimum_order_value:
-                    minimumOrderValue
-                        ? Number(
-                              minimumOrderValue,
-                          )
-                        : 0,
+                    parsedMinimumOrderValue,
 
                 starts_at:
                     startsAt || null,
@@ -184,16 +276,17 @@ export function CouponForm() {
                     wholesaleOnly,
 
                 active,
-            });
+            })
+            .eq("id", coupon.id);
 
-        if (insertError) {
+        if (updateError) {
             console.error(
-                "Erro ao criar cupom:",
-                insertError,
+                "Erro ao atualizar cupom:",
+                updateError,
             );
 
             if (
-                insertError.code ===
+                updateError.code ===
                 "23505"
             ) {
                 setError(
@@ -201,12 +294,52 @@ export function CouponForm() {
                 );
             } else {
                 setError(
-                    "Não foi possível criar o cupom.",
+                    "Não foi possível atualizar o cupom.",
                 );
             }
 
             setLoading(false);
+            return;
+        }
 
+        router.push(
+            "/admin/cupons",
+        );
+
+        router.refresh();
+    }
+
+    async function handleDelete() {
+        const confirmed =
+            window.confirm(
+                `Tem certeza que deseja excluir o cupom "${coupon.code}"?`,
+            );
+
+        if (!confirmed) {
+            return;
+        }
+
+        setError(null);
+        setDeleting(true);
+
+        const {
+            error: deleteError,
+        } = await supabase
+            .from("coupons")
+            .delete()
+            .eq("id", coupon.id);
+
+        if (deleteError) {
+            console.error(
+                "Erro ao excluir cupom:",
+                deleteError,
+            );
+
+            setError(
+                "Não foi possível excluir o cupom.",
+            );
+
+            setDeleting(false);
             return;
         }
 
@@ -239,15 +372,9 @@ export function CouponForm() {
                             event.target.value.toUpperCase(),
                         )
                     }
-                    placeholder="CASA10"
                     required
                     className="border border-black bg-transparent px-3 py-2 uppercase outline-none"
                 />
-
-                <p className="text-xs opacity-60">
-                    Código que o cliente
-                    digitará no carrinho.
-                </p>
             </div>
 
             <div className="grid gap-6 md:grid-cols-2">
@@ -261,15 +388,10 @@ export function CouponForm() {
 
                     <select
                         id="discountType"
-                        value={
-                            discountType
-                        }
-                        onChange={(
-                            event,
-                        ) =>
+                        value={discountType}
+                        onChange={(event) =>
                             setDiscountType(
-                                event.target
-                                    .value as
+                                event.target.value as
                                     | "percentage"
                                     | "fixed",
                             )
@@ -308,22 +430,11 @@ export function CouponForm() {
                                 : undefined
                         }
                         step="0.01"
-                        value={
-                            discountValue
-                        }
-                        onChange={(
-                            event,
-                        ) =>
+                        value={discountValue}
+                        onChange={(event) =>
                             setDiscountValue(
-                                event.target
-                                    .value,
+                                event.target.value,
                             )
-                        }
-                        placeholder={
-                            discountType ===
-                            "percentage"
-                                ? "10"
-                                : "20.00"
                         }
                         required
                         className="border border-black bg-transparent px-3 py-2 outline-none"
@@ -344,9 +455,7 @@ export function CouponForm() {
                     type="number"
                     min="0"
                     step="0.01"
-                    value={
-                        minimumOrderValue
-                    }
+                    value={minimumOrderValue}
                     onChange={(event) =>
                         setMinimumOrderValue(
                             event.target.value,
@@ -355,11 +464,6 @@ export function CouponForm() {
                     placeholder="0.00"
                     className="border border-black bg-transparent px-3 py-2 outline-none"
                 />
-
-                <p className="text-xs opacity-60">
-                    Deixe vazio para não
-                    exigir valor mínimo.
-                </p>
             </div>
 
             <div className="grid gap-6 md:grid-cols-2">
@@ -375,12 +479,9 @@ export function CouponForm() {
                         id="startsAt"
                         type="datetime-local"
                         value={startsAt}
-                        onChange={(
-                            event,
-                        ) =>
+                        onChange={(event) =>
                             setStartsAt(
-                                event.target
-                                    .value,
+                                event.target.value,
                             )
                         }
                         className="border border-black bg-transparent px-3 py-2 outline-none"
@@ -399,12 +500,9 @@ export function CouponForm() {
                         id="expiresAt"
                         type="datetime-local"
                         value={expiresAt}
-                        onChange={(
-                            event,
-                        ) =>
+                        onChange={(event) =>
                             setExpiresAt(
-                                event.target
-                                    .value,
+                                event.target.value,
                             )
                         }
                         className="border border-black bg-transparent px-3 py-2 outline-none"
@@ -436,8 +534,8 @@ export function CouponForm() {
                 />
 
                 <p className="text-xs opacity-60">
-                    Deixe vazio para usos
-                    ilimitados.
+                    Usos atuais:{" "}
+                    {coupon.usage_count}
                 </p>
             </div>
 
@@ -445,22 +543,16 @@ export function CouponForm() {
                 <label className="flex cursor-pointer items-center gap-3">
                     <input
                         type="checkbox"
-                        checked={
-                            wholesaleOnly
-                        }
-                        onChange={(
-                            event,
-                        ) =>
+                        checked={wholesaleOnly}
+                        onChange={(event) =>
                             setWholesaleOnly(
-                                event.target
-                                    .checked,
+                                event.target.checked,
                             )
                         }
                     />
 
                     <span className="text-sm">
-                        Exclusivo para
-                        atacadistas
+                        Exclusivo para atacadistas
                     </span>
                 </label>
             </div>
@@ -470,12 +562,9 @@ export function CouponForm() {
                     <input
                         type="checkbox"
                         checked={active}
-                        onChange={(
-                            event,
-                        ) =>
+                        onChange={(event) =>
                             setActive(
-                                event.target
-                                    .checked,
+                                event.target.checked,
                             )
                         }
                     />
@@ -492,15 +581,32 @@ export function CouponForm() {
                 </div>
             )}
 
-            <div className="flex justify-end border-t border-black pt-6">
+            <div className="flex items-center justify-between border-t border-black pt-6">
+                <button
+                    type="button"
+                    onClick={handleDelete}
+                    disabled={
+                        loading ||
+                        deleting
+                    }
+                    className="text-sm underline transition-opacity hover:opacity-60 disabled:opacity-40"
+                >
+                    {deleting
+                        ? "Excluindo..."
+                        : "Excluir cupom"}
+                </button>
+
                 <button
                     type="submit"
-                    disabled={loading}
+                    disabled={
+                        loading ||
+                        deleting
+                    }
                     className="border border-black px-6 py-3 transition-opacity hover:opacity-60 disabled:cursor-not-allowed disabled:opacity-40"
                 >
                     {loading
                         ? "Salvando..."
-                        : "Criar cupom"}
+                        : "Salvar alterações"}
                 </button>
             </div>
         </form>
