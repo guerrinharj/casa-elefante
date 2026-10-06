@@ -242,7 +242,7 @@ export function NavbarClient({
                             !isAdmin && (
                                 <li className="text-blue-400">
                                     <Link
-                                        href="/admin"
+                                        href="/admin/produtos"
                                         className={
                                             linkClassName
                                         }
