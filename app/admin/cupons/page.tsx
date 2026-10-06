@@ -1,6 +1,12 @@
 import Link from "next/link";
 
-import { createClient } from "@/lib/supabase/server";
+import {
+    revalidatePath,
+} from "next/cache";
+
+import {
+    createClient,
+} from "@/lib/supabase/server";
 
 function formatDiscount(
     type: string,
@@ -27,7 +33,9 @@ function formatDate(
         day: "2-digit",
         month: "2-digit",
         year: "numeric",
-    }).format(new Date(date));
+    }).format(
+        new Date(date),
+    );
 }
 
 function getCouponStatus(
@@ -59,7 +67,50 @@ function getCouponStatus(
 }
 
 export default async function AdminCouponsPage() {
-    const supabase = await createClient();
+    const supabase =
+        await createClient();
+
+    async function deleteCoupon(
+        formData: FormData,
+    ) {
+        "use server";
+
+        const couponId =
+            formData.get("couponId");
+
+        if (
+            !couponId ||
+            typeof couponId !== "string"
+        ) {
+            return;
+        }
+
+        const supabase =
+            await createClient();
+
+        const {
+            error,
+        } = await supabase
+            .from("coupons")
+            .delete()
+            .eq(
+                "id",
+                couponId,
+            );
+
+        if (error) {
+            console.error(
+                "Erro ao excluir cupom:",
+                error,
+            );
+
+            return;
+        }
+
+        revalidatePath(
+            "/admin/cupons",
+        );
+    }
 
     const {
         data: coupons,
@@ -80,9 +131,12 @@ export default async function AdminCouponsPage() {
             active,
             created_at
         `)
-        .order("created_at", {
-            ascending: false,
-        });
+        .order(
+            "created_at",
+            {
+                ascending: false,
+            },
+        );
 
     if (error) {
         console.error(
@@ -95,11 +149,9 @@ export default async function AdminCouponsPage() {
         <main className="p-6">
             <div className="mx-auto flex max-w-5xl flex-col gap-8">
                 <div className="flex items-center justify-between">
-                    <div>
-                        <h1 className="text-3xl font-medium">
-                            Cupons
-                        </h1>
-                    </div>
+                    <h1 className="text-3xl font-medium">
+                        Cupons
+                    </h1>
 
                     <Link
                         href="/admin/cupons/novo"
@@ -109,7 +161,8 @@ export default async function AdminCouponsPage() {
                     </Link>
                 </div>
 
-                {!coupons || coupons.length === 0 ? (
+                {!coupons ||
+                coupons.length === 0 ? (
                     <div className="border-t border-black">
                         <p className="py-6 text-sm">
                             Nenhum cupom encontrado.
@@ -117,7 +170,7 @@ export default async function AdminCouponsPage() {
                     </div>
                 ) : (
                     <div className="border-t border-black">
-                        <div className="grid grid-cols-[1.5fr_1fr_1fr_1fr_1fr] gap-4 border-b border-black py-3 text-xs uppercase">
+                        <div className="grid grid-cols-[1.5fr_1fr_1fr_1fr_1fr_1fr] gap-4 border-b border-black py-3 text-xs uppercase">
                             <span>
                                 Código
                             </span>
@@ -137,62 +190,105 @@ export default async function AdminCouponsPage() {
                             <span>
                                 Status
                             </span>
+
+                            <span>
+                                Ações
+                            </span>
                         </div>
 
-                        {coupons.map((coupon) => {
-                            const status =
-                                getCouponStatus(
-                                    coupon.active,
-                                    coupon.starts_at,
-                                    coupon.expires_at,
-                                );
+                        {coupons.map(
+                            (coupon) => {
+                                const status =
+                                    getCouponStatus(
+                                        coupon.active,
+                                        coupon.starts_at,
+                                        coupon.expires_at,
+                                    );
 
-                            return (
-                                <Link
-                                    key={coupon.id}
-                                    href={`/admin/cupons/${coupon.id}/editar`}
-                                    className="grid grid-cols-[1.5fr_1fr_1fr_1fr_1fr] gap-4 border-b border-black py-4 text-sm transition-opacity hover:opacity-50"
-                                >
-                                    <div className="flex items-center gap-2">
-                                        <span className="font-medium">
-                                            {coupon.code}
+                                return (
+                                    <div
+                                        key={
+                                            coupon.id
+                                        }
+                                        className="grid grid-cols-[1.5fr_1fr_1fr_1fr_1fr_1fr] items-center gap-4 border-b border-black py-4 text-sm"
+                                    >
+                                        <div className="flex items-center gap-2">
+                                            <span className="font-medium">
+                                                {
+                                                    coupon.code
+                                                }
+                                            </span>
+
+                                            {coupon.wholesale_only && (
+                                                <span className="border border-black px-1.5 py-0.5 text-[10px] uppercase">
+                                                    Atacado
+                                                </span>
+                                            )}
+                                        </div>
+
+                                        <span>
+                                            {formatDiscount(
+                                                coupon.discount_type,
+                                                Number(
+                                                    coupon.discount_value,
+                                                ),
+                                            )}
                                         </span>
 
-                                        {coupon.wholesale_only && (
-                                            <span className="border border-black px-1.5 py-0.5 text-[10px] uppercase">
-                                                Atacado
-                                            </span>
-                                        )}
+                                        <span>
+                                            {
+                                                coupon.usage_count
+                                            }
+                                            {" / "}
+                                            {coupon.max_uses ??
+                                                "∞"}
+                                        </span>
+
+                                        <span>
+                                            {formatDate(
+                                                coupon.expires_at,
+                                            )}
+                                        </span>
+
+                                        <span>
+                                            {
+                                                status
+                                            }
+                                        </span>
+
+                                        <div className="flex items-center gap-4">
+                                            <Link
+                                                href={`/admin/cupons/${coupon.id}/editar`}
+                                                className="underline transition-opacity hover:opacity-50"
+                                            >
+                                                Editar
+                                            </Link>
+
+                                            <form
+                                                action={
+                                                    deleteCoupon
+                                                }
+                                            >
+                                                <input
+                                                    type="hidden"
+                                                    name="couponId"
+                                                    value={
+                                                        coupon.id
+                                                    }
+                                                />
+
+                                                <button
+                                                    type="submit"
+                                                    className="underline transition-opacity hover:opacity-50"
+                                                >
+                                                    Excluir
+                                                </button>
+                                            </form>
+                                        </div>
                                     </div>
-
-                                    <span>
-                                        {formatDiscount(
-                                            coupon.discount_type,
-                                            Number(
-                                                coupon.discount_value,
-                                            ),
-                                        )}
-                                    </span>
-
-                                    <span>
-                                        {coupon.usage_count}
-                                        {" / "}
-                                        {coupon.max_uses ??
-                                            "∞"}
-                                    </span>
-
-                                    <span>
-                                        {formatDate(
-                                            coupon.expires_at,
-                                        )}
-                                    </span>
-
-                                    <span>
-                                        {status}
-                                    </span>
-                                </Link>
-                            );
-                        })}
+                                );
+                            },
+                        )}
                     </div>
                 )}
             </div>
