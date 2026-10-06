@@ -56,6 +56,19 @@ export default async function AdminPage() {
                     </Link>
 
                     <Link
+                        href="/admin/cupons"
+                        className="border border-black p-6 transition-opacity hover:opacity-60"
+                    >
+                        <h2 className="text-xl">
+                            Cupons
+                        </h2>
+
+                        <p className="mt-2 text-sm">
+                            Criar e gerenciar cupons de desconto.
+                        </p>
+                    </Link>
+
+                    <Link
                         href="/admin/atacadistas"
                         className="border border-black p-6 transition-opacity hover:opacity-60"
                     >

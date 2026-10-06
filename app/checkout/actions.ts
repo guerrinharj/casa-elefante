@@ -24,6 +24,8 @@ type CreateOrderInput = {
     customerName: string;
     customerEmail: string;
 
+    couponCode: string | null;
+
     shippingAddress: {
         postalCode: string;
         street: string;
