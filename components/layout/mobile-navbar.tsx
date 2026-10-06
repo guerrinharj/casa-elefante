@@ -14,6 +14,7 @@ type MobileNavbarProps = {
     name: string | null;
     isLoggedIn: boolean;
     isAdmin: boolean;
+    isCollaborator: boolean;
     isWholesale: boolean;
     dark?: boolean;
 };
@@ -22,6 +23,7 @@ export function MobileNavbar({
     name,
     isLoggedIn,
     isAdmin,
+    isCollaborator,
     isWholesale,
     dark = false,
 }: MobileNavbarProps) {
@@ -186,7 +188,8 @@ export function MobileNavbar({
                         )}
 
                         {isWholesale &&
-                            !isAdmin && (
+                            !isAdmin &&
+                            !isCollaborator && (
                                 <li className="text-blue-400">
                                     <Link
                                         href="/minha-conta"
@@ -212,6 +215,21 @@ export function MobileNavbar({
                                 </Link>
                             </li>
                         )}
+
+                        {isCollaborator &&
+                            !isAdmin && (
+                                <li className="text-blue-400">
+                                    <Link
+                                        href="/admin"
+                                        onClick={
+                                            closeMenu
+                                        }
+                                    >
+                                        {name ??
+                                            "Colaborador"}
+                                    </Link>
+                                </li>
+                            )}
 
                         {isLoggedIn && (
                             <li>
