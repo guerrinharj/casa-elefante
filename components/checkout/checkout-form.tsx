@@ -76,6 +76,9 @@ export function CheckoutForm() {
     const {
         items,
         subtotal,
+        coupon,
+        discountAmount,
+        discountedSubtotal,
         clearCart,
     } = useCart();
 
@@ -91,6 +94,8 @@ export function CheckoutForm() {
         customerEmail,
         setCustomerEmail,
     ] = useState("");
+
+    
 
     type PaymentMethod =
     | "pix"
@@ -512,6 +517,9 @@ export function CheckoutForm() {
                     customerName,
                     customerEmail,
 
+                    couponCode: coupon?.code ?? null,
+                    
+
                     shippingAddress: {
                         postalCode:
                             postalCode.replace(
@@ -591,7 +599,7 @@ export function CheckoutForm() {
      * Valor total.
      */
     const total =
-        subtotal + shipping;
+    discountedSubtotal + shipping;
 
     return (
         <form
@@ -1456,6 +1464,45 @@ export function CheckoutForm() {
                         <span>
                             Subtotal
                         </span>
+
+                        {coupon && (
+                            <div className="flex justify-between">
+                                <span>
+                                    Cupom {coupon.code}
+                                </span>
+
+                                <span>
+                                    -{" "}
+                                    {discountAmount.toLocaleString(
+                                        "pt-BR",
+                                        {
+                                            style: "currency",
+                                            currency:
+                                                "BRL",
+                                        },
+                                    )}
+                                </span>
+                            </div>
+                        )}
+
+                        {coupon && (
+                            <div className="flex justify-between">
+                                <span>
+                                    Subtotal com desconto
+                                </span>
+
+                                <span>
+                                    {discountedSubtotal.toLocaleString(
+                                        "pt-BR",
+                                        {
+                                            style: "currency",
+                                            currency:
+                                                "BRL",
+                                        },
+                                    )}
+                                </span>
+                            </div>
+                        )}
 
                         <span>
                             {subtotal.toLocaleString(

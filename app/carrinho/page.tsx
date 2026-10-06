@@ -6,14 +6,48 @@ import {
     useCart,
 } from "@/components/cart/cart-provider";
 
+import {
+    useState,
+} from "react";
+
+
 export default function CartPage() {
     const {
         items,
+        subtotal,
+        coupon,
+        discountAmount,
+        discountedSubtotal,
+        couponLoading,
+        couponError,
+        applyCoupon,
+        removeCoupon,
         removeItem,
         updateQuantity,
-        subtotal,
-        clearCart,
+        clearCart
     } = useCart();
+
+    const [
+        couponCode,
+        setCouponCode,
+    ] = useState(
+        coupon?.code ?? "",
+    );
+
+    async function handleApplyCoupon() {
+        const applied =
+            await applyCoupon(
+                couponCode,
+            );
+
+        if (applied) {
+            setCouponCode(
+                couponCode
+                    .trim()
+                    .toUpperCase(),
+            );
+        }
+    }
 
     if (items.length === 0) {
         return (
@@ -239,6 +273,106 @@ export default function CartPage() {
                                 },
                             )}
                         </span>
+                    </div>
+
+                    {coupon && (
+                        <div className="flex justify-between">
+                            <span>
+                                Cupom {coupon.code}
+                            </span>
+
+                            <span>
+                                -{" "}
+                                {discountAmount.toLocaleString(
+                                    "pt-BR",
+                                    {
+                                        style: "currency",
+                                        currency:
+                                            "BRL",
+                                    },
+                                )}
+                            </span>
+                        </div>
+                    )}
+
+                    <div className="border-t border-black pt-6">
+                        <p className="mb-3 text-sm">
+                            Cupom de desconto
+                        </p>
+
+                        {!coupon ? (
+                            <div className="flex gap-3">
+                                <input
+                                    type="text"
+                                    value={couponCode}
+                                    onChange={(event) =>
+                                        setCouponCode(
+                                            event.target.value.toUpperCase(),
+                                        )
+                                    }
+                                    onKeyDown={(event) => {
+                                        if (
+                                            event.key ===
+                                            "Enter"
+                                        ) {
+                                            event.preventDefault();
+
+                                            void handleApplyCoupon();
+                                        }
+                                    }}
+                                    placeholder="CÓDIGO"
+                                    disabled={
+                                        couponLoading
+                                    }
+                                    className="min-w-0 flex-1 border border-black bg-transparent px-3 py-2 uppercase outline-none"
+                                />
+
+                                <button
+                                    type="button"
+                                    onClick={() =>
+                                        void handleApplyCoupon()
+                                    }
+                                    disabled={
+                                        couponLoading ||
+                                        !couponCode.trim()
+                                    }
+                                    className="border border-black px-4 py-2 transition-opacity hover:opacity-60 disabled:cursor-not-allowed disabled:opacity-40"
+                                >
+                                    {couponLoading
+                                        ? "Aplicando..."
+                                        : "Aplicar"}
+                                </button>
+                            </div>
+                        ) : (
+                            <div className="flex items-center justify-between gap-4">
+                                <div>
+                                    <p className="font-medium">
+                                        {coupon.code}
+                                    </p>
+
+                                    <p className="text-sm opacity-60">
+                                        Cupom aplicado
+                                    </p>
+                                </div>
+
+                                <button
+                                    type="button"
+                                    onClick={() => {
+                                        removeCoupon();
+                                        setCouponCode("");
+                                    }}
+                                    className="text-sm underline transition-opacity hover:opacity-60"
+                                >
+                                    Remover
+                                </button>
+                            </div>
+                        )}
+
+                        {couponError && (
+                            <p className="mt-3 text-sm text-red-600">
+                                {couponError}
+                            </p>
+                        )}
                     </div>
 
                     <Link
