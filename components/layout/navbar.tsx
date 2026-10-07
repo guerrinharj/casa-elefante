@@ -11,6 +11,7 @@ export async function Navbar() {
         name,
         isLoggedIn,
         isAdmin,
+        isCollaborator,
         isWholesale,
         wholesaleStatus,
     } = await getUserAccess();
@@ -20,8 +21,15 @@ export async function Navbar() {
             name={name}
             isLoggedIn={isLoggedIn}
             isAdmin={isAdmin}
-            isWholesale={isWholesale}
-            wholesaleStatus={wholesaleStatus}
+            isCollaborator={
+                isCollaborator
+            }
+            isWholesale={
+                isWholesale
+            }
+            wholesaleStatus={
+                wholesaleStatus
+            }
         />
     );
 }

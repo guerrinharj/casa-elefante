@@ -5,6 +5,10 @@ import { AdminProductSearch } from "@/components/admin/admin-product-search";
 
 import { createClient } from "@/lib/supabase/server";
 
+import {
+    requireProductManager,
+} from "@/lib/auth";
+
 const PRODUCTS_PER_PAGE = 24;
 
 type AdminProductsPageProps = {
@@ -16,6 +20,7 @@ type AdminProductsPageProps = {
 export default async function AdminProductsPage({
     searchParams,
 }: AdminProductsPageProps) {
+    await requireProductManager();
     const filters = await searchParams;
 
     const supabase = await createClient();

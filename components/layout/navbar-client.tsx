@@ -37,6 +37,7 @@ type NavbarClientProps = {
     name: string | null;
     isLoggedIn: boolean;
     isAdmin: boolean;
+    isCollaborator: boolean;
     isWholesale: boolean;
     wholesaleStatus: WholesaleStatus;
 };
@@ -45,6 +46,7 @@ export function NavbarClient({
     name,
     isLoggedIn,
     isAdmin,
+    isCollaborator,
     isWholesale,
     wholesaleStatus,
 }: NavbarClientProps) {
@@ -208,7 +210,8 @@ export function NavbarClient({
                         )}
 
                         {isWholesale &&
-                            !isAdmin && (
+                            !isAdmin &&
+                            !isCollaborator && (
                                 <li className="text-blue-400">
                                     <Link
                                         href="/minha-conta"
@@ -235,8 +238,24 @@ export function NavbarClient({
                             </li>
                         )}
 
+                        {isCollaborator &&
+                            !isAdmin && (
+                                <li className="text-blue-400">
+                                    <Link
+                                        href="/admin/produtos"
+                                        className={
+                                            linkClassName
+                                        }
+                                    >
+                                        {name ??
+                                            "Colaborador"}
+                                    </Link>
+                                </li>
+                            )}
+
                         {isLoggedIn &&
                             !isAdmin &&
+                            !isCollaborator &&
                             wholesaleStatus ===
                                 "pending" && (
                                 <li>
@@ -251,6 +270,7 @@ export function NavbarClient({
 
                         {isLoggedIn &&
                             !isAdmin &&
+                            !isCollaborator &&
                             wholesaleStatus ===
                                 "rejected" && (
                                 <li>
@@ -278,6 +298,9 @@ export function NavbarClient({
                     }
                     isAdmin={
                         isAdmin
+                    }
+                    isCollaborator={
+                        isCollaborator
                     }
                     isWholesale={
                         isWholesale
