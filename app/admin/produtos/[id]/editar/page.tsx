@@ -4,6 +4,10 @@ import { notFound } from "next/navigation";
 import { EditProductForm } from "@/components/admin/edit-product-form";
 import { createClient } from "@/lib/supabase/server";
 
+import {
+    requireProductManager,
+} from "@/lib/auth";
+
 type EditProductPageProps = {
     params: Promise<{
         id: string;
@@ -14,6 +18,7 @@ export default async function EditProductPage({
     params,
 }: EditProductPageProps) {
     const { id } = await params;
+    await requireProductManager();
 
     const supabase = await createClient();
 

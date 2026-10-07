@@ -2,7 +2,12 @@ import Link from "next/link";
 
 import { ProductForm } from "@/components/products/product-form";
 
+import {
+    requireProductManager,
+} from "@/lib/auth";
+
 export default function NewProductPage() {
+    requireProductManager();
     return (
         <main className="p-6">
             <div className="mx-auto flex max-w-3xl flex-col gap-8">
