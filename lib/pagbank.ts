@@ -1,85 +1,135 @@
 import "server-only";
 
-export type PagBankCharge = {
-    id: string;
-    reference_id?: string;
-    status: string;
-
-    amount: {
-        value: number;
-        currency: string;
-    };
-
-    payment_response?: {
-        code?: string;
-        message?: string;
-    };
-};
-
 export type PagBankOrder = {
     id: string;
     reference_id?: string;
-    charges?: PagBankCharge[];
 
-    qr_codes?: {
-        id: string;
-        text: string;
-        expiration_date?: string;
+    charges?: {
+            id: string;
+            status: string;
+
+        qr_code?: {
+            id: string;
+            text: string;
+        };
 
         links?: {
             rel: string;
             href: string;
             media?: string;
-            type?: string;
         }[];
+
+        payment_method?: {
+            type: string;
+
+        pix?: {
+            expiration_date?: string;
+        };
+        };
+
+        amount: {
+            value: number;
+            currency: string;
+        };
+
+        payment_response?: {
+            code?: string;
+            message?: string;
+        };
+    }[];
+
+    qr_codes?: {
+            id: string;
+            text: string;
+            expiration_date?: string;
+
+        links?: {
+            rel: string;
+            href: string;
+            media?: string;
+            }[];
     }[];
 };
 
-type PagBankErrorResponse = {
-    error_messages?: {
-        code?: string;
-        description?: string;
-        parameter_name?: string;
-    }[];
-};
+export class PagBankError extends Error {
+    constructor(
+        public readonly status: number,
+        message: string,
+    ) {
+        super(message);
+    }
+}
 
-function getPagBankConfig() {
-    const environment = process.env.PAGBANK_ENV;
+export function getPagBankConfig() {
+    const env = process.env.PAGBANK_ENV;
     const token = process.env.PAGBANK_TOKEN?.trim();
 
-    if (
-        environment !== "sandbox" &&
-        environment !== "production"
-    ) {
+    if (env !== "sandbox" && env !== "production") {
         throw new Error(
-            "PAGBANK_ENV deve ser sandbox ou production.",
+        "PAGBANK_ENV deve ser sandbox ou production.",
         );
     }
 
     if (!token) {
-        throw new Error(
-            "PAGBANK_TOKEN não foi configurado.",
-        );
+        throw new Error("PAGBANK_TOKEN não configurado.");
     }
 
     return {
+        env,
         token,
 
         baseUrl:
-            environment === "sandbox"
-                ? "https://sandbox.api.pagseguro.com"
-                : "https://api.pagseguro.com",
+        env === "sandbox"
+            ? "https://sandbox.api.pagseguro.com"
+            : "https://api.pagseguro.com",
     };
 }
 
-async function pagBankRequest<T>(
+export function getPagBankPublicKey() {
+    const key = process.env.PAGBANK_PUBLIC_KEY?.trim();
+
+    if (!key) {
+        throw new Error(
+            "PAGBANK_PUBLIC_KEY não configurada.",
+        );
+    }
+
+    return key;
+}
+
+export function getPagBankWebhookUrl() {
+    const value = process.env.PAGBANK_WEBHOOK_URL?.trim();
+
+    if (!value) {
+        if (getPagBankConfig().env === "production") {
+        throw new Error(
+            "Configure PAGBANK_WEBHOOK_URL em produção.",
+        );
+        }
+
+        return undefined;
+    }
+
+    const url = new URL(value);
+
+    if (
+        url.protocol !== "https:" ||
+        ["localhost", "127.0.0.1"].includes(url.hostname)
+    ) {
+        throw new Error(
+        "PAGBANK_WEBHOOK_URL deve ser uma URL HTTPS pública.",
+        );
+    }
+
+    return url.toString();
+}
+
+async function request<T>(
     path: string,
-    options: {
-        method: "GET" | "POST";
-        body?: Record<string, unknown>;
-        idempotencyKey?: string;
-    },
-): Promise<T> {
+    method: "GET" | "POST",
+    body?: Record<string, unknown>,
+    key?: string,
+    ): Promise<T> {
     const { token, baseUrl } = getPagBankConfig();
 
     const headers: Record<string, string> = {
@@ -88,102 +138,63 @@ async function pagBankRequest<T>(
         "Content-Type": "application/json",
     };
 
-    if (options.idempotencyKey) {
-        headers["x-idempotency-key"] =
-            options.idempotencyKey;
+    if (key) {
+        headers["x-idempotency-key"] = key;
     }
 
     const response = await fetch(
         `${baseUrl}${path}`,
         {
-            method: options.method,
-            headers,
+        method,
+        headers,
 
-            body: options.body
-                ? JSON.stringify(options.body)
-                : undefined,
+        body: body
+            ? JSON.stringify(body)
+            : undefined,
 
-            cache: "no-store",
-            signal: AbortSignal.timeout(30_000),
+        cache: "no-store",
+
+        signal: AbortSignal.timeout(25_000),
         },
     );
 
-    const data: unknown = await response
+    const data = await response
         .json()
         .catch(() => null);
 
     if (!response.ok) {
-        const error = data as
-            | PagBankErrorResponse
-            | null;
-
-        const details = error?.error_messages
-            ?.map((item) =>
-                [
-                    item.code,
-                    item.parameter_name,
-                    item.description,
-                ]
-                    .filter(Boolean)
-                    .join(": "),
-            )
-            .join("; ");
-
-        throw new Error(
-            details ||
-                `PagBank retornou HTTP ${response.status}.`,
+        throw new PagBankError(
+        response.status,
+        `PagBank retornou HTTP ${response.status}.`,
         );
     }
 
     if (!data || typeof data !== "object") {
-        throw new Error(
-            "PagBank retornou uma resposta inválida.",
-        );
+        throw new Error("Resposta PagBank inválida.");
     }
 
     return data as T;
 }
 
-export async function createPagBankOrder(
+export function createPagBankOrder(
     payload: Record<string, unknown>,
-    idempotencyKey: string,
-): Promise<PagBankOrder> {
-    return pagBankRequest<PagBankOrder>(
+    key: string,
+    ) {
+    return request<PagBankOrder>(
         "/orders",
-        {
-            method: "POST",
-            body: payload,
-            idempotencyKey,
-        },
+        "POST",
+        payload,
+        key,
     );
 }
 
-export async function getPagBankOrder(
-    orderId: string,
-): Promise<PagBankOrder> {
-    if (!/^ORDE_[A-Za-z0-9-]+$/.test(orderId)) {
-        throw new Error(
-            "Identificador de pedido PagBank inválido.",
-        );
+export function getPagBankOrder(id: string) {
+    if (!/^ORDE_[A-Za-z0-9-]+$/.test(id)) {
+        throw new Error("Pedido PagBank inválido.");
     }
 
-    return pagBankRequest<PagBankOrder>(
-        `/orders/${encodeURIComponent(orderId)}`,
-        {
-            method: "GET",
-        },
+    return request<PagBankOrder>(
+        `/orders/${encodeURIComponent(id)}`,
+        "GET",
     );
-}
-
-export function getPagBankPublicKey(): string {
-    const publicKey =
-        process.env.PAGBANK_PUBLIC_KEY?.trim();
-
-    if (!publicKey) {
-        throw new Error(
-            "PAGBANK_PUBLIC_KEY não foi configurada.",
-        );
-    }
-
-    return publicKey;
 }
