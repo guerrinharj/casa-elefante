@@ -193,28 +193,29 @@ function getPixDetails(
     pagBankOrder: PagBankOrder,
 ) {
     const charge = pagBankOrder.charges?.[0];
-    const qrCode =
-        charge?.qr_code ??
-        pagBankOrder.qr_codes?.[0];
 
-    const links =
-        charge?.links ??
-        pagBankOrder.qr_codes?.[0]?.links ??
-        [];
+    const qrCode =
+        pagBankOrder.qr_codes?.[0] ??
+        charge?.qr_code;
+
+    const links = [
+        ...(pagBankOrder.qr_codes?.[0]?.links ?? []),
+        ...(charge?.links ?? []),
+    ];
 
     const imageUrl = links.find(
         (link) =>
-            link.rel?.toUpperCase().includes("QRCODE.PNG"),
+            link.rel?.toUpperCase() === "QRCODE.PNG",
     )?.href;
 
     return qrCode?.text
         ? {
-                text: qrCode.text,
-                imageUrl,
-                expiresAt:
-                    charge?.payment_method?.pix
-                        ?.expiration_date ?? undefined,
-            }
+            text: qrCode.text,
+            imageUrl,
+            expiresAt:
+                charge?.payment_method?.pix
+                    ?.expiration_date ?? undefined,
+        }
         : undefined;
 }
 
@@ -223,7 +224,14 @@ function toCheckoutPayment(
     fallbackTotal: number,
 ): CheckoutPayment {
     const charge = pagBankOrder.charges?.[0];
-    const status = mapPaymentStatus(charge?.status);
+
+    const isPix =
+        Boolean(pagBankOrder.qr_codes?.length) ||
+        charge?.payment_method?.type === "PIX";
+
+    const status = isPix && !charge
+        ? "pending"
+        : mapPaymentStatus(charge?.status);
 
     const total =
         typeof charge?.amount?.value === "number"
@@ -232,13 +240,12 @@ function toCheckoutPayment(
 
     return {
         orderId: pagBankOrder.id ?? "",
-        method:
-            charge?.payment_method?.type === "PIX"
-                ? "pix"
-                : "card",
+        method: isPix ? "pix" : "card",
         status,
         total,
-        pix: getPixDetails(pagBankOrder),
+        pix: isPix
+            ? getPixDetails(pagBankOrder)
+            : undefined,
     };
 }
 
@@ -1176,35 +1183,46 @@ const userId = user?.id ?? null;
                 reference_id: item.product_id,
                 name: item.product_name,
                 quantity: item.quantity,
-                unit_amount:
-                    Math.round(item.unit_price * 100),
+                unit_amount: Math.round(item.unit_price * 100),
             })),
-            shipping: {
-                address: {
-                    street: shippingAddress.street,
-                    number: shippingAddress.number,
-                    complement:
-                        shippingAddress.complement || undefined,
-                    locality:
-                        shippingAddress.neighborhood,
-                    city: shippingAddress.city,
-                    region_code: shippingAddress.state,
-                    country: "BRA",
-                    postal_code:
-                        shippingAddress.postalCode,
-                },
-            },
-            charges: [
-                {
-                    reference_id: attemptId,
-                    description: "Pedido Casa Elefante",
-                    amount: {
-                        value: chargeValue,
-                        currency: "BRL",
+            ...(input.paymentMethod === "pix"
+                ? {
+                    qr_codes: [
+                        {
+                            amount: {
+                                value: chargeValue,
+                            },
+                            expiration_date: new Date(
+                                Date.now() + 24 * 60 * 60 * 1000,
+                            ).toISOString(),
+                        },
+                    ],
+                }
+                : {
+                    shipping: {
+                        address: {
+                            street: shippingAddress.street,
+                            number: shippingAddress.number,
+                            complement: shippingAddress.complement || undefined,
+                            locality: shippingAddress.neighborhood,
+                            city: shippingAddress.city,
+                            region_code: shippingAddress.state,
+                            country: "BRA",
+                            postal_code: shippingAddress.postalCode,
+                        },
                     },
-                    payment_method: paymentMethod,
-                },
-            ],
+                    charges: [
+                        {
+                            reference_id: attemptId,
+                            description: "Pedido Casa Elefante",
+                            amount: {
+                                value: chargeValue,
+                                currency: "BRL",
+                            },
+                            payment_method: paymentMethod,
+                        },
+                    ],
+                }),
         };
 
         const pagBankOrder =
