@@ -80,6 +80,9 @@ export function CheckoutForm() {
     const [environment, setEnvironment] =
         useState("");
 
+    const [recoveringPayment, setRecoveringPayment] = 
+        useState(false);
+
     const [sdkReady, setSdkReady] =
         useState(false);
 
@@ -221,58 +224,51 @@ export function CheckoutForm() {
     }, [payment?.status, clearCart]);
 
     useEffect(() => {
-        if (
-            !payment ||
-            !["pending", "unknown"].includes(
-                payment.status,
-            )
-        ) {
-            return;
-        }
+        const shouldPollPending =
+            payment && ["pending", "unknown"].includes(payment.status);
+
+        if (!recoveringPayment && !shouldPollPending) return;
 
         let active = true;
+        let timeout: ReturnType<typeof setTimeout>;
 
-        let timeout:
-            ReturnType<typeof setTimeout>;
+        const interval = recoveringPayment ? 1_000 : 3_000;
 
         const poll = async () => {
-            const attempt =
-                attemptRef.current;
+            const attempt = attemptRef.current;
 
             if (!attempt) return;
 
             try {
-                const result =
-                    await checkPayment(attempt);
+                const result = await checkPayment(attempt);
 
-                if (
-                    active &&
-                    result.success
-                ) {
+                if (active && result.success) {
                     setPayment(result.payment);
+
+                    if (recoveringPayment) {
+                        setRecoveringPayment(false);
+                    }
                 }
             } catch {
-                // A próxima consulta tenta novamente.
+                // Continua consultando automaticamente.
             }
 
             if (active) {
-                timeout = setTimeout(
-                    poll,
-                    10_000,
-                );
+                timeout = setTimeout(poll, interval);
             }
         };
 
-        timeout = setTimeout(
-            poll,
-            10_000,
-        );
+        if (recoveringPayment) {
+            void poll();
+        } else {
+            timeout = setTimeout(poll, interval);
+        }
 
         return () => {
             active = false;
             clearTimeout(timeout);
         };
-    }, [payment?.status]);
+    }, [payment?.status, recoveringPayment]);
 
     async function handleCheckPayment(
         recover = false,
@@ -443,10 +439,17 @@ export function CheckoutForm() {
                 });
 
             if (!result.success) {
-                setShippingError(
-                    result.error,
-                );
+                if (
+                    result.error
+                        .toLowerCase()
+                        .includes("ainda está sendo processada")
+                ) {
+                    setError(null);
+                    setRecoveringPayment(true);
+                    return;
+                }
 
+                setError(result.error);
                 return;
             }
 
@@ -863,6 +866,24 @@ export function CheckoutForm() {
                 <Link href="/" className="underline">
                     Voltar à loja
                 </Link>
+            </section>
+        );
+    }
+
+        if (recoveringPayment && !payment) {
+        return (
+            <section
+                role="status"
+                className="mx-auto flex max-w-xl flex-col gap-4 rounded-xl border border-black bg-white p-6"
+            >
+                <h2 className="font-windsor text-2xl font-bold">
+                    Verificando pagamento
+                </h2>
+
+                <p>
+                    Estamos consultando o PagBank. O status será atualizado
+                    automaticamente.
+                </p>
             </section>
         );
     }
