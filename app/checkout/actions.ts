@@ -594,22 +594,24 @@ export async function createOrder(
             };
         }
 
-        const authSupabase =
-            await createClient();
+        const authSupabase = await createClient();
 
         const {
             data: { user },
             error: authError,
         } = await authSupabase.auth.getUser();
 
-        if (authError) {
+        if (
+            authError &&
+            authError.name !== "AuthSessionMissingError"
+        ) {
             console.error(
                 "Erro ao verificar usuário:",
                 authError,
             );
         }
 
-        const userId = user?.id ?? null;
+const userId = user?.id ?? null;
 
         let isWholesale = false;
         let wholesaleApplicationId: string | null =
