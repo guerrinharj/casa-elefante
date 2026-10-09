@@ -574,6 +574,12 @@ export async function createOrder(
 
         if (existingOrder) {
             if (!existingOrder.payment_id) {
+                console.error("[PAGBANK] Pedido bloqueado:", {
+                    attemptId,
+                    orderId: existingOrder.id,
+                    paymentId: existingOrder.payment_id,
+                    status: existingOrder.status,
+                });
                 return {
                     success: false,
                     error:
