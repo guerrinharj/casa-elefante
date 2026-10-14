@@ -1,3 +1,4 @@
+
 "use server";
 
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -45,14 +46,16 @@ type MelhorEnvioResponse = {
     };
 };
 
+const MELHOR_ENVIO_URL =
+    "https://sandbox.melhorenvio.com.br/api/v2/me/shipment/calculate";
+
 export async function calculateShipping(
     input: CalculateShippingInput,
 ): Promise<CalculateShippingResult> {
-    const postalCode =
-        input.postalCode.replace(
-            /\D/g,
-            "",
-        );
+    const postalCode = input.postalCode.replace(
+        /\D/g,
+        "",
+    );
 
     if (postalCode.length !== 8) {
         return {
@@ -68,20 +71,14 @@ export async function calculateShipping(
         };
     }
 
-    const validItems =
-        input.items.filter(
-            (item) =>
-                item.productId &&
-                Number.isInteger(
-                    item.quantity,
-                ) &&
-                item.quantity > 0,
-        );
+    const validItems = input.items.filter(
+        (item) =>
+            item.productId &&
+            Number.isInteger(item.quantity) &&
+            item.quantity > 0,
+    );
 
-    if (
-        validItems.length !==
-        input.items.length
-    ) {
+    if (validItems.length !== input.items.length) {
         return {
             success: false,
             error: "Existem itens inválidos no carrinho.",
@@ -91,14 +88,12 @@ export async function calculateShipping(
     const productIds = [
         ...new Set(
             validItems.map(
-                (item) =>
-                    item.productId,
+                (item) => item.productId,
             ),
         ),
     ];
 
-    const supabase =
-        createAdminClient();
+    const supabase = createAdminClient();
 
     const {
         data: products,
@@ -112,103 +107,66 @@ export async function calculateShipping(
         `)
         .in("id", productIds);
 
-    if (
-        productsError ||
-        !products
-    ) {
-        console.error(
-            "Erro ao carregar produtos:",
-            productsError,
-        );
-
+    if (productsError || !products) {
         return {
             success: false,
             error: "Não foi possível carregar os produtos.",
         };
     }
 
-    if (
-        products.length !==
-        productIds.length
-    ) {
+    if (products.length !== productIds.length) {
         return {
             success: false,
             error: "Um ou mais produtos não foram encontrados.",
         };
     }
 
-    const productsMap =
-        new Map(
-            products.map(
-                (product) => [
-                    product.id,
-                    product,
-                ],
-            ),
-        );
+    const productsMap = new Map(
+        products.map(
+            (product) => [
+                product.id,
+                product,
+            ],
+        ),
+    );
 
-    const shippingProducts =
-        validItems.map(
-            (item) => {
-                const product =
-                    productsMap.get(
-                        item.productId,
-                    );
+    const shippingProducts = validItems.map(
+        (item) => {
+            const product = productsMap.get(
+                item.productId,
+            );
 
-                if (!product) {
-                    throw new Error(
-                        "Produto não encontrado.",
-                    );
-                }
+            if (!product) {
+                throw new Error(
+                    "Produto não encontrado.",
+                );
+            }
 
-                const packageData =
-                    getProductPackage(
-                        product.format ??
-                            "",
-                    );
+            const packageData = getProductPackage(
+                product.format ?? "",
+            );
 
-                return {
-                    id: product.id,
-
-                    width:
-                        packageData.width,
-
-                    height:
-                        packageData.height,
-
-                    length:
-                        packageData.length,
-
-                    weight:
-                        packageData.weight,
-
-                    insurance_value:
-                        Number(
-                            product.price,
-                        ),
-
-                    quantity:
-                        item.quantity,
-                };
-            },
-        );
+            return {
+                id: product.id,
+                width: packageData.width,
+                height: packageData.height,
+                length: packageData.length,
+                weight: packageData.weight,
+                insurance_value: Number(
+                    product.price,
+                ),
+                quantity: item.quantity,
+            };
+        },
+    );
 
     const token =
-        process.env
-            .MELHOR_ENVIO_ACCESS_TOKEN;
+        process.env.MELHOR_ENVIO_ACCESS_TOKEN?.trim();
 
     const originPostalCode =
-        process.env
-            .MELHOR_ENVIO_ORIGIN_CEP;
+        process.env.MELHOR_ENVIO_ORIGIN_CEP;
 
-    if (
-        !token ||
-        !originPostalCode
-    ) {
-        console.error(
-            "Variáveis do Melhor Envio não configuradas.",
-        );
-
+    if (!token || !originPostalCode) {
         return {
             success: false,
             error: "O cálculo de frete ainda não está configurado.",
@@ -216,114 +174,75 @@ export async function calculateShipping(
     }
 
     try {
-        const response =
-            await fetch(
-                "https://sandbox.melhorenvio.com.br/api/v2/me/shipment/calculate",
-                {
-                    method: "POST",
+        const payload = {
+            from: {
+                postal_code: originPostalCode,
+            },
+            to: {
+                postal_code: postalCode,
+            },
+            products: shippingProducts,
+            options: {
+                receipt: false,
+                own_hand: false,
+            },
+        };
 
-                    headers: {
-                        Accept:
-                            "application/json",
-
-                        "Content-Type":
-                            "application/json",
-
-                        Authorization:
-                            `Bearer ${token}`,
-
-                        "User-Agent":
-                            "Casa Elefante (contato@casaelefante.com.br)",
-                    },
-
-                    body:
-                        JSON.stringify(
-                            {
-                                from: {
-                                    postal_code:
-                                        originPostalCode,
-                                },
-
-                                to: {
-                                    postal_code:
-                                        postalCode,
-                                },
-
-                                products:
-                                    shippingProducts,
-
-                                options: {
-                                    receipt:
-                                        false,
-
-                                    own_hand:
-                                        false,
-                                },
-                            },
-                        ),
-
-                    cache: "no-store",
+        const response = await fetch(
+            MELHOR_ENVIO_URL,
+            {
+                method: "POST",
+                headers: {
+                    Accept: "application/json",
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`,
+                    "User-Agent":
+                        "Casa Elefante (contato@casaelefante.com.br)",
                 },
-            );
-
-        const data:
-            MelhorEnvioResponse[] =
-            await response.json();
+                body: JSON.stringify(payload),
+                cache: "no-store",
+            },
+        );
 
         if (!response.ok) {
-            console.error(
-                "Erro Melhor Envio:",
-                data,
-            );
-
             return {
                 success: false,
                 error: "Não foi possível calcular o frete.",
             };
         }
 
-        const options =
-            data
-                .filter(
-                    (service) =>
-                        !service.error &&
-                        service.id &&
-                        (
-                            service.custom_price ??
-                            service.price
-                        ),
-                )
-                .map(
-                    (service) => ({
-                        id:
-                            service.id!,
+        const data: MelhorEnvioResponse[] =
+            await response.json();
 
-                        name:
-                            service.name ??
-                            "Entrega",
-
-                        price:
-                            Number(
-                                service.custom_price ??
-                                    service.price,
-                            ),
-
-                        deliveryTime:
-                            service.custom_delivery_time ??
-                            service.delivery_time ??
-                            0,
-
-                        company:
-                            service.company
-                                ?.name ??
-                            "",
-                    }),
-                )
-                .sort(
-                    (a, b) =>
-                        a.price -
-                        b.price,
-                );
+        const options = data
+            .filter(
+                (service) =>
+                    !service.error &&
+                    service.id &&
+                    (
+                        service.custom_price ??
+                        service.price
+                    ),
+            )
+            .map(
+                (service) => ({
+                    id: service.id!,
+                    name: service.name ?? "Entrega",
+                    price: Number(
+                        service.custom_price ??
+                        service.price,
+                    ),
+                    deliveryTime:
+                        service.custom_delivery_time ??
+                        service.delivery_time ??
+                        0,
+                    company:
+                        service.company?.name ?? "",
+                }),
+            )
+            .sort(
+                (a, b) => a.price - b.price,
+            );
 
         if (!options.length) {
             return {
@@ -336,12 +255,7 @@ export async function calculateShipping(
             success: true,
             options,
         };
-    } catch (error) {
-        console.error(
-            "Erro ao calcular frete:",
-            error,
-        );
-
+    } catch {
         return {
             success: false,
             error: "Não foi possível calcular o frete.",

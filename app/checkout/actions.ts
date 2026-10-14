@@ -145,6 +145,11 @@ async function pagBankRequest<T>(
         }
     }
 
+    console.error("[PAGBANK] Erro HTTP:", {
+        status: response.status,
+        response: data,
+    });
+
     if (!response.ok) {
         const errorData = data as {
             message?: string;
@@ -1231,18 +1236,28 @@ const userId = user?.id ?? null;
                 }),
         };
 
+        console.log("[PAGBANK] Iniciando criação de pagamento", {
+            attemptId,
+            url: `${getPagBankBaseUrl()}/orders`,
+            payload: pagBankPayload,
+        });
+
         const pagBankOrder =
             await pagBankRequest<PagBankOrder>(
                 "/orders",
                 {
                     method: "POST",
                     headers: {
-                        "x-idempotency-key":
-                            attemptId.replace(/-/g, ""),
+                        "x-idempotency-key": attemptId,
                     },
                     body: JSON.stringify(pagBankPayload),
                 },
             );
+
+        console.log("[PAGBANK] Pedido criado com sucesso", {
+            id: pagBankOrder.id,
+            qr_codes: pagBankOrder.qr_codes,
+        });
 
         if (!pagBankOrder.id) {
             throw new Error(
