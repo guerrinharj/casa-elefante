@@ -304,25 +304,38 @@ export function OrderCard({
                         )}
                     </p>
                 </div>
+                
+                
 
-                <button
-                    type="button"
-                    onClick={() =>
-                        onShippedChange(
-                            order.id,
-                            !order.shipped,
-                        )
-                    }
-                    className={`border border-black px-4 py-2 text-sm transition-opacity hover:opacity-60 ${
-                        order.shipped
-                            ? "bg-black text-white"
-                            : ""
-                    }`}
-                >
-                    {order.shipped
-                        ? "Enviado"
-                        : "Marcar como enviado"}
-                </button>
+                <div className="flex flex-wrap items-center gap-3">
+                    <a
+                        href={`/api/admin/orders/${order.id}/label`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="border border-black px-4 py-2 text-sm transition-opacity hover:opacity-60"
+                    >
+                        Gerar etiqueta
+                    </a>
+
+                    <button
+                        type="button"
+                        onClick={() =>
+                            onShippedChange(
+                                order.id,
+                                !order.shipped,
+                            )
+                        }
+                        className={`border border-black px-4 py-2 text-sm transition-opacity hover:opacity-60 ${
+                            order.shipped
+                                ? "bg-black text-white"
+                                : ""
+                        }`}
+                    >
+                        {order.shipped
+                            ? "Enviado"
+                            : "Marcar como enviado"}
+                    </button>
+                </div>
             </div>
         </div>
     );
