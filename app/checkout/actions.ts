@@ -378,7 +378,7 @@ async function finalizePaidOrder(
         .from("orders")
         .select("id, coupon_id")
         .eq("id", orderId)
-        .eq("status", "pending")
+        .eq("status", "paid")
         .maybeSingle();
 
     if (orderError) {
@@ -511,26 +511,28 @@ async function updateOrderFromPagBank(
     fallbackTotal: number,
 ) {
     const supabase = createAdminClient();
-    const payment =
-        toCheckoutPayment(pagBankOrder, fallbackTotal);
+
+    const payment = toCheckoutPayment(
+        pagBankOrder,
+        fallbackTotal,
+    );
 
     if (
         payment.status === "paid" ||
         payment.status === "declined" ||
         payment.status === "expired"
     ) {
-        const databaseStatus =
-            payment.status === "paid"
-                ? "paid"
-                : payment.status;
+        const databaseStatus = payment.status;
 
-        const { error } = await supabase
+        const { data: updatedOrder, error } = await supabase
             .from("orders")
             .update({
                 status: databaseStatus,
             })
             .eq("id", internalOrderId)
-            .eq("status", "pending");
+            .eq("status", "pending")
+            .select("id")
+            .maybeSingle();
 
         if (error) {
             console.error(
@@ -539,7 +541,16 @@ async function updateOrderFromPagBank(
             );
         }
 
-        if (payment.status === "paid" && !error) {
+        if (
+            payment.status === "paid" &&
+            updatedOrder &&
+            !error
+        ) {
+            console.log(
+                "[PAGBANK] Pagamento confirmado:",
+                internalOrderId,
+            );
+
             await finalizePaidOrder(internalOrderId);
         }
     }
