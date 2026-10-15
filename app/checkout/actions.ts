@@ -1236,12 +1236,6 @@ const userId = user?.id ?? null;
                 }),
         };
 
-        console.log("[PAGBANK] Iniciando criação de pagamento", {
-            attemptId,
-            url: `${getPagBankBaseUrl()}/orders`,
-            payload: pagBankPayload,
-        });
-
         const pagBankOrder =
             await pagBankRequest<PagBankOrder>(
                 "/orders",
@@ -1253,11 +1247,6 @@ const userId = user?.id ?? null;
                     body: JSON.stringify(pagBankPayload),
                 },
             );
-
-        console.log("[PAGBANK] Pedido criado com sucesso", {
-            id: pagBankOrder.id,
-            qr_codes: pagBankOrder.qr_codes,
-        });
 
         if (!pagBankOrder.id) {
             throw new Error(
