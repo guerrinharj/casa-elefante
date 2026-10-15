@@ -95,12 +95,14 @@ type PagBankOrder = {
     }[];
 };
 
+//Seleciona a API sandbox ou produção.
 function getPagBankBaseUrl() {
     return process.env.PAGBANK_ENV === "sandbox"
         ? "https://sandbox.api.pagseguro.com"
         : "https://api.pagseguro.com";
 }
 
+// Recupera o token do ambiente.
 function getPagBankToken() {
     const token = process.env.PAGBANK_TOKEN;
 
@@ -113,6 +115,7 @@ function getPagBankToken() {
     return token;
 }
 
+// Executa requisições HTTP ao PagBank e trata erros.
 async function pagBankRequest<T>(
     path: string,
     init: RequestInit = {},
@@ -169,6 +172,7 @@ async function pagBankRequest<T>(
     return data as T;
 }
 
+// Converte status da cobrança para o formato interno.
 function mapPaymentStatus(
     chargeStatus: string | undefined,
 ): CheckoutPayment["status"] {
@@ -194,6 +198,7 @@ function mapPaymentStatus(
     }
 }
 
+// Extrai código PIX, imagem e expiração.
 function getPixDetails(
     pagBankOrder: PagBankOrder,
 ) {
@@ -224,6 +229,7 @@ function getPixDetails(
         : undefined;
 }
 
+// Constrói o objeto de pagamento utilizado pelo checkout.
 function toCheckoutPayment(
     pagBankOrder: PagBankOrder,
     fallbackTotal: number,
@@ -254,6 +260,7 @@ function toCheckoutPayment(
     };
 }
 
+// Retorna chave pública e ambiente.
 export async function getPaymentConfig() {
     return {
         publicKey:
@@ -263,6 +270,7 @@ export async function getPaymentConfig() {
     };
 }
 
+// Consulta dados do pedido e envia a confirmação pelo Resend.
 async function sendPaidOrderEmail(
     orderId: string,
 ) {
@@ -357,6 +365,7 @@ async function sendPaidOrderEmail(
     }
 }
 
+// Processa estoque, cupom e chama o envio de e-mail.
 async function finalizePaidOrder(
     orderId: string,
 ) {
@@ -495,6 +504,7 @@ async function finalizePaidOrder(
     await sendPaidOrderEmail(orderId);
 }
 
+// Atualiza o status do pedido e aciona a finalização quando pago.
 async function updateOrderFromPagBank(
     internalOrderId: string,
     pagBankOrder: PagBankOrder,
@@ -529,7 +539,7 @@ async function updateOrderFromPagBank(
             );
         }
 
-        if (payment.status === "paid") {
+        if (payment.status === "paid" && !error) {
             await finalizePaidOrder(internalOrderId);
         }
     }
@@ -1300,6 +1310,7 @@ const userId = user?.id ?? null;
     }
 }
 
+// Consulta novamente o pagamento existente no PagBank.
 export async function checkPayment(
     attemptId: string,
 ): Promise<ActionResult<{ payment: CheckoutPayment }>> {
@@ -1370,6 +1381,7 @@ export async function checkPayment(
     }
 }
 
+// Chama checkPayment() sem criar nova cobrança.
 export async function retryPayment(
     attemptId: string,
 ): Promise<ActionResult<{ payment: CheckoutPayment }>> {
