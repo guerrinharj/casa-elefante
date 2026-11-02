@@ -50,6 +50,10 @@ export function OrderCard({
     order,
     onShippedChange,
 }: OrderCardProps) {
+
+    const isPaid = order.status === "paid";
+
+
     function formatPrice(
         value?: number | null,
     ) {
@@ -308,6 +312,54 @@ export function OrderCard({
                 
 
                 <div className="flex flex-wrap items-center gap-3">
+
+                    <button
+                        type="button"
+                        disabled={!isPaid}
+                        onClick={async () => {
+                            if (!window.confirm(
+                                "Deseja solicitar a emissão da NF-e deste pedido?",
+                            )) {
+                                return;
+                            }
+
+                            try {
+                                const response = await fetch(
+                                    `/api/admin/orders/${order.id}/nfe`,
+                                    {
+                                        method: "POST",
+                                    },
+                                );
+
+                                const data = await response.json();
+
+                                if (!response.ok) {
+                                    throw new Error(
+                                        data.error ??
+                                        "Erro ao gerar NF-e.",
+                                    );
+                                }
+
+                                alert(
+                                    "Solicitação de emissão de NF-e enviada.",
+                                );
+                            } catch (error) {
+                                alert(
+                                    error instanceof Error
+                                        ? error.message
+                                        : "Erro ao gerar NF-e.",
+                                );
+                            }
+                        }}
+                        className={`border border-black px-4 py-2 text-sm transition-opacity ${
+                            isPaid
+                                ? "hover:opacity-60"
+                                : "cursor-not-allowed opacity-30"
+                        }`}
+                    >
+                        Gerar NF-e
+                    </button>
+                    
                     <a
                         href={`/api/admin/orders/${order.id}/label`}
                         target="_blank"
