@@ -1,3 +1,4 @@
+
 "use client";
 
 import Link from "next/link";
@@ -23,9 +24,7 @@ import type {
     Performance,
 } from "@/lib/performances";
 
-function formatDate(
-    date: string | null,
-) {
+function formatDate(date: string | null) {
     if (!date) {
         return "";
     }
@@ -38,39 +37,27 @@ function formatDate(
             year: "numeric",
             timeZone: "UTC",
         },
-    ).format(
-        new Date(date),
-    );
+    ).format(new Date(date));
 }
 
 export default function PerformancePage() {
-    const params =
-        useParams<{
-            slug: string;
-        }>();
+    const params = useParams<{
+        slug: string;
+    }>();
 
     const {
         playPerformance,
         currentPerformance,
     } = useAudioPlayer();
 
-    const [
-        performance,
-        setPerformance,
-    ] =
-        useState<Performance | null>(
-            null,
-        );
+    const [performance, setPerformance] =
+        useState<Performance | null>(null);
 
-    const [
-        loading,
-        setLoading,
-    ] = useState(true);
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         async function loadPerformance() {
-            const supabase =
-                createClient();
+            const supabase = createClient();
 
             const {
                 data,
@@ -101,44 +88,29 @@ export default function PerformancePage() {
                 )
                 .single();
 
-            if (
-                error ||
-                !data
-            ) {
-                setPerformance(
-                    null,
-                );
-
-                setLoading(
-                    false,
-                );
+            if (error || !data) {
+                setPerformance(null);
+                setLoading(false);
 
                 return;
             }
 
-            setPerformance(
-                data as Performance,
-            );
-
-            setLoading(
-                false,
-            );
+            setPerformance(data as Performance);
+            setLoading(false);
         }
 
         loadPerformance();
-    }, [
-        params.slug,
-    ]);
+    }, [params.slug]);
 
     if (loading) {
         return (
-            <main className="min-h-screen   text-white" />
+            <main className="min-h-screen bg-[#D2232A] text-[#FFFDE9]" />
         );
     }
 
     if (!performance) {
         return (
-            <main className="flex min-h-screen items-center justify-center   text-white">
+            <main className="flex min-h-screen items-center justify-center bg-[#D2232A] text-[#FFFDE9]">
                 <p>
                     Apresentação não encontrada.
                 </p>
@@ -146,15 +118,13 @@ export default function PerformancePage() {
         );
     }
 
-
     const isCurrentPerformance =
-        currentPerformance?.id ===
-        performance.id;
+        currentPerformance?.id === performance.id;
 
     return (
-        <main className="min-h-screen   text-white">
-            <section className="border-b">
-                <div className="p-4 md:p-6">
+        <main className="min-h-screen bg-[#D2232A] text-[#FFFDE9]">
+            <section className="border-b border-[#FFFDE9] bg-[#D2232A]">
+                <div className="bg-[#D2232A] p-4 md:p-6">
                     <Link
                         href="/toda-terca-tem"
                         className="
@@ -174,6 +144,8 @@ export default function PerformancePage() {
                 className="
                     grid
                     border-b
+                    border-[#FFFDE9]
+                    bg-[#D2232A]
                     md:grid-cols-[30%_1fr]
                 "
             >
@@ -184,6 +156,8 @@ export default function PerformancePage() {
                         justify-between
                         gap-4
                         border-b
+                        border-[#FFFDE9]
+                        bg-[#D2232A]
                         p-4
                         md:border-b-0
                         md:border-r
@@ -210,6 +184,7 @@ export default function PerformancePage() {
                         flex
                         items-center
                         gap-5
+                        bg-[#D2232A]
                         p-4
                         md:p-6
                     "
@@ -231,9 +206,7 @@ export default function PerformancePage() {
                         <button
                             type="button"
                             onClick={() =>
-                                playPerformance(
-                                    performance,
-                                )
+                                playPerformance(performance)
                             }
                             aria-label={`Reproduzir ${performance.name}`}
                             className="
@@ -245,12 +218,14 @@ export default function PerformancePage() {
                                 justify-center
                                 rounded-full
                                 border
-                                border-white
+                                border-[#FFFDE9]
+                                bg-[#D2232A]
                                 text-base
+                                text-[#FFFDE9]
                                 transition-colors
                                 duration-300
                                 hover:bg-[#FFFDE9]
-                                hover:text-black
+                                hover:text-[#D2232A]
                                 md:h-14
                                 md:w-14
                             "
@@ -265,23 +240,19 @@ export default function PerformancePage() {
                 performance.video_url ||
                 performance.cover_image
             ) && (
-                <section className="border-b">
+                <section className="border-b border-[#FFFDE9] bg-[#D2232A]">
                     {performance.video_url ? (
                         <div
                             className="
                                 aspect-video
                                 w-full
                                 overflow-hidden
-                                bg-neutral-900
+                                bg-[#D2232A]
                             "
                         >
                             <iframe
-                                src={
-                                    performance.video_url
-                                }
-                                title={
-                                    performance.name
-                                }
+                                src={performance.video_url}
+                                title={performance.name}
                                 className="h-full w-full"
                                 allow="
                                     accelerometer;
@@ -296,12 +267,8 @@ export default function PerformancePage() {
                         </div>
                     ) : (
                         <img
-                            src={
-                                performance.cover_image!
-                            }
-                            alt={
-                                performance.name
-                            }
+                            src={performance.cover_image!}
+                            alt={performance.name}
                             className="
                                 aspect-video
                                 w-full
@@ -317,12 +284,16 @@ export default function PerformancePage() {
                     className="
                         grid
                         border-b
+                        border-[#FFFDE9]
+                        bg-[#D2232A]
                         md:grid-cols-[30%_1fr]
                     "
                 >
                     <div
                         className="
                             border-b
+                            border-[#FFFDE9]
+                            bg-[#D2232A]
                             p-4
                             md:border-b-0
                             md:border-r
@@ -334,7 +305,7 @@ export default function PerformancePage() {
                         </p>
                     </div>
 
-                    <div className="p-4 md:p-6">
+                    <div className="bg-[#D2232A] p-4 md:p-6">
                         <p
                             className="
                                 max-w-3xl
@@ -343,9 +314,7 @@ export default function PerformancePage() {
                                 md:text-2xl
                             "
                         >
-                            {
-                                performance.description
-                            }
+                            {performance.description}
                         </p>
                     </div>
                 </section>
