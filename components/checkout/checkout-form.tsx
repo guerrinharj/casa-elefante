@@ -713,7 +713,7 @@ export function CheckoutForm() {
 
         return (
             <section className="mx-auto flex max-w-xl flex-col gap-5 rounded-xl border border-black bg-[#FFFDE9] p-6">
-                <h2 className="font-windsor text-2xl font-bold">
+                <h2 className="font-october text-2xl font-bold">
                     {paid
                         ? "Pagamento confirmado"
                         : payment.status === "declined"
@@ -876,7 +876,7 @@ export function CheckoutForm() {
                 role="status"
                 className="mx-auto flex max-w-xl flex-col gap-4 rounded-xl border border-black bg-[#FFFDE9] p-6"
             >
-                <h2 className="font-windsor text-2xl font-bold">
+                <h2 className="font-october text-2xl font-bold">
                     Verificando pagamento
                 </h2>
 
@@ -908,7 +908,7 @@ export function CheckoutForm() {
                 <div className="flex flex-col gap-8">
                     <section className="flex flex-col gap-4">
                         <h2
-                            className="animate-checkout-field font-windsor text-2xl font-bold opacity-0"
+                            className="animate-checkout-field font-october text-2xl font-bold opacity-0"
                             style={{ animationDelay: "0ms" }}
                         >
                             Seus dados
@@ -983,7 +983,7 @@ export function CheckoutForm() {
 
                     <section className="flex flex-col gap-4">
                         <h2
-                            className="animate-checkout-field font-windsor text-2xl font-bold opacity-0"
+                            className="animate-checkout-field font-october text-2xl font-bold opacity-0"
                             style={{ animationDelay: "180ms" }}
                         >
                             Entrega
@@ -1213,7 +1213,7 @@ export function CheckoutForm() {
 
                     <section className="flex flex-col gap-4">
                         <h2
-                            className="animate-checkout-field font-windsor text-2xl font-bold opacity-0"
+                            className="animate-checkout-field font-october text-2xl font-bold opacity-0"
                             style={{ animationDelay: "540ms" }}
                         >
                             Pagamento
@@ -1394,7 +1394,7 @@ export function CheckoutForm() {
                 </div>
 
                 <aside className="animate-checkout-summary flex flex-col gap-6 opacity-0">
-                    <h2 className="font-windsor text-2xl font-bold">
+                    <h2 className="font-october text-2xl font-bold">
                         Seu pedido
                     </h2>
 

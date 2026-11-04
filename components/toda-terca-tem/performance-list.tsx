@@ -200,7 +200,7 @@ export function PerformanceList({
                                         {performance.location && (
                                             <span
                                                 className="
-                                                    font-windsor
+                                                    font-october
                                                     text-xl
                                                     leading-none
                                                 "
@@ -215,7 +215,7 @@ export function PerformanceList({
                                     <Link
                                         href={`/toda-terca-tem/${performance.slug}`}
                                         className="
-                                            font-windsor
+                                            font-october
                                             text-xl
                                             transition-opacity
                                             duration-200

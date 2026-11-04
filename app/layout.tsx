@@ -67,6 +67,12 @@ const windsor = localFont({
     display: "swap",
 });
 
+const october = localFont({
+    src: "./fonts/OctoberCompressedDevanagari.ttf",
+    variable: "--font-october",
+    display: "swap",
+});
+
 export const metadata:
     Metadata = {
         title:
@@ -90,6 +96,7 @@ export default function RootLayout({
                 ${questrial.variable}
                 ${anton.variable}
                 ${windsor.variable}
+                ${october.variable}
             `}
         >
             <body>

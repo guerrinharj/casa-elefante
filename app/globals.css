@@ -166,9 +166,8 @@
 
 /* October Compressed blueprint */
 
-.font-october,
-.font-display {
-    font-family: var(--font-display), sans-serif;
+.font-october {
+    font-family: var(--font-october), sans-serif;
     letter-spacing: -1px;
 }
 

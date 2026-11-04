@@ -13,7 +13,8 @@ export function InteractiveLogo({
         <Link
             href="/"
             className="
-                font-windsor
+                font-october
+                uppercase
                 relative
                 z-[60]
                 text-6xl

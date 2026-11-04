@@ -53,7 +53,7 @@ export default function CartPage() {
         return (
             <main className="p-4 md:p-6">
                 <div className="mx-auto max-w-5xl">
-                    <h1 className="font-windsor text-4xl font-bold">
+                    <h1 className="font-october text-4xl font-bold">
                         Carrinho
                     </h1>
 
@@ -91,7 +91,7 @@ export default function CartPage() {
     return (
         <main className="p-4 md:p-6">
             <div className="mx-auto max-w-5xl">
-                <h1 className="font-windsor text-4xl font-bold">
+                <h1 className="font-october text-4xl font-bold">
                     Carrinho
                 </h1>
 
@@ -144,7 +144,7 @@ export default function CartPage() {
                                         <div>
                                             <Link
                                                 href={`/produtos/${item.slug}`}
-                                                className="font-windsor text-2xl font-bold"
+                                                className="font-october text-2xl font-bold"
                                             >
                                                 {
                                                     item.name
