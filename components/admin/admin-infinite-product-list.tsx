@@ -372,7 +372,6 @@ export function AdminInfiniteProductList({
                                                     rounded-full
                                                     border
                                                     border-black
-                                                    bg-black
                                                     px-2
                                                     py-0.5
                                                     text-[9px]

@@ -1,11 +1,7 @@
+
 "use client";
 
 import Link from "next/link";
-
-import {
-    useEffect,
-    useState,
-} from "react";
 
 import {
     usePathname,
@@ -50,50 +46,11 @@ export function NavbarClient({
     isWholesale,
     wholesaleStatus,
 }: NavbarClientProps) {
-    const pathname =
-        usePathname();
+    const pathname = usePathname();
 
-    const [isWhite, setIsWhite] =
-        useState(false);
-
-    const isTodaTercaTem =
-        pathname.startsWith(
-            "/toda-terca-tem",
-        );
-
-    useEffect(() => {
-        const handleScroll = () => {
-            const interval =
-                window.innerHeight;
-
-            const currentSection =
-                Math.floor(
-                    window.scrollY /
-                        interval,
-                );
-
-            setIsWhite(
-                currentSection % 2 === 0,
-            );
-        };
-
-        handleScroll();
-
-        window.addEventListener(
-            "scroll",
-            handleScroll,
-            {
-                passive: true,
-            },
-        );
-
-        return () => {
-            window.removeEventListener(
-                "scroll",
-                handleScroll,
-            );
-        };
-    }, []);
+    const isTodaTercaTem = pathname.startsWith(
+        "/toda-terca-tem",
+    );
 
     const linkClassName = `
         relative
@@ -105,23 +62,16 @@ export function NavbarClient({
         after:w-full
         after:origin-left
         after:scale-x-0
+        after:bg-current
         after:transition-transform
         after:duration-300
         after:ease-out
         hover:after:scale-x-100
-        ${
-            isTodaTercaTem
-                ? "after:bg-white"
-                : "after:bg-black"
-        }
     `;
 
-    const navbarBackground =
-        isTodaTercaTem
-            ? "bg-black text-white"
-            : isWhite
-              ? "bg-white text-black"
-              : "bg-white text-black";
+    const navbarBackground = isTodaTercaTem
+        ? "bg-[#D2232A] text-[#FFFDE9] border-[#FFFDE9]"
+        : "bg-[#FFFDE9] text-[#D2232A] border-[#D2232A]";
 
     return (
         <header
@@ -151,9 +101,7 @@ export function NavbarClient({
                         <li>
                             <Link
                                 href="/"
-                                className={
-                                    linkClassName
-                                }
+                                className={linkClassName}
                             >
                                 Loja
                             </Link>
@@ -162,9 +110,7 @@ export function NavbarClient({
                         <li>
                             <Link
                                 href="/toda-terca-tem"
-                                className={
-                                    linkClassName
-                                }
+                                className={linkClassName}
                             >
                                 Toda Terça Tem
                             </Link>
@@ -173,9 +119,7 @@ export function NavbarClient({
                         <li>
                             <Link
                                 href="/sobre"
-                                className={
-                                    linkClassName
-                                }
+                                className={linkClassName}
                             >
                                 Sobre
                             </Link>
@@ -184,9 +128,7 @@ export function NavbarClient({
                         <li>
                             <Link
                                 href="/newsletter"
-                                className={
-                                    linkClassName
-                                }
+                                className={linkClassName}
                             >
                                 Newsletter
                             </Link>
@@ -200,9 +142,7 @@ export function NavbarClient({
                             <li>
                                 <Link
                                     href="/login"
-                                    className={
-                                        linkClassName
-                                    }
+                                    className={linkClassName}
                                 >
                                     Login
                                 </Link>
@@ -212,26 +152,21 @@ export function NavbarClient({
                         {isWholesale &&
                             !isAdmin &&
                             !isCollaborator && (
-                                <li className="text-blue-400">
+                                <li>
                                     <Link
                                         href="/minha-conta"
-                                        className={
-                                            linkClassName
-                                        }
+                                        className={linkClassName}
                                     >
-                                        {name ??
-                                            "Atacadista"}
+                                        {name ?? "Atacadista"}
                                     </Link>
                                 </li>
                             )}
 
                         {isAdmin && (
-                            <li className="text-blue-400">
+                            <li>
                                 <Link
                                     href="/admin"
-                                    className={
-                                        linkClassName
-                                    }
+                                    className={linkClassName}
                                 >
                                     Admin
                                 </Link>
@@ -240,15 +175,12 @@ export function NavbarClient({
 
                         {isCollaborator &&
                             !isAdmin && (
-                                <li className="text-blue-400">
+                                <li>
                                     <Link
                                         href="/admin/produtos"
-                                        className={
-                                            linkClassName
-                                        }
+                                        className={linkClassName}
                                     >
-                                        {name ??
-                                            "Colaborador"}
+                                        {name ?? "Colaborador"}
                                     </Link>
                                 </li>
                             )}
@@ -293,21 +225,11 @@ export function NavbarClient({
 
                 <MobileNavbar
                     name={name}
-                    isLoggedIn={
-                        isLoggedIn
-                    }
-                    isAdmin={
-                        isAdmin
-                    }
-                    isCollaborator={
-                        isCollaborator
-                    }
-                    isWholesale={
-                        isWholesale
-                    }
-                    dark={
-                        isTodaTercaTem
-                    }
+                    isLoggedIn={isLoggedIn}
+                    isAdmin={isAdmin}
+                    isCollaborator={isCollaborator}
+                    isWholesale={isWholesale}
+                    dark={isTodaTercaTem}
                 />
             </div>
         </header>

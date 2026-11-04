@@ -1,3 +1,4 @@
+
 import {
     PerformanceList,
 } from "@/components/toda-terca-tem/performance-list";
@@ -23,8 +24,7 @@ export type Performance = {
 };
 
 export default async function TodaTercaTemPage() {
-    const supabase =
-        await createClient();
+    const supabase = await createClient();
 
     const {
         data: performances,
@@ -66,50 +66,37 @@ export default async function TodaTercaTemPage() {
         );
     }
 
-    const today =
-        new Date()
-            .toISOString()
-            .split("T")[0];
+    const today = new Date()
+        .toISOString()
+        .split("T")[0];
 
-    const upcomingPerformances =
-        (performances ?? [])
-            .filter(
-                (performance) =>
-                    performance.performance_date &&
-                    performance.performance_date >=
-                        today,
-            )
-            .sort(
-                (a, b) =>
-                    (
-                        a.performance_date ??
-                        ""
-                    ).localeCompare(
-                        b.performance_date ??
-                            "",
-                    ),
-            );
-
-    const pastPerformances =
-        (performances ?? []).filter(
+    const upcomingPerformances = (performances ?? [])
+        .filter(
             (performance) =>
                 performance.performance_date &&
-                performance.performance_date <
-                    today,
+                performance.performance_date >= today,
+        )
+        .sort(
+            (a, b) =>
+                (a.performance_date ?? "").localeCompare(
+                    b.performance_date ?? "",
+                ),
         );
 
+    const pastPerformances = (performances ?? []).filter(
+        (performance) =>
+            performance.performance_date &&
+            performance.performance_date < today,
+    );
+
     return (
-        <main className="min-h-screen bg-black text-white">
+        <main className="theme-ttt min-h-screen bg-background text-foreground">
             <UpcomingPerformances
-                performances={
-                    upcomingPerformances
-                }
+                performances={upcomingPerformances}
             />
 
             <PerformanceList
-                performances={
-                    pastPerformances
-                }
+                performances={pastPerformances}
             />
         </main>
     );

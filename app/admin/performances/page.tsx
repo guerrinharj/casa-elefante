@@ -85,7 +85,7 @@ export default async function AdminPerformancesPage() {
 
                     <Link
                         href="/admin/performances/novo"
-                        className="rounded-md border border-black bg-white px-4 py-3 shadow-[3px_3px_0_#000] transition-transform hover:-translate-x-0.5 hover:-translate-y-0.5"
+                        className="rounded-md border border-black bg-[#FFFDE9] px-4 py-3 shadow-[3px_3px_0_#000] transition-transform hover:-translate-x-0.5 hover:-translate-y-0.5"
                     >
                         Nova apresentação
                     </Link>
@@ -157,8 +157,8 @@ export default async function AdminPerformancesPage() {
 
                                                 ${
                                                     performance.published
-                                                        ? "bg-black text-white"
-                                                        : "bg-white text-black"
+                                                        ? "  text-white"
+                                                        : "bg-[#FFFDE9] text-black"
                                                 }
                                             `}
                                         >
@@ -171,7 +171,7 @@ export default async function AdminPerformancesPage() {
                                     <div className="flex items-center gap-3">
                                         <Link
                                             href={`/admin/performances/${performance.id}/editar`}
-                                            className="rounded-md border border-black bg-white px-4 py-2 text-sm shadow-[3px_3px_0_#000] transition-transform hover:-translate-x-0.5 hover:-translate-y-0.5"
+                                            className="rounded-md border border-black bg-[#FFFDE9] px-4 py-2 text-sm shadow-[3px_3px_0_#000] transition-transform hover:-translate-x-0.5 hover:-translate-y-0.5"
                                         >
                                             Editar
                                         </Link>

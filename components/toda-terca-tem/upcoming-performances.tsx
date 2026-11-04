@@ -51,9 +51,7 @@ export function UpcomingPerformances({
                             group
                             relative
                             block
-                            overflow-hidden
-                            
-                            bg-black
+                            overflow-hidden                            
                             text-white
                         "
                     >
@@ -84,7 +82,6 @@ export function UpcomingPerformances({
                             className="
                                 absolute
                                 inset-0
-                                bg-black/35
                                 opacity-0
                                 transition-opacity
                                 duration-500

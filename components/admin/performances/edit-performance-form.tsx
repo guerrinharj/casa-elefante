@@ -623,7 +623,7 @@ export function EditPerformanceForm({
                     disabled={
                         isBusy
                     }
-                    className="rounded-md border border-black bg-white px-4 py-3 outline-none disabled:opacity-50"
+                    className="rounded-md border border-black bg-[#FFFDE9] px-4 py-3 outline-none disabled:opacity-50"
                 />
             </div>
 
@@ -656,7 +656,7 @@ export function EditPerformanceForm({
                     disabled={
                         isBusy
                     }
-                    className="rounded-md border border-black bg-white px-4 py-3 outline-none disabled:opacity-50"
+                    className="rounded-md border border-black bg-[#FFFDE9] px-4 py-3 outline-none disabled:opacity-50"
                 />
             </div>
 
@@ -686,7 +686,7 @@ export function EditPerformanceForm({
                     disabled={
                         isBusy
                     }
-                    className="resize-y rounded-md border border-black bg-white px-4 py-3 outline-none disabled:opacity-50"
+                    className="resize-y rounded-md border border-black bg-[#FFFDE9] px-4 py-3 outline-none disabled:opacity-50"
                 />
             </div>
 
@@ -716,7 +716,7 @@ export function EditPerformanceForm({
                     disabled={
                         isBusy
                     }
-                    className="rounded-md border border-black bg-white px-4 py-3 outline-none disabled:opacity-50"
+                    className="rounded-md border border-black bg-[#FFFDE9] px-4 py-3 outline-none disabled:opacity-50"
                 />
             </div>
 
@@ -746,7 +746,7 @@ export function EditPerformanceForm({
                     disabled={
                         isBusy
                     }
-                    className="rounded-md border border-black bg-white px-4 py-3 outline-none disabled:opacity-50"
+                    className="rounded-md border border-black bg-[#FFFDE9] px-4 py-3 outline-none disabled:opacity-50"
                     placeholder="Ex: Casa Elefante, São Paulo"
                 />
             </div>
@@ -800,7 +800,7 @@ export function EditPerformanceForm({
                                 null,
                         )
                     }
-                    className="rounded-md border border-black bg-white px-4 py-3 disabled:opacity-50"
+                    className="rounded-md border border-black bg-[#FFFDE9] px-4 py-3 disabled:opacity-50"
                 />
 
                 <p className="text-xs opacity-60">
@@ -870,7 +870,7 @@ export function EditPerformanceForm({
                                 null,
                         )
                     }
-                    className="rounded-md border border-black bg-white px-4 py-3 disabled:opacity-50"
+                    className="rounded-md border border-black bg-[#FFFDE9] px-4 py-3 disabled:opacity-50"
                 />
 
                 <p className="text-xs opacity-60">
@@ -924,7 +924,7 @@ export function EditPerformanceForm({
                     disabled={
                         isBusy
                     }
-                    className="rounded-md border border-black bg-white px-4 py-3 outline-none disabled:opacity-50"
+                    className="rounded-md border border-black bg-[#FFFDE9] px-4 py-3 outline-none disabled:opacity-50"
                     placeholder="https://..."
                 />
             </div>
@@ -973,7 +973,7 @@ export function EditPerformanceForm({
                     disabled={
                         isBusy
                     }
-                    className="rounded-md border border-black bg-white px-5 py-3 shadow-[3px_3px_0_#000] transition-transform hover:-translate-x-0.5 hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-50"
+                    className="rounded-md border border-black bg-[#FFFDE9] px-5 py-3 shadow-[3px_3px_0_#000] transition-transform hover:-translate-x-0.5 hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-50"
                 >
                     {loading
                         ? "Salvando..."
@@ -1003,7 +1003,7 @@ export function EditPerformanceForm({
                     onClick={
                         handleDelete
                     }
-                    className="ml-auto rounded-md border border-red-600 bg-white px-5 py-3 text-red-600 transition-opacity hover:opacity-60 disabled:cursor-not-allowed disabled:opacity-50"
+                    className="ml-auto rounded-md border border-red-600 bg-[#FFFDE9] px-5 py-3 text-red-600 transition-opacity hover:opacity-60 disabled:cursor-not-allowed disabled:opacity-50"
                 >
                     {deleting
                         ? "Excluindo..."

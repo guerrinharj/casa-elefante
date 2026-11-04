@@ -373,7 +373,7 @@ export function PerformanceForm() {
                         )
                     }
                     required
-                    className="rounded-md border border-black bg-white px-4 py-3 outline-none"
+                    className="rounded-md border border-black bg-[#FFFDE9] px-4 py-3 outline-none"
                     placeholder="Nome da apresentação"
                 />
             </div>
@@ -404,7 +404,7 @@ export function PerformanceForm() {
                         )
                     }
                     required
-                    className="rounded-md border border-black bg-white px-4 py-3 outline-none"
+                    className="rounded-md border border-black bg-[#FFFDE9] px-4 py-3 outline-none"
                     placeholder="nome-da-apresentacao"
                 />
             </div>
@@ -432,7 +432,7 @@ export function PerformanceForm() {
                         )
                     }
                     rows={6}
-                    className="resize-y rounded-md border border-black bg-white px-4 py-3 outline-none"
+                    className="resize-y rounded-md border border-black bg-[#FFFDE9] px-4 py-3 outline-none"
                     placeholder="Descrição da apresentação"
                 />
             </div>
@@ -460,7 +460,7 @@ export function PerformanceForm() {
                                 .value,
                         )
                     }
-                    className="rounded-md border border-black bg-white px-4 py-3 outline-none"
+                    className="rounded-md border border-black bg-[#FFFDE9] px-4 py-3 outline-none"
                 />
             </div>
 
@@ -491,7 +491,7 @@ export function PerformanceForm() {
                                 .value,
                         )
                     }
-                    className="rounded-md border border-black bg-white px-4 py-3 outline-none"
+                    className="rounded-md border border-black bg-[#FFFDE9] px-4 py-3 outline-none"
                     placeholder="Ex: Casa Elefante, São Paulo"
                 />
             </div>
@@ -522,7 +522,7 @@ export function PerformanceForm() {
                                 null,
                         )
                     }
-                    className="rounded-md border border-black bg-white px-4 py-3"
+                    className="rounded-md border border-black bg-[#FFFDE9] px-4 py-3"
                 />
 
                 {coverImageFile && (
@@ -573,7 +573,7 @@ export function PerformanceForm() {
                                 null,
                         )
                     }
-                    className="rounded-md border border-black bg-white px-4 py-3"
+                    className="rounded-md border border-black bg-[#FFFDE9] px-4 py-3"
                 />
 
                 {audioFile && (
@@ -621,7 +621,7 @@ export function PerformanceForm() {
                                 .value,
                         )
                     }
-                    className="rounded-md border border-black bg-white px-4 py-3 outline-none"
+                    className="rounded-md border border-black bg-[#FFFDE9] px-4 py-3 outline-none"
                     placeholder="https://..."
                 />
             </div>
@@ -667,7 +667,7 @@ export function PerformanceForm() {
                     disabled={
                         loading
                     }
-                    className="rounded-md border border-black bg-white px-5 py-3 shadow-[3px_3px_0_#000] transition-transform hover:-translate-x-0.5 hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-50"
+                    className="rounded-md border border-black bg-[#FFFDE9] px-5 py-3 shadow-[3px_3px_0_#000] transition-transform hover:-translate-x-0.5 hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-50"
                 >
                     {loading
                         ? "Enviando..."

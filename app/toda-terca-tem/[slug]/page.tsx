@@ -132,13 +132,13 @@ export default function PerformancePage() {
 
     if (loading) {
         return (
-            <main className="min-h-screen bg-black text-white" />
+            <main className="min-h-screen   text-white" />
         );
     }
 
     if (!performance) {
         return (
-            <main className="flex min-h-screen items-center justify-center bg-black text-white">
+            <main className="flex min-h-screen items-center justify-center   text-white">
                 <p>
                     Apresentação não encontrada.
                 </p>
@@ -152,7 +152,7 @@ export default function PerformancePage() {
         performance.id;
 
     return (
-        <main className="min-h-screen bg-black text-white">
+        <main className="min-h-screen   text-white">
             <section className="border-b">
                 <div className="p-4 md:p-6">
                     <Link
@@ -249,7 +249,7 @@ export default function PerformancePage() {
                                 text-base
                                 transition-colors
                                 duration-300
-                                hover:bg-white
+                                hover:bg-[#FFFDE9]
                                 hover:text-black
                                 md:h-14
                                 md:w-14

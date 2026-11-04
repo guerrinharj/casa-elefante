@@ -1,3 +1,4 @@
+
 "use client";
 
 import Link from "next/link";
@@ -27,42 +28,33 @@ export function MobileNavbar({
     isWholesale,
     dark = false,
 }: MobileNavbarProps) {
-    const [
-        open,
-        setOpen,
-    ] = useState(false);
+    const [open, setOpen] = useState(false);
 
     function closeMenu() {
         setOpen(false);
     }
 
+    const menuColors = dark
+        ? "border-[#FFFDE9] bg-[#D2232A] text-[#FFFDE9]"
+        : "border-[#D2232A] bg-[#FFFDE9] text-[#D2232A]";
+
     return (
         <div className="md:hidden">
             <button
                 type="button"
-                onClick={() =>
-                    setOpen(
-                        !open,
-                    )
-                }
+                onClick={() => setOpen(!open)}
                 className="relative flex h-8 w-8 flex-col items-center justify-center gap-1.5"
-                aria-label="Abrir menu"
-                aria-expanded={
-                    open
-                }
+                aria-label={open ? "Fechar menu" : "Abrir menu"}
+                aria-expanded={open}
             >
                 <span
                     className={`
                         block
                         h-px
                         w-6
+                        bg-current
                         transition-all
                         duration-300
-                        ${
-                            dark
-                                ? "bg-white"
-                                : "bg-black"
-                        }
                         ${
                             open
                                 ? "translate-y-[3.5px] rotate-45"
@@ -76,13 +68,9 @@ export function MobileNavbar({
                         block
                         h-px
                         w-6
+                        bg-current
                         transition-all
                         duration-300
-                        ${
-                            dark
-                                ? "bg-white"
-                                : "bg-black"
-                        }
                         ${
                             open
                                 ? "-translate-y-[3.5px] -rotate-45"
@@ -104,11 +92,7 @@ export function MobileNavbar({
                     transition-all
                     duration-300
                     ease-out
-                    ${
-                        dark
-                            ? "border-white bg-black text-white"
-                            : "border-black bg-white text-black"
-                    }
+                    ${menuColors}
                     ${
                         open
                             ? "max-h-[600px] opacity-100"
@@ -121,9 +105,7 @@ export function MobileNavbar({
                         <li>
                             <Link
                                 href="/"
-                                onClick={
-                                    closeMenu
-                                }
+                                onClick={closeMenu}
                             >
                                 Loja
                             </Link>
@@ -132,21 +114,16 @@ export function MobileNavbar({
                         <li>
                             <Link
                                 href="/toda-terca-tem"
-                                onClick={
-                                    closeMenu
-                                }
+                                onClick={closeMenu}
                             >
-                                Toda Terça
-                                Tem
+                                Toda Terça Tem
                             </Link>
                         </li>
 
                         <li>
                             <Link
                                 href="/sobre"
-                                onClick={
-                                    closeMenu
-                                }
+                                onClick={closeMenu}
                             >
                                 Sobre
                             </Link>
@@ -155,9 +132,7 @@ export function MobileNavbar({
                         <li>
                             <Link
                                 href="/newsletter"
-                                onClick={
-                                    closeMenu
-                                }
+                                onClick={closeMenu}
                             >
                                 Newsletter
                             </Link>
@@ -166,9 +141,7 @@ export function MobileNavbar({
                         <li>
                             <Link
                                 href="/carrinho"
-                                onClick={
-                                    closeMenu
-                                }
+                                onClick={closeMenu}
                             >
                                 Carrinho
                             </Link>
@@ -178,9 +151,7 @@ export function MobileNavbar({
                             <li>
                                 <Link
                                     href="/login"
-                                    onClick={
-                                        closeMenu
-                                    }
+                                    onClick={closeMenu}
                                 >
                                     Login
                                 </Link>
@@ -190,26 +161,21 @@ export function MobileNavbar({
                         {isWholesale &&
                             !isAdmin &&
                             !isCollaborator && (
-                                <li className="text-blue-400">
+                                <li>
                                     <Link
                                         href="/minha-conta"
-                                        onClick={
-                                            closeMenu
-                                        }
+                                        onClick={closeMenu}
                                     >
-                                        {name ??
-                                            "Atacadista"}
+                                        {name ?? "Atacadista"}
                                     </Link>
                                 </li>
                             )}
 
                         {isAdmin && (
-                            <li className="text-blue-400">
+                            <li>
                                 <Link
                                     href="/admin"
-                                    onClick={
-                                        closeMenu
-                                    }
+                                    onClick={closeMenu}
                                 >
                                     Admin
                                 </Link>
@@ -218,15 +184,12 @@ export function MobileNavbar({
 
                         {isCollaborator &&
                             !isAdmin && (
-                                <li className="text-blue-400">
+                                <li>
                                     <Link
-                                        href="/admin"
-                                        onClick={
-                                            closeMenu
-                                        }
+                                        href="/admin/produtos"
+                                        onClick={closeMenu}
                                     >
-                                        {name ??
-                                            "Colaborador"}
+                                        {name ?? "Colaborador"}
                                     </Link>
                                 </li>
                             )}

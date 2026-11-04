@@ -70,7 +70,7 @@ export function ProductCard({
                                 rounded-full
                                 border
                                 border-black
-                                bg-white
+                                bg-[#FFFDE9]
                                 px-2
                                 py-1
                                 text-[10px]
@@ -86,13 +86,13 @@ export function ProductCard({
                 )}
 
                 {isPendingWholesaleProduct && (
-                    <div className="absolute inset-0 flex items-center justify-center bg-white/30">
+                    <div className="absolute inset-0 flex items-center justify-center bg-[#FFFDE9]/30">
                         <span
                             className="
                                 rounded-full
                                 border
                                 border-black
-                                bg-white
+                                bg-[#FFFDE9]
                                 px-3
                                 py-2
                                 text-center
@@ -167,7 +167,7 @@ export function ProductCard({
                     rounded-xl
                     border
                     border-black
-                    bg-white
+                    bg-[#FFFDE9]
                     p-3
                     opacity-70
                     shadow-[-5px_5px_0_0_#000]
@@ -189,7 +189,7 @@ export function ProductCard({
                 rounded-xl
                 border
                 border-black
-                bg-white
+                bg-[#FFFDE9]
                 p-3
                 shadow-[-5px_5px_0_0_#000]
                 transition-all

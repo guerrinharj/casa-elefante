@@ -101,7 +101,7 @@ export default async function ProductPage({
                             ) => (
                                 <div
                                     key={image}
-                                    className="aspect-square rounded-xl border border-black bg-white p-3 shadow-[6px_6px_0_0_#000]"
+                                    className="aspect-square rounded-xl border border-black bg-[#FFFDE9] p-3 shadow-[6px_6px_0_0_#000]"
                                 >
                                     <div className="h-full w-full overflow-hidden rounded-lg">
                                         <img
@@ -126,7 +126,7 @@ export default async function ProductPage({
                     <div>
                         {product.pre_order && (
                             <div className="mb-3">
-                                <span className="inline-block rounded-full border border-black bg-black px-3 py-1 text-xs font-medium uppercase text-white">
+                                <span className="inline-block rounded-full border border-black   px-3 py-1 text-xs font-medium uppercase text-white">
                                     Pré-venda
                                 </span>
                             </div>
@@ -134,7 +134,7 @@ export default async function ProductPage({
 
                         {product.wholesale_only && (
                             <div className="mb-3">
-                                <span className="inline-block rounded-full border border-black bg-white px-3 py-1 text-xs font-medium uppercase">
+                                <span className="inline-block rounded-full border border-black bg-[#FFFDE9] px-3 py-1 text-xs font-medium uppercase">
                                     Exclusivo para
                                     atacadistas
                                 </span>
@@ -340,7 +340,7 @@ export default async function ProductPage({
                     </div>
 
                     {unavailableForUser ? (
-                        <div className="rounded-xl border border-black bg-white p-4 text-sm">
+                        <div className="rounded-xl border border-black bg-[#FFFDE9] p-4 text-sm">
                             Este produto é
                             exclusivo para
                             clientes atacadistas

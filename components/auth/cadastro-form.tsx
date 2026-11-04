@@ -233,7 +233,7 @@ export function CadastroForm() {
 
     if (success) {
         return (
-            <div className="rounded-lg border border-black bg-white p-8 shadow">
+            <div className="rounded-lg border border-black bg-[#FFFDE9] p-8 shadow">
                 <div className="mb-4 inline-flex rounded-full border border-black px-3 py-1 text-xs uppercase">
                     Confirme seu e-mail
                 </div>
