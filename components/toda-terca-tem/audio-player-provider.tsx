@@ -432,7 +432,7 @@ export function AudioPlayerProvider({
 
             {currentPerformance &&
                 currentPerformance.audio_url && (
-                    <div className="fixed bottom-0 left-0 z-[100] w-full border-t  bg-black text-white">
+                    <div className="fixed bottom-0 left-0 z-[100] w-full border-t  text-white">
                         <audio
                             ref={
                                 audioRef
@@ -461,7 +461,7 @@ export function AudioPlayerProvider({
                                 onClick={
                                     togglePlay
                                 }
-                                className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full border  transition-colors duration-300 hover:bg-white hover:text-black"
+                                className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full border  transition-colors duration-300 hover:bg-[#FFFDE9] hover:text-black"
                                 aria-label={
                                     isPlaying
                                         ? "Pausar"
@@ -513,7 +513,7 @@ export function AudioPlayerProvider({
                                         handleSeek
                                     }
                                     aria-label="Progresso do áudio"
-                                    className="audio-slider h-px min-w-0 flex-1 cursor-pointer bg-white"
+                                    className="audio-slider h-px min-w-0 flex-1 cursor-pointer bg-[#FFFDE9]"
                                 />
 
                                 <span className="w-10 shrink-0 text-right text-xs tabular-nums">
@@ -553,7 +553,7 @@ export function AudioPlayerProvider({
                                         handleVolume
                                     }
                                     aria-label="Volume"
-                                    className="audio-slider h-px w-20 cursor-pointer bg-white"
+                                    className="audio-slider h-px w-20 cursor-pointer bg-[#FFFDE9]"
                                 />
                             </div>
 

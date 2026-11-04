@@ -1352,13 +1352,13 @@ export function ProductSpreadsheetImporter() {
 
                 <Link
                     href="/admin/produtos"
-                    className="rounded-lg border border-black bg-white px-4 py-2 shadow-[3px_3px_0_#000] transition-transform hover:-translate-x-0.5 hover:-translate-y-0.5"
+                    className="rounded-lg border border-black bg-[#FFFDE9] px-4 py-2 shadow-[3px_3px_0_#000] transition-transform hover:-translate-x-0.5 hover:-translate-y-0.5"
                 >
                     Voltar
                 </Link>
             </div>
 
-            <section className="rounded-xl border border-black bg-white p-6 shadow-[5px_5px_0_#000]">
+            <section className="rounded-xl border border-black bg-[#FFFDE9] p-6 shadow-[5px_5px_0_#000]">
                 <div className="flex flex-col gap-4">
                     <div>
                         <h2 className="text-xl font-medium">
@@ -1381,7 +1381,7 @@ export function ProductSpreadsheetImporter() {
                             onClick={
                                 downloadTemplate
                             }
-                            className="rounded-lg border border-black bg-white px-4 py-2 shadow-[3px_3px_0_#000] transition-transform hover:-translate-x-0.5 hover:-translate-y-0.5"
+                            className="rounded-lg border border-black bg-[#FFFDE9] px-4 py-2 shadow-[3px_3px_0_#000] transition-transform hover:-translate-x-0.5 hover:-translate-y-0.5"
                         >
                             Baixar modelo
                             .xlsx
@@ -1390,7 +1390,7 @@ export function ProductSpreadsheetImporter() {
                 </div>
             </section>
 
-            <section className="rounded-xl border border-black bg-white p-6 shadow-[5px_5px_0_#000]">
+            <section className="rounded-xl border border-black bg-[#FFFDE9] p-6 shadow-[5px_5px_0_#000]">
                 <div className="flex flex-col gap-5">
                     <div>
                         <h2 className="text-xl font-medium">
@@ -1452,7 +1452,7 @@ export function ProductSpreadsheetImporter() {
                 </div>
             </section>
 
-            <section className="rounded-xl border border-black bg-white p-6 shadow-[5px_5px_0_#000]">
+            <section className="rounded-xl border border-black bg-[#FFFDE9] p-6 shadow-[5px_5px_0_#000]">
                 <div className="flex flex-col gap-5">
                     <div>
                         <h2 className="text-xl font-medium">
@@ -1506,7 +1506,7 @@ export function ProductSpreadsheetImporter() {
 
             {products.length >
                 0 && (
-                <section className="rounded-xl border border-black bg-white p-6 shadow-[5px_5px_0_#000]">
+                <section className="rounded-xl border border-black bg-[#FFFDE9] p-6 shadow-[5px_5px_0_#000]">
                     <h2 className="text-xl font-medium">
                         Prévia
                     </h2>
@@ -1701,7 +1701,7 @@ export function ProductSpreadsheetImporter() {
                         onClick={
                             handleImport
                         }
-                        className="w-full rounded-lg border border-black bg-white px-5 py-4 text-lg font-medium shadow-[4px_4px_0_#000] transition-transform hover:-translate-x-0.5 hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-40"
+                        className="w-full rounded-lg border border-black bg-[#FFFDE9] px-5 py-4 text-lg font-medium shadow-[4px_4px_0_#000] transition-transform hover:-translate-x-0.5 hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-40"
                     >
                         {isImporting
                             ? `Importando... ${importedCount}/${products.length}`

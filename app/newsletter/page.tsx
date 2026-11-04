@@ -84,7 +84,7 @@ export default function NewsletterPage() {
         return (
             <main className="p-4 md:p-6">
                 <div className="mx-auto max-w-3xl">
-                    <div className="mt-10 rounded-xl border border-black bg-white p-6 shadow-[4px_4px_0_#000]">
+                    <div className="mt-10 rounded-xl border border-black bg-[#FFFDE9] p-6 shadow-[4px_4px_0_#000]">
                         <p className="text-lg">
                             Inscrição realizada.
                         </p>
@@ -130,7 +130,7 @@ export default function NewsletterPage() {
                                     event.target.value,
                                 )
                             }
-                            className="rounded-xl border border-black bg-white p-3 outline-none"
+                            className="rounded-xl border border-black bg-[#FFFDE9] p-3 outline-none"
                         />
                     </div>
 
@@ -149,7 +149,7 @@ export default function NewsletterPage() {
                                     event.target.value,
                                 )
                             }
-                            className="rounded-xl border border-black bg-white p-3 outline-none"
+                            className="rounded-xl border border-black bg-[#FFFDE9] p-3 outline-none"
                         />
                     </div>
 
@@ -162,7 +162,7 @@ export default function NewsletterPage() {
                     <button
                         type="submit"
                         disabled={loading}
-                        className="w-fit rounded-xl border border-black bg-white px-6 py-3 shadow-[4px_4px_0_#000] transition-transform hover:-translate-x-1 hover:-translate-y-1 disabled:cursor-not-allowed disabled:opacity-50"
+                        className="w-fit rounded-xl border border-black bg-[#FFFDE9] px-6 py-3 shadow-[4px_4px_0_#000] transition-transform hover:-translate-x-1 hover:-translate-y-1 disabled:cursor-not-allowed disabled:opacity-50"
                     >
                         {loading
                             ? "Inscrevendo..."

@@ -313,7 +313,7 @@ export function FeaturedProductsCarousel({
                                     previousSlide
                                 }
                                 aria-label="Destaque anterior"
-                                className="flex h-8 w-8 items-center justify-center rounded-full transition-colors hover:bg-white hover:text-black"
+                                className="flex h-8 w-8 items-center justify-center rounded-full transition-colors hover:bg-[#FFFDE9] hover:text-black"
                             >
                                 ←
                             </button>
@@ -341,7 +341,7 @@ export function FeaturedProductsCarousel({
                                             className={`h-2 w-2 rounded-full border border-white transition-colors duration-300 ${
                                                 index ===
                                                 currentIndex
-                                                    ? "bg-white"
+                                                    ? "bg-[#FFFDE9]"
                                                     : "bg-transparent"
                                             }`}
                                         />
@@ -355,7 +355,7 @@ export function FeaturedProductsCarousel({
                                     nextSlide
                                 }
                                 aria-label="Próximo destaque"
-                                className="flex h-8 w-8 items-center justify-center rounded-full transition-colors hover:bg-white hover:text-black"
+                                className="flex h-8 w-8 items-center justify-center rounded-full transition-colors hover:bg-[#FFFDE9] hover:text-black"
                             >
                                 →
                             </button>

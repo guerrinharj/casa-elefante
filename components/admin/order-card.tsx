@@ -547,7 +547,7 @@ export function OrderCard({
                             }
                             className={`border border-black px-4 py-2 text-sm transition-opacity hover:opacity-60 ${
                                 order.shipped
-                                    ? "bg-black text-white"
+                                    ? "  text-white"
                                     : ""
                             }`}
                         >
@@ -561,7 +561,7 @@ export function OrderCard({
 
             {refundOpen && (
                 <div
-                    className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4"
+                    className="fixed inset-0 z-50 flex items-center justify-center p-4"
                     onMouseDown={(event) => {
                         if (
                             event.target === event.currentTarget
@@ -574,7 +574,7 @@ export function OrderCard({
                         role="dialog"
                         aria-modal="true"
                         aria-labelledby="refund-title"
-                        className="max-h-[90vh] w-full max-w-lg overflow-y-auto border border-black bg-white p-6 text-black shadow-xl"
+                        className="max-h-[90vh] w-full max-w-lg overflow-y-auto border border-black bg-[#FFFDE9] p-6 text-black shadow-xl"
                     >
                         <div className="mb-6 flex items-start justify-between gap-4">
                             <div>
@@ -675,7 +675,7 @@ export function OrderCard({
                                         }}
                                         required
                                         placeholder="0,00"
-                                        className="w-full border border-black bg-white px-3 py-2 text-sm outline-none"
+                                        className="w-full border border-black bg-[#FFFDE9] px-3 py-2 text-sm outline-none"
                                     />
                                 </div>
                             )}
@@ -696,7 +696,7 @@ export function OrderCard({
                                             event.target.value as RefundReason,
                                         );
                                     }}
-                                    className="w-full border border-black bg-white px-3 py-2 text-sm outline-none"
+                                    className="w-full border border-black bg-[#FFFDE9] px-3 py-2 text-sm outline-none"
                                 >
                                     {REFUND_REASONS.map((reason) => (
                                         <option
@@ -728,7 +728,7 @@ export function OrderCard({
                                     maxLength={2000}
                                     rows={4}
                                     placeholder="Descreva os detalhes do reembolso..."
-                                    className="w-full resize-none border border-black bg-white px-3 py-2 text-sm outline-none"
+                                    className="w-full resize-none border border-black bg-[#FFFDE9] px-3 py-2 text-sm outline-none"
                                 />
                             </div>
 
@@ -789,7 +789,7 @@ export function OrderCard({
                                         !refundConfirmed ||
                                         refundLoading
                                     }
-                                    className={`border border-black bg-black px-4 py-2 text-sm text-white transition-opacity ${
+                                    className={`border border-black   px-4 py-2 text-sm text-white transition-opacity ${
                                         validRefundAmount &&
                                         refundConfirmed &&
                                         !refundLoading

@@ -155,7 +155,7 @@ export function NewsletterEditor({
                                 )
                             }
                             placeholder="Discos novos na Casa Elefante"
-                            className="rounded-xl border border-black bg-white p-3 outline-none"
+                            className="rounded-xl border border-black bg-[#FFFDE9] p-3 outline-none"
                         />
                     </div>
 
@@ -181,7 +181,7 @@ export function NewsletterEditor({
                                 )
                             }
                             placeholder="Chegaram por aqui"
-                            className="rounded-xl border border-black bg-white p-3 outline-none"
+                            className="rounded-xl border border-black bg-[#FFFDE9] p-3 outline-none"
                         />
                     </div>
 
@@ -207,7 +207,7 @@ export function NewsletterEditor({
                             }
                             rows={8}
                             placeholder="Escreva o texto da newsletter..."
-                            className="resize-none rounded-xl border border-black bg-white p-3 outline-none"
+                            className="resize-none rounded-xl border border-black bg-[#FFFDE9] p-3 outline-none"
                         />
                     </div>
                 </div>
@@ -219,7 +219,7 @@ export function NewsletterEditor({
                         Produtos
                     </h2>
 
-                    <div className="mt-4 max-h-[500px] overflow-y-auto rounded-xl border border-black bg-white">
+                    <div className="mt-4 max-h-[500px] overflow-y-auto rounded-xl border border-black bg-[#FFFDE9]">
                         {products.map(
                             (product) => {
                                 const selected =
@@ -271,8 +271,8 @@ export function NewsletterEditor({
                                         <div
                                             className={`flex h-6 w-6 items-center justify-center rounded-md border border-black ${
                                                 selected
-                                                    ? "bg-black text-white"
-                                                    : "bg-white"
+                                                    ? "  text-white"
+                                                    : "bg-[#FFFDE9]"
                                             }`}
                                         >
                                             {selected &&
@@ -292,7 +292,7 @@ export function NewsletterEditor({
                         Apresentações
                     </h2>
 
-                    <div className="mt-4 max-h-[500px] overflow-y-auto rounded-xl border border-black bg-white">
+                    <div className="mt-4 max-h-[500px] overflow-y-auto rounded-xl border border-black bg-[#FFFDE9]">
                         {performances.length ===
                             0 && (
                             <div className="p-4 text-sm opacity-60">
@@ -372,8 +372,8 @@ export function NewsletterEditor({
                                         <div
                                             className={`flex h-6 w-6 items-center justify-center rounded-md border border-black ${
                                                 selected
-                                                    ? "bg-black text-white"
-                                                    : "bg-white"
+                                                    ? "  text-white"
+                                                    : "bg-[#FFFDE9]"
                                             }`}
                                         >
                                             {selected &&
@@ -395,7 +395,7 @@ export function NewsletterEditor({
                         Preview
                     </p>
 
-                    <div className="rounded-xl border border-black bg-white p-6 shadow-[4px_4px_0_#000]">
+                    <div className="rounded-xl border border-black bg-[#FFFDE9] p-6 shadow-[4px_4px_0_#000]">
                         <p className="text-center text-xl font-bold uppercase">
                             Casa Elefante
                         </p>
@@ -577,7 +577,7 @@ export function NewsletterEditor({
                     <button
                         type="button"
                         disabled
-                        className="mt-6 w-full rounded-xl border border-black bg-white px-6 py-3 shadow-[4px_4px_0_#000] opacity-40"
+                        className="mt-6 w-full rounded-xl border border-black bg-[#FFFDE9] px-6 py-3 shadow-[4px_4px_0_#000] opacity-40"
                     >
                         Enviar newsletter
                     </button>

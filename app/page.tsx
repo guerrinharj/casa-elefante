@@ -229,7 +229,7 @@ export default async function HomePage({
             >
                 <Suspense
                     fallback={
-                        <aside className="h-[calc(100vh-64px)] w-64 bg-white" />
+                        <aside className="h-[calc(100vh-64px)] w-64" />
                     }
                 >
                     <Sidebar />

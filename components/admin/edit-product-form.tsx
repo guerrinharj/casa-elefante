@@ -645,7 +645,7 @@ export function EditProductForm({
                                                 image,
                                             )
                                         }
-                                        className="absolute right-2 top-2 z-10 flex h-7 w-7 items-center justify-center bg-white text-lg leading-none"
+                                        className="absolute right-2 top-2 z-10 flex h-7 w-7 items-center justify-center bg-[#FFFDE9] text-lg leading-none"
                                     >
                                         ×
                                     </button>
@@ -693,12 +693,12 @@ export function EditProductForm({
                                                     index,
                                                 )
                                             }
-                                            className="absolute right-2 top-2 z-10 flex h-7 w-7 items-center justify-center bg-white text-lg leading-none"
+                                            className="absolute right-2 top-2 z-10 flex h-7 w-7 items-center justify-center bg-[#FFFDE9] text-lg leading-none"
                                         >
                                             ×
                                         </button>
 
-                                        <span className="absolute bottom-0 left-0 bg-black px-2 py-1 text-xs text-white">
+                                        <span className="absolute bottom-0 left-0   px-2 py-1 text-xs text-white">
                                             Nova
                                         </span>
                                     </div>
@@ -708,7 +708,7 @@ export function EditProductForm({
                     </div>
                 )}
 
-                <label className="flex cursor-pointer items-center justify-center border border-dashed border-black px-6 py-10 text-sm transition-colors hover:bg-black hover:text-white">
+                <label className="flex cursor-pointer items-center justify-center border border-dashed border-black px-6 py-10 text-sm transition-colors   hover:text-white">
                     Adicionar imagens
 
                     <input
@@ -749,7 +749,7 @@ export function EditProductForm({
                 <button
                     type="submit"
                     disabled={loading}
-                    className="border border-black px-6 py-3 text-sm transition-colors hover:bg-black hover:text-white disabled:cursor-not-allowed disabled:opacity-50"
+                    className="border border-black px-6 py-3 text-sm transition-colors   hover:text-white disabled:cursor-not-allowed disabled:opacity-50"
                 >
                     {loading
                         ? "Salvando..."

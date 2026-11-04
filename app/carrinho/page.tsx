@@ -68,7 +68,7 @@ export default function CartPage() {
                             rounded-xl
                             border
                             border-black
-                            bg-white
+                            bg-[#FFFDE9]
                             px-4
                             py-2
                             text-sm
@@ -119,7 +119,7 @@ export default function CartPage() {
                                         animationDelay: `${index * 70}ms`,
                                     }}
                                 >
-                                    <div className="aspect-square rounded-xl border border-black bg-white p-2 shadow-[6px_6px_0_0_#000]">
+                                    <div className="aspect-square rounded-xl border border-black bg-[#FFFDE9] p-2 shadow-[6px_6px_0_0_#000]">
                                         <div className="h-full w-full overflow-hidden">
                                             {item.image ? (
                                                 <img
@@ -383,7 +383,7 @@ export default function CartPage() {
                             rounded-xl
                             border
                             border-black
-                            bg-white
+                            bg-[#FFFDE9]
                             px-6
                             py-4
                             text-center
@@ -410,7 +410,7 @@ export default function CartPage() {
                         rounded-xl
                         border
                         border-black
-                        bg-white
+                        bg-[#FFFDE9]
                         px-4
                         py-2
                         text-sm

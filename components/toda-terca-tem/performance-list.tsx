@@ -172,14 +172,14 @@ export function PerformanceList({
                                         p-4
                                         transition-colors
                                         duration-300
-                                        hover:bg-white
+                                        hover:bg-[#FFFDE9]
                                         hover:text-black
                                         md:grid-cols-[30%_1fr_auto]
                                         md:p-6
                                         ${
                                             isActive
-                                                ? "bg-white text-black"
-                                                : "bg-black text-white"
+                                                ? "bg-[#FFFDE9] text-black"
+                                                : "text-white"
                                         }
                                     `}
                                 >

@@ -1,3 +1,4 @@
+
 "use client";
 
 import {
@@ -5,13 +6,15 @@ import {
 } from "next/navigation";
 
 export function Footer() {
-    const pathname =
-        usePathname();
+    const pathname = usePathname();
 
-    const isTodaTercaTem =
-        pathname.startsWith(
-            "/toda-terca-tem",
-        );
+    const isTodaTercaTem = pathname.startsWith(
+        "/toda-terca-tem",
+    );
+
+    const footerColors = isTodaTercaTem
+        ? "bg-[#D2232A] text-[#FFFDE9] border-[#FFFDE9]"
+        : "bg-[#FFFDE9] text-[#D2232A] border-[#D2232A]";
 
     return (
         <footer
@@ -21,12 +24,7 @@ export function Footer() {
                 py-6
                 transition-colors
                 duration-500
-
-                ${
-                    isTodaTercaTem
-                        ? "bg-black text-white"
-                        : "bg-white text-black"
-                }
+                ${footerColors}
             `}
         >
             <div className="flex items-center justify-between">
@@ -38,6 +36,7 @@ export function Footer() {
                         href="#"
                         target="_blank"
                         rel="noopener noreferrer"
+                        className="transition-opacity duration-200 hover:opacity-60"
                     >
                         Instagram
                     </a>
@@ -46,6 +45,7 @@ export function Footer() {
                         href="#"
                         target="_blank"
                         rel="noopener noreferrer"
+                        className="transition-opacity duration-200 hover:opacity-60"
                     >
                         YouTube
                     </a>

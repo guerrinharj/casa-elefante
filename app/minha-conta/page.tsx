@@ -241,7 +241,7 @@ export default async function MinhaContaPage() {
                      * DADOS DA CONTA
                      */}
 
-                    <section className="border border-black bg-white p-6">
+                    <section className="border border-black bg-[#FFFDE9] p-6">
                         <h2 className="mb-6 text-2xl font-medium">
                             Dados da conta
                         </h2>
@@ -289,7 +289,7 @@ export default async function MinhaContaPage() {
                      */}
 
                     {wholesale && (
-                        <section className="border border-black bg-white p-6">
+                        <section className="border border-black bg-[#FFFDE9] p-6">
                             <div className="mb-6 flex items-start justify-between gap-4">
                                 <h2 className="text-2xl font-medium">
                                     Atacado
@@ -477,7 +477,7 @@ export default async function MinhaContaPage() {
                                             key={
                                                 order.id
                                             }
-                                            className="border border-black bg-white p-6"
+                                            className="border border-black bg-[#FFFDE9] p-6"
                                         >
                                             {/*
                                              * HEADER
@@ -491,7 +491,7 @@ export default async function MinhaContaPage() {
                                                         </p>
 
                                                         {isWholesaleOrder && (
-                                                            <span className="border border-black bg-black px-2 py-0.5 text-[10px]   text-white">
+                                                            <span className="border border-black   px-2 py-0.5 text-[10px]   text-white">
                                                                 Atacado
                                                             </span>
                                                         )}
@@ -541,7 +541,7 @@ export default async function MinhaContaPage() {
                                                             className="flex gap-4 py-4"
                                                         >
                                                             {item.product_image && (
-                                                                <div className="relative h-20 w-20 shrink-0 overflow-hidden border border-black/10 bg-white">
+                                                                <div className="relative h-20 w-20 shrink-0 overflow-hidden border border-black/10 bg-[#FFFDE9]">
                                                                     <Image
                                                                         src={
                                                                             item.product_image

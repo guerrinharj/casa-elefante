@@ -647,7 +647,7 @@ export function ProductForm() {
                     name="genre"
                     required
                     defaultValue=""
-                    className="border border-black bg-white px-3 py-2"
+                    className="border border-black bg-[#FFFDE9] px-3 py-2"
                 >
                     <option
                         value=""
@@ -685,7 +685,7 @@ export function ProductForm() {
                     name="format"
                     required
                     defaultValue=""
-                    className="border border-black bg-white px-3 py-2"
+                    className="border border-black bg-[#FFFDE9] px-3 py-2"
                 >
                     <option
                         value=""
@@ -956,7 +956,7 @@ export function ProductForm() {
                         images.length ===
                             0
                     }
-                    className="mt-2 w-fit rounded border border-black bg-white px-5 py-2 shadow-[3px_3px_0_#000] transition-transform hover:-translate-x-0.5 hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-50"
+                    className="mt-2 w-fit rounded border border-black bg-[#FFFDE9] px-5 py-2 shadow-[3px_3px_0_#000] transition-transform hover:-translate-x-0.5 hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-50"
                 >
                     {isAnalyzing
                         ? "Identificando..."
@@ -965,7 +965,7 @@ export function ProductForm() {
             </div>
 
             {analysis && (
-                <div className="rounded border border-black bg-white p-4 shadow-[3px_3px_0_#000]">
+                <div className="rounded border border-black bg-[#FFFDE9] p-4 shadow-[3px_3px_0_#000]">
                     <div className="mb-4 flex items-center justify-between gap-4">
                         <h2 className="font-bold uppercase">
                             Produto identificado
@@ -1063,7 +1063,7 @@ export function ProductForm() {
                         isLoading ||
                         isAnalyzing
                     }
-                    className="border border-black px-5 py-2 transition-colors hover:bg-black hover:text-white disabled:cursor-not-allowed disabled:opacity-50"
+                    className="border border-black px-5 py-2 transition-colors hover:text-white disabled:cursor-not-allowed disabled:opacity-50"
                 >
                     {isLoading
                         ? "Salvando..."

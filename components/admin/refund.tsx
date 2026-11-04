@@ -166,7 +166,7 @@ export function Refund({
 
             {open && (
                 <div
-                    className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4"
+                    className="fixed inset-0 z-50 flex items-center justify-center p-4"
                     onMouseDown={(event) => {
                         if (
                             event.target === event.currentTarget &&
@@ -180,7 +180,7 @@ export function Refund({
                         role="dialog"
                         aria-modal="true"
                         aria-labelledby="refund-title"
-                        className="w-full max-w-lg rounded-xl bg-white p-6 text-zinc-900 shadow-xl dark:bg-zinc-900 dark:text-white"
+                        className="w-full max-w-lg rounded-xl bg-[#FFFDE9] p-6 text-zinc-900 shadow-xl dark:bg-zinc-900 dark:text-white"
                     >
                         <div className="mb-6 flex items-start justify-between gap-4">
                             <div>
@@ -292,7 +292,7 @@ export function Refund({
                                             event.target.value as RefundReason,
                                         );
                                     }}
-                                    className="w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-900"
+                                    className="w-full rounded-lg border border-zinc-300 bg-[#FFFDE9] px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-900"
                                 >
                                     {REFUND_REASONS.map((item) => (
                                         <option
@@ -374,7 +374,7 @@ export function Refund({
                                         !confirmed ||
                                         loading
                                     }
-                                    className="rounded-lg bg-zinc-900 px-4 py-2 text-sm font-medium text-white transition-opacity disabled:cursor-not-allowed disabled:opacity-40 dark:bg-white dark:text-zinc-900"
+                                    className="rounded-lg bg-zinc-900 px-4 py-2 text-sm font-medium text-white transition-opacity disabled:cursor-not-allowed disabled:opacity-40 dark:bg-[#FFFDE9] dark:text-zinc-900"
                                 >
                                     {loading
                                         ? "Verificando..."

@@ -52,8 +52,8 @@ export function ScrollBackground() {
                 ease-in-out
                 ${
                     isWhite
-                        ? "bg-white"
-                        : "bg-white"
+                        ? "bg-[#FFFDE9]"
+                        : "bg-[#FFFDE9]"
                 }
             `}
         />

@@ -157,8 +157,8 @@ function StatusForm({
                 type="submit"
                 className={
                     primary
-                        ? "rounded-md border border-black bg-black px-5 py-2 text-sm uppercase text-white transition-opacity hover:opacity-70"
-                        : "rounded-md border border-black px-5 py-2 text-sm uppercase transition-colors hover:bg-black hover:text-white"
+                        ? "rounded-md border border-black   px-5 py-2 text-sm uppercase text-white transition-opacity hover:opacity-70"
+                        : "rounded-md border border-black px-5 py-2 text-sm uppercase transition-colors hover:  hover:text-white"
                 }
             >
                 {label}
@@ -174,7 +174,7 @@ function ApplicationCard({
         WholesaleApplication;
 }) {
     return (
-        <article className="rounded-lg border border-black bg-white p-6 shadow">
+        <article className="rounded-lg border border-black bg-[#FFFDE9] p-6 shadow">
             <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
                 <div>
                     <h2 className="text-2xl font-medium">

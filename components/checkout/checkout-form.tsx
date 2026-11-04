@@ -31,7 +31,7 @@ import {
 } from "@/app/checkout/shipping-actions";
 
 const buttonClassName = `
-    rounded-xl border border-black bg-white px-6 py-4 uppercase
+    rounded-xl border border-black bg-[#FFFDE9] px-6 py-4 uppercase
     shadow-[6px_6px_0_0_#000] transition-all duration-200 ease-out
     hover:-translate-x-1 hover:-translate-y-1
     hover:shadow-[10px_10px_0_0_#000]
@@ -41,7 +41,7 @@ const buttonClassName = `
 `;
 
 const inputClassName = `
-    rounded-lg border border-black bg-white px-4 py-3
+    rounded-lg border border-black bg-[#FFFDE9] px-4 py-3
     outline-none transition-shadow duration-200
     focus:shadow-[3px_3px_0_0_#000]
 `;
@@ -712,7 +712,7 @@ export function CheckoutForm() {
             );
 
         return (
-            <section className="mx-auto flex max-w-xl flex-col gap-5 rounded-xl border border-black bg-white p-6">
+            <section className="mx-auto flex max-w-xl flex-col gap-5 rounded-xl border border-black bg-[#FFFDE9] p-6">
                 <h2 className="font-windsor text-2xl font-bold">
                     {paid
                         ? "Pagamento confirmado"
@@ -874,7 +874,7 @@ export function CheckoutForm() {
         return (
             <section
                 role="status"
-                className="mx-auto flex max-w-xl flex-col gap-4 rounded-xl border border-black bg-white p-6"
+                className="mx-auto flex max-w-xl flex-col gap-4 rounded-xl border border-black bg-[#FFFDE9] p-6"
             >
                 <h2 className="font-windsor text-2xl font-bold">
                     Verificando pagamento
@@ -1162,7 +1162,7 @@ export function CheckoutForm() {
                                         return (
                                             <label
                                                 key={option.id}
-                                                className="animate-checkout-field flex cursor-pointer items-center gap-4 rounded-xl border border-black bg-white p-4 opacity-0 shadow-[4px_4px_0_0_#000] transition-all duration-200 hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[6px_6px_0_0_#000]"
+                                                className="animate-checkout-field flex cursor-pointer items-center gap-4 rounded-xl border border-black bg-[#FFFDE9] p-4 opacity-0 shadow-[4px_4px_0_0_#000] transition-all duration-200 hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[6px_6px_0_0_#000]"
                                                 style={{
                                                     animationDelay:
                                                         `${index * 60}ms`,
@@ -1221,7 +1221,7 @@ export function CheckoutForm() {
 
                         <div className="flex flex-col gap-3">
                             <label
-                                className="animate-checkout-field flex cursor-pointer items-center gap-4 rounded-xl border border-black bg-white p-4 opacity-0 shadow-[4px_4px_0_0_#000] transition-all duration-200 hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[6px_6px_0_0_#000]"
+                                className="animate-checkout-field flex cursor-pointer items-center gap-4 rounded-xl border border-black bg-[#FFFDE9] p-4 opacity-0 shadow-[4px_4px_0_0_#000] transition-all duration-200 hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[6px_6px_0_0_#000]"
                                 style={{ animationDelay: "600ms" }}
                             >
                                 <input
@@ -1246,7 +1246,7 @@ export function CheckoutForm() {
                             </label>
 
                             <label
-                                className="animate-checkout-field flex cursor-pointer items-center gap-4 rounded-xl border border-black bg-white p-4 opacity-0 shadow-[4px_4px_0_0_#000] transition-all duration-200 hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[6px_6px_0_0_#000]"
+                                className="animate-checkout-field flex cursor-pointer items-center gap-4 rounded-xl border border-black bg-[#FFFDE9] p-4 opacity-0 shadow-[4px_4px_0_0_#000] transition-all duration-200 hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[6px_6px_0_0_#000]"
                                 style={{ animationDelay: "660ms" }}
                             >
                                 <input
@@ -1271,7 +1271,7 @@ export function CheckoutForm() {
                             </label>
 
                             {paymentMethod === "card" && (
-                                <div className="grid gap-4 rounded-xl border border-black bg-white p-5 shadow-[4px_4px_0_0_#000]">
+                                <div className="grid gap-4 rounded-xl border border-black bg-[#FFFDE9] p-5 shadow-[4px_4px_0_0_#000]">
                                     <label className="flex flex-col gap-2">
                                         <span className="text-sm">
                                             Número do cartão
