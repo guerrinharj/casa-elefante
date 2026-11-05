@@ -432,7 +432,7 @@ export function AudioPlayerProvider({
 
             {currentPerformance &&
                 currentPerformance.audio_url && (
-                    <div className="fixed bottom-0 left-0 z-[100] w-full border-t  text-white">
+                    <div className="fixed bottom-0 left-0 z-[100] w-full border-t bg-[#D2232A] text-[#FFFDE9]">
                         <audio
                             ref={
                                 audioRef

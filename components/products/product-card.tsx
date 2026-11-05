@@ -189,7 +189,8 @@ export function ProductCard({
                 rounded-xl
                 border
                 border-black
-                bg-[#FFFDE9]
+                bg-white
+                text-black
                 p-3
                 shadow-[-5px_5px_0_0_#000]
                 transition-all
