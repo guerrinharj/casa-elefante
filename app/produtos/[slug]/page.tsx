@@ -101,9 +101,9 @@ export default async function ProductPage({
                             ) => (
                                 <div
                                     key={image}
-                                    className="aspect-square rounded-xl border border-black bg-[#FFFDE9] p-3 shadow-[6px_6px_0_0_#000]"
+                                    className="bg-white aspect-square rounded-xl border border-black bg-[#FFFDE9] p-3 shadow-[6px_6px_0_0_#000]"
                                 >
-                                    <div className="h-full w-full overflow-hidden rounded-lg">
+                                    <div className="h-full w-full overflow-hidden rounded-lg bg-white">
                                         <img
                                             src={
                                                 image
