@@ -126,9 +126,9 @@ export function PerformanceList({
                         bg-transparent
                         py-2
                         text-sm
-                        text-white
+                        text-[#D2232A]
                         outline-none
-                        placeholder:text-white/50
+                        placeholder:text-[#D2232A]/50
                     "
                 />
             </div>
@@ -179,7 +179,7 @@ export function PerformanceList({
                                         ${
                                             isActive
                                                 ? "bg-[#FFFDE9] text-black"
-                                                : "text-white"
+                                                : "text-[#FFFDE9]"
                                         }
                                     `}
                                 >
@@ -200,7 +200,7 @@ export function PerformanceList({
                                         {performance.location && (
                                             <span
                                                 className="
-                                                    font-windsor
+                                                    font-october
                                                     text-xl
                                                     leading-none
                                                 "
@@ -215,7 +215,7 @@ export function PerformanceList({
                                     <Link
                                         href={`/toda-terca-tem/${performance.slug}`}
                                         className="
-                                            font-windsor
+                                            font-october
                                             text-xl
                                             transition-opacity
                                             duration-200

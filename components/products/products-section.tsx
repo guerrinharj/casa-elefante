@@ -253,7 +253,7 @@ export async function ProductsSection({
                             </Link>
                         )}
 
-                        <h1 className="font-windsor shrink-0 text-4xl font-bold">
+                        <h1 className="font-october shrink-0 text-4xl font-bold">
                             {title}
                         </h1>
                     </div>

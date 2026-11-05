@@ -98,6 +98,7 @@ export function AddToCartButton({
             }
             className="
                 w-full
+                bg-white
                 rounded-xl
                 border
                 border-black

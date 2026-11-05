@@ -432,7 +432,7 @@ export function AudioPlayerProvider({
 
             {currentPerformance &&
                 currentPerformance.audio_url && (
-                    <div className="fixed bottom-0 left-0 z-[100] w-full border-t  text-white">
+                    <div className="fixed bottom-0 left-0 z-[100] w-full border-t bg-[#D2232A] text-[#FFFDE9]">
                         <audio
                             ref={
                                 audioRef
@@ -474,7 +474,7 @@ export function AudioPlayerProvider({
                             </button>
 
                             <div className="hidden min-w-0 shrink-0 items-baseline gap-4 md:flex">
-                                <p className="font-windsor max-w-[360px] truncate text-2xl leading-none">
+                                <p className="font-october max-w-[360px] truncate text-2xl leading-none">
                                     {
                                         currentPerformance.name
                                     }

@@ -38,10 +38,11 @@ const buttonClassName = `
     disabled:cursor-not-allowed disabled:opacity-40
     disabled:hover:translate-x-0 disabled:hover:translate-y-0
     disabled:hover:shadow-[6px_6px_0_0_#000]
+    bg-white text-black
 `;
 
 const inputClassName = `
-    rounded-lg border border-black bg-[#FFFDE9] px-4 py-3
+    bg-white text-black rounded-lg border border-black bg-[#FFFDE9] px-4 py-3
     outline-none transition-shadow duration-200
     focus:shadow-[3px_3px_0_0_#000]
 `;
@@ -713,7 +714,7 @@ export function CheckoutForm() {
 
         return (
             <section className="mx-auto flex max-w-xl flex-col gap-5 rounded-xl border border-black bg-[#FFFDE9] p-6">
-                <h2 className="font-windsor text-2xl font-bold">
+                <h2 className="font-october text-2xl font-bold">
                     {paid
                         ? "Pagamento confirmado"
                         : payment.status === "declined"
@@ -876,7 +877,7 @@ export function CheckoutForm() {
                 role="status"
                 className="mx-auto flex max-w-xl flex-col gap-4 rounded-xl border border-black bg-[#FFFDE9] p-6"
             >
-                <h2 className="font-windsor text-2xl font-bold">
+                <h2 className="font-october text-2xl font-bold">
                     Verificando pagamento
                 </h2>
 
@@ -908,7 +909,7 @@ export function CheckoutForm() {
                 <div className="flex flex-col gap-8">
                     <section className="flex flex-col gap-4">
                         <h2
-                            className="animate-checkout-field font-windsor text-2xl font-bold opacity-0"
+                            className="animate-checkout-field font-october text-2xl font-bold opacity-0"
                             style={{ animationDelay: "0ms" }}
                         >
                             Seus dados
@@ -983,7 +984,7 @@ export function CheckoutForm() {
 
                     <section className="flex flex-col gap-4">
                         <h2
-                            className="animate-checkout-field font-windsor text-2xl font-bold opacity-0"
+                            className="animate-checkout-field font-october text-2xl font-bold opacity-0"
                             style={{ animationDelay: "180ms" }}
                         >
                             Entrega
@@ -1213,7 +1214,7 @@ export function CheckoutForm() {
 
                     <section className="flex flex-col gap-4">
                         <h2
-                            className="animate-checkout-field font-windsor text-2xl font-bold opacity-0"
+                            className="animate-checkout-field font-october text-2xl font-bold opacity-0"
                             style={{ animationDelay: "540ms" }}
                         >
                             Pagamento
@@ -1221,7 +1222,7 @@ export function CheckoutForm() {
 
                         <div className="flex flex-col gap-3">
                             <label
-                                className="animate-checkout-field flex cursor-pointer items-center gap-4 rounded-xl border border-black bg-[#FFFDE9] p-4 opacity-0 shadow-[4px_4px_0_0_#000] transition-all duration-200 hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[6px_6px_0_0_#000]"
+                                className="bg-white text-black animate-checkout-field flex cursor-pointer items-center gap-4 rounded-xl border border-black bg-[#FFFDE9] p-4 opacity-0 shadow-[4px_4px_0_0_#000] transition-all duration-200 hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[6px_6px_0_0_#000]"
                                 style={{ animationDelay: "600ms" }}
                             >
                                 <input
@@ -1246,7 +1247,7 @@ export function CheckoutForm() {
                             </label>
 
                             <label
-                                className="animate-checkout-field flex cursor-pointer items-center gap-4 rounded-xl border border-black bg-[#FFFDE9] p-4 opacity-0 shadow-[4px_4px_0_0_#000] transition-all duration-200 hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[6px_6px_0_0_#000]"
+                                className="bg-white text-black animate-checkout-field flex cursor-pointer items-center gap-4 rounded-xl border border-black bg-[#FFFDE9] p-4 opacity-0 shadow-[4px_4px_0_0_#000] transition-all duration-200 hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[6px_6px_0_0_#000]"
                                 style={{ animationDelay: "660ms" }}
                             >
                                 <input
@@ -1394,7 +1395,7 @@ export function CheckoutForm() {
                 </div>
 
                 <aside className="animate-checkout-summary flex flex-col gap-6 opacity-0">
-                    <h2 className="font-windsor text-2xl font-bold">
+                    <h2 className="font-october text-2xl font-bold">
                         Seu pedido
                     </h2>
 

@@ -191,7 +191,7 @@ export default function PerformancePage() {
                 >
                     <h1
                         className="
-                            font-windsor
+                            font-october
                             text-5xl
                             leading-[0.9]
                             md:text-7xl

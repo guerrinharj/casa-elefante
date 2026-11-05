@@ -104,7 +104,7 @@ export function UpcomingPerformances({
                             <div className="flex flex-col gap-2">
                                 <p
                                     className="
-                                        font-windsor
+                                        font-october
                                         text-3xl
                                         leading-none
                                         md:text-5xl
@@ -120,7 +120,7 @@ export function UpcomingPerformances({
                                 {performance.location && (
                                     <p
                                         className="
-                                            font-windsor
+                                            font-october
                                             text-xl
                                             leading-none
                                             md:text-2xl
@@ -143,7 +143,7 @@ export function UpcomingPerformances({
                                     className="
                                         max-w-6xl
                                         text-right
-                                        font-windsor
+                                        font-october
                                         text-6xl
                                         leading-[0.85]
                                         md:text-8xl

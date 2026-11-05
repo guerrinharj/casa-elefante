@@ -53,6 +53,7 @@ export function NavbarClient({
     );
 
     const linkClassName = `
+        uppercase
         relative
         pb-1
         after:absolute

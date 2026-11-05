@@ -53,7 +53,7 @@ export default function CartPage() {
         return (
             <main className="p-4 md:p-6">
                 <div className="mx-auto max-w-5xl">
-                    <h1 className="font-windsor text-4xl font-bold">
+                    <h1 className="font-october text-4xl font-bold">
                         Carrinho
                     </h1>
 
@@ -91,7 +91,7 @@ export default function CartPage() {
     return (
         <main className="p-4 md:p-6">
             <div className="mx-auto max-w-5xl">
-                <h1 className="font-windsor text-4xl font-bold">
+                <h1 className="font-october text-4xl font-bold">
                     Carrinho
                 </h1>
 
@@ -119,8 +119,8 @@ export default function CartPage() {
                                         animationDelay: `${index * 70}ms`,
                                     }}
                                 >
-                                    <div className="aspect-square rounded-xl border border-black bg-[#FFFDE9] p-2 shadow-[6px_6px_0_0_#000]">
-                                        <div className="h-full w-full overflow-hidden">
+                                    <div className="bg-white aspect-square rounded-xl border border-black bg-[#FFFDE9] p-2 shadow-[6px_6px_0_0_#000]">
+                                        <div className="bg-white h-full w-full overflow-hidden">
                                             {item.image ? (
                                                 <img
                                                     src={
@@ -144,7 +144,7 @@ export default function CartPage() {
                                         <div>
                                             <Link
                                                 href={`/produtos/${item.slug}`}
-                                                className="font-windsor text-2xl font-bold"
+                                                className="font-october text-2xl font-bold"
                                             >
                                                 {
                                                     item.name
@@ -183,7 +183,7 @@ export default function CartPage() {
                                     </div>
 
                                     <div className="col-span-2 flex items-center justify-between md:col-span-1 md:flex-col md:items-end">
-                                        <div className="flex items-center border border-black">
+                                        <div className="flex items-center border border-black bg-white text-black">
                                             <button
                                                 type="button"
                                                 onClick={() =>
@@ -324,7 +324,7 @@ export default function CartPage() {
                                     disabled={
                                         couponLoading
                                     }
-                                    className="min-w-0 flex-1 border border-black bg-transparent px-3 py-2 uppercase outline-none"
+                                    className="bg-white text-black min-w-0 flex-1 border border-black bg-transparent px-3 py-2 uppercase outline-none"
                                 />
 
                                 <button
@@ -336,7 +336,7 @@ export default function CartPage() {
                                         couponLoading ||
                                         !couponCode.trim()
                                     }
-                                    className="border border-black px-4 py-2 transition-opacity hover:opacity-60 disabled:cursor-not-allowed disabled:opacity-40"
+                                    className="bg-white text-black border border-black px-4 py-2 transition-opacity hover:opacity-60 disabled:cursor-not-allowed disabled:opacity-40"
                                 >
                                     {couponLoading
                                         ? "Aplicando..."
@@ -378,6 +378,8 @@ export default function CartPage() {
                     <Link
                         href="/checkout"
                         className="
+                            bg-white
+                            text-black
                             mt-6
                             block
                             rounded-xl
@@ -422,6 +424,8 @@ export default function CartPage() {
                         hover:-translate-x-1
                         hover:-translate-y-1
                         hover:shadow-[7px_7px_0_0_#000]
+                        text-black
+                        bg-white
                     "
                 >
                     Limpar carrinho

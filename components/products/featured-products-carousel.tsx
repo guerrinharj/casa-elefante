@@ -283,7 +283,7 @@ export function FeaturedProductsCarousel({
                                         </p>
                                     )}
 
-                                    <h2 className="font-windsor text-4xl leading-none md:text-6xl lg:text-7xl">
+                                    <h2 className="font-october text-4xl leading-none md:text-6xl lg:text-7xl">
                                         {
                                             slide.name
                                         }
