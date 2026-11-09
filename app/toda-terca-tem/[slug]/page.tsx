@@ -1,6 +1,7 @@
 
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 
 import {
@@ -11,6 +12,8 @@ import {
     useEffect,
     useState,
 } from "react";
+
+import tttFallback from "@/app/images/ttt-1.png";
 
 import {
     useAudioPlayer,
@@ -236,48 +239,67 @@ export default function PerformancePage() {
                 </div>
             </section>
 
-            {(
-                performance.video_url ||
-                performance.cover_image
-            ) && (
-                <section className="border-b border-[#FFFDE9] bg-[#D2232A]">
-                    {performance.video_url ? (
-                        <div
-                            className="
-                                aspect-video
-                                w-full
-                                overflow-hidden
-                                bg-[#D2232A]
+            <section className="border-b border-[#FFFDE9] bg-[#D2232A]">
+                {performance.video_url ? (
+                    <div
+                        className="
+                            aspect-video
+                            w-full
+                            overflow-hidden
+                            bg-[#D2232A]
+                        "
+                    >
+                        <iframe
+                            src={performance.video_url}
+                            title={performance.name}
+                            className="h-full w-full"
+                            allow="
+                                accelerometer;
+                                autoplay;
+                                clipboard-write;
+                                encrypted-media;
+                                gyroscope;
+                                picture-in-picture
                             "
-                        >
-                            <iframe
-                                src={performance.video_url}
-                                title={performance.name}
-                                className="h-full w-full"
-                                allow="
-                                    accelerometer;
-                                    autoplay;
-                                    clipboard-write;
-                                    encrypted-media;
-                                    gyroscope;
-                                    picture-in-picture
-                                "
-                                allowFullScreen
-                            />
-                        </div>
-                    ) : (
-                        <img
-                            src={performance.cover_image!}
-                            alt={performance.name}
+                            allowFullScreen
+                        />
+                    </div>
+                ) : performance.cover_image ? (
+                    <img
+                        src={performance.cover_image}
+                        alt={performance.name}
+                        className="
+                            aspect-video
+                            w-full
+                            object-cover
+                        "
+                    />
+                ) : (
+                    <div
+                        className="
+                            flex
+                            aspect-video
+                            w-full
+                            items-center
+                            justify-center
+                            bg-[#D2232A]
+                            p-8
+                            md:p-16
+                        "
+                    >
+                        <Image
+                            src={tttFallback}
+                            alt="Toda Terça Tem"
                             className="
-                                aspect-video
+                                h-auto
                                 w-full
-                                object-cover
+                                max-w-md
+                                object-contain
                             "
                         />
-                    )}
-                </section>
-            )}
+                    </div>
+                )}
+            </section>
 
             {performance.description && (
                 <section

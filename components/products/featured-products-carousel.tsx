@@ -2,6 +2,8 @@
 
 import Link from "next/link";
 
+import tttFallback from "@/app/images/ttt-2.png";
+
 import {
     useCallback,
     useEffect,
@@ -91,7 +93,8 @@ export function FeaturedProductsCarousel({
                 type: "performance",
                 name: performance.name,
                 image:
-                    performance.cover_image,
+                    performance.cover_image ||
+                    tttFallback.src,
                 href: `/toda-terca-tem/${performance.slug}`,
                 eyebrow:
                     "Próxima apresentação",
@@ -194,48 +197,54 @@ export function FeaturedProductsCarousel({
         <section className="w-full">
             <div className="relative overflow-hidden rounded-lg border">
                 <div className="relative min-h-[420px] overflow-hidden md:min-h-[520px]">
-                    {/* BACKGROUNDS */}
+                    
 
-                    <div className="absolute inset-0">
-                        {slides.map(
-                            (
-                                item,
-                                index,
-                            ) => {
-                                if (
-                                    !item.image
-                                ) {
-                                    return null;
-                                }
+                {/* BACKGROUNDS */}
 
-                                return (
-                                    <div
-                                        key={
-                                            item.id
-                                        }
-                                        className={`
-                                            absolute
-                                            inset-0
-                                            bg-cover
-                                            bg-center
-                                            transition-all
-                                            duration-[1400ms]
-                                            ease-in-out
-                                            ${
-                                                index ===
-                                                currentIndex
-                                                    ? "scale-100 opacity-100"
-                                                    : "scale-[1.03] opacity-0"
-                                            }
-                                        `}
-                                        style={{
-                                            backgroundImage: `url("${item.image}")`,
-                                        }}
-                                    />
-                                );
-                            },
-                        )}
-                    </div>
+                <div className="absolute inset-0 bg-[#D2232A]">
+                    {slides.map((item, index) => {
+                        if (!item.image) {
+                            return null;
+                        }
+
+                        const isFallback =
+                            item.type === "performance" &&
+                            item.image === tttFallback.src;
+
+                        return (
+                            <div
+                                key={item.id}
+                                className={`
+                                    absolute
+                                    inset-0
+                                    bg-no-repeat
+                                    bg-center
+                                    transition-all
+                                    duration-[1400ms]
+                                    ease-in-out
+                                    ${
+                                        isFallback
+                                            ? "bg-[length:auto_60%]"
+                                            : "bg-cover"
+                                    }
+                                    ${
+                                        index === currentIndex
+                                            ? "scale-100 opacity-100"
+                                            : "scale-[1.03] opacity-0"
+                                    }
+                                `}
+                                style={{
+                                    backgroundColor: isFallback
+                                        ? "#D2232A"
+                                        : undefined,
+                                    backgroundImage: `url("${item.image}")`,
+                                }}
+                            />
+                        );
+                    })}
+                </div>
+
+
 
                     <div className="absolute inset-0" />
 
