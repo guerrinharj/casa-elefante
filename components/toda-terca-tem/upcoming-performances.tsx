@@ -165,41 +165,6 @@ export function UpcomingPerformances({
                                     gap-6
                                 "
                             >
-                                <p
-                                    className="
-                                        max-w-xl
-                                        text-sm
-                                        uppercase
-                                    "
-                                >
-                                    {performance.description ??
-                                        ""}
-                                </p>
-
-                                <div
-                                    className="
-                                        flex
-                                        h-12
-                                        w-12
-                                        shrink-0
-                                        items-center
-                                        justify-center
-                                        rounded-full
-                                        transition-transform
-                                        duration-300
-                                        group-hover:translate-x-1
-                                        md:h-14
-                                        md:w-14
-                                    "
-                                >
-                                    <svg
-                                        viewBox="0 0 24 24"
-                                        className="h-5 w-5 fill-current"
-                                        aria-hidden="true"
-                                    >
-                                        <path d="M8.5 5.5 15 12l-6.5 6.5 1.5 1.5 8-8-8-8-1.5 1.5Z" />
-                                    </svg>
-                                </div>
                             </div>
                         </div>
                     </Link>
