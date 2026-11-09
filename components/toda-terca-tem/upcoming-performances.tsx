@@ -1,4 +1,8 @@
+
+import Image from "next/image";
 import Link from "next/link";
+
+import tttLogo from "@/app/images/ttt-3.png";
 
 import type {
     Performance,
@@ -8,9 +12,7 @@ type UpcomingPerformancesProps = {
     performances: Performance[];
 };
 
-function formatDate(
-    date: string | null,
-) {
+function formatDate(date: string | null) {
     if (!date) {
         return "";
     }
@@ -23,153 +25,155 @@ function formatDate(
             year: "numeric",
             timeZone: "UTC",
         },
-    ).format(
-        new Date(date),
-    );
+    ).format(new Date(date));
 }
 
 export function UpcomingPerformances({
     performances,
 }: UpcomingPerformancesProps) {
-    if (
-        performances.length === 0
-    ) {
+    if (performances.length === 0) {
         return null;
     }
 
-
     return (
         <section>
-            {performances.map(
-                (performance) => (
-                    <Link
-                        key={
-                            performance.id
-                        }
-                        href={`/toda-terca-tem/${performance.slug}`}
-                        className="
-                            group
-                            relative
-                            block
-                            overflow-hidden                            
-                            text-white
-                        "
-                    >
-                        {performance.cover_image && (
-                            <div
-                                className="
-                                    absolute
-                                    inset-0
-                                    scale-100
-                                    bg-cover
-                                    bg-center
-                                    grayscale
-                                    opacity-0
-                                    transition-all
-                                    duration-500
-                                    ease-out
-                                    group-hover:scale-[1.02]
-                                    group-hover:opacity-100
-                                "
-                                style={{
-                                    backgroundImage:
-                                        `url("${performance.cover_image}")`,
-                                }}
-                            />
-                        )}
-
+            {performances.map((performance) => (
+                <Link
+                    key={performance.id}
+                    href={`/toda-terca-tem/${performance.slug}`}
+                    className="
+                        group
+                        relative
+                        block
+                        overflow-hidden
+                        bg-[#D2232A]
+                        text-[#FFFDE9]
+                    "
+                >
+                    {performance.cover_image && (
                         <div
                             className="
                                 absolute
                                 inset-0
+                                scale-100
+                                bg-cover
+                                bg-center
+                                grayscale
                                 opacity-0
-                                transition-opacity
+                                transition-all
                                 duration-500
+                                ease-out
+                                group-hover:scale-[1.02]
                                 group-hover:opacity-100
                             "
+                            style={{
+                                backgroundImage:
+                                    `url("${performance.cover_image}")`,
+                            }}
                         />
+                    )}
 
-                        <div
-                            className="
-                                relative
-                                z-10
-                                grid
-                                min-h-[55vh]
-                                grid-rows-[auto_1fr_auto]
-                                p-4
-                                md:min-h-[10vh]
-                                md:p-6
-                            "
-                        >
-                            <div className="flex flex-col gap-2">
+                    <div
+                        className="
+                            absolute
+                            inset-0
+                            opacity-0
+                            transition-opacity
+                            duration-500
+                            group-hover:opacity-100
+                        "
+                    />
+
+                    <div
+                        className="
+                            relative
+                            z-10
+                            grid
+                            min-h-[55vh]
+                            grid-rows-[auto_1fr_auto]
+                            p-4
+                            md:min-h-[10vh]
+                            md:p-6
+                        "
+                    >
+                        <div className="flex flex-col gap-2">
+                            <p
+                                className="
+                                    font-october
+                                    text-3xl
+                                    leading-none
+                                    md:text-5xl
+                                    lg:text-6xl
+                                "
+                            >
+                                {formatDate(
+                                    performance.performance_date,
+                                )}
+                            </p>
+
+                            {performance.location && (
                                 <p
                                     className="
                                         font-october
-                                        text-3xl
+                                        text-xl
                                         leading-none
-                                        md:text-5xl
-                                        lg:text-6xl
+                                        md:text-2xl
+                                        lg:text-3xl
                                     "
                                 >
-                                    {formatDate(
-                                        performance.performance_date,
-                                    )}
+                                    {performance.location}
                                 </p>
-
-
-                                {performance.location && (
-                                    <p
-                                        className="
-                                            font-october
-                                            text-xl
-                                            leading-none
-                                            md:text-2xl
-                                            lg:text-3xl
-                                        "
-                                    >
-                                        {performance.location}
-                                    </p>
-                                )}
-                            </div>
-
-                            <div
-                                className="
-                                    flex
-                                    items-center
-                                    justify-end
-                                "
-                            >
-                                <h2
-                                    className="
-                                        max-w-6xl
-                                        text-right
-                                        font-october
-                                        text-6xl
-                                        leading-[0.85]
-                                        md:text-8xl
-                                        lg:text-9xl
-                                        xl:text-[10rem]
-                                    "
-                                >
-                                    {
-                                        performance.name
-                                    }
-                                </h2>
-                            </div>
-
-                            <div
-                                className="
-                                    flex
-                                    items-end
-                                    justify-between
-                                    gap-6
-                                "
-                            >
-                            </div>
+                            )}
                         </div>
-                    </Link>
-                ),
-            )}
+
+                        <div
+                            className="
+                                flex
+                                items-center
+                                justify-end
+                            "
+                        >
+                            <h2
+                                className="
+                                    max-w-6xl
+                                    text-right
+                                    font-october
+                                    text-6xl
+                                    leading-[0.85]
+                                    md:text-8xl
+                                    lg:text-9xl
+                                    xl:text-[10rem]
+                                "
+                            >
+                                {performance.name}
+                            </h2>
+                        </div>
+
+                        <div
+                            className="
+                                flex
+                                items-end
+                                justify-start
+                                gap-6
+                            "
+                        >
+                            <Image
+                                src={tttLogo}
+                                alt="Toda Terça Tem"
+                                width={180}
+                                height={180}
+                                className="
+                                    h-auto
+                                    w-28
+                                    object-contain
+                                    md:w-36
+                                    lg:w-44
+                                "
+                            />
+                        </div>
+                    </div>
+                </Link>
+            ))}
         </section>
     );
 }
