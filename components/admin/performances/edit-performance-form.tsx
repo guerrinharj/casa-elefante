@@ -2,6 +2,7 @@
 
 import {
     FormEvent,
+    useRef,
     useState,
 } from "react";
 
@@ -176,6 +177,19 @@ export function EditPerformanceForm({
             null,
         );
 
+    const [removeCoverImage, setRemoveCoverImage] = useState(false);
+
+    const coverInputRef = useRef<HTMLInputElement>(null);
+
+    function handleRemoveCoverImage() {
+        setRemoveCoverImage(true);
+        setCoverImageFile(null);
+
+        if (coverInputRef.current) {
+            coverInputRef.current.value = "";
+        }
+    }
+
     const [
         published,
         setPublished,
@@ -259,6 +273,10 @@ export function EditPerformanceForm({
     }
 
     async function uploadCoverImage() {
+        if (removeCoverImage && !coverImageFile) {
+            return null;
+        }
+
         if (!coverImageFile) {
             return performance.cover_image;
         }
@@ -457,9 +475,8 @@ export function EditPerformanceForm({
             }
 
             if (
-                coverImageFile &&
-                newCoverImageUrl !==
-                    performance.cover_image
+                (coverImageFile || removeCoverImage) &&
+                newCoverImageUrl !== performance.cover_image
             ) {
                 filesToRemove.push(
                     removeStorageFile(
@@ -759,47 +776,65 @@ export function EditPerformanceForm({
                     Imagem da apresentação
                 </label>
 
-                {performance.cover_image && (
+                {performance.cover_image && !removeCoverImage && (
                     <div className="rounded-md border border-black p-4">
                         <p className="text-xs uppercase opacity-50">
                             Imagem atual
                         </p>
 
                         <img
-                            src={
-                                performance.cover_image
-                            }
-                            alt={
-                                performance.name
-                            }
-                            className="
-                                mt-3
-                                max-h-80
-                                w-full
-                                rounded-md
-                                object-cover
-                            "
+                            src={performance.cover_image}
+                            alt={performance.name}
+                            className="mt-3 max-h-80 w-full rounded-md object-cover"
                         />
+
+                        <button
+                            type="button"
+                            disabled={isBusy}
+                            onClick={handleRemoveCoverImage}
+                            className="mt-4 rounded-md border border-red-600 px-4 py-2 text-sm text-red-600 hover:opacity-60 disabled:opacity-50"
+                        >
+                            Remover imagem
+                        </button>
+                    </div>
+                )}
+
+                {removeCoverImage && (
+                    <div className="rounded-md border border-black p-4">
+                        <p className="text-sm">
+                            Imagem marcada para remoção.
+                        </p>
+
+                        <p className="mt-1 text-xs opacity-60">
+                            A remoção será confirmada ao salvar.
+                        </p>
+
+                        <button
+                            type="button"
+                            disabled={isBusy}
+                            onClick={() => setRemoveCoverImage(false)}
+                            className="mt-3 text-sm underline hover:opacity-60 disabled:opacity-50"
+                        >
+                            Desfazer remoção
+                        </button>
                     </div>
                 )}
 
                 <input
+                    ref={coverInputRef}
                     id="cover-image"
                     type="file"
                     accept="image/*"
-                    disabled={
-                        isBusy
-                    }
-                    onChange={(
-                        event,
-                    ) =>
-                        setCoverImageFile(
-                            event
-                                .target
-                                .files?.[0] ??
-                                null,
-                        )
-                    }
+                    disabled={isBusy}
+                    onChange={(event) => {
+                        const file = event.target.files?.[0] ?? null;
+
+                        setCoverImageFile(file);
+
+                        if (file) {
+                            setRemoveCoverImage(false);
+                        }
+                    }}
                     className="rounded-md border border-black bg-[#FFFDE9] px-4 py-3 disabled:opacity-50"
                 />
 
@@ -814,15 +849,11 @@ export function EditPerformanceForm({
                         </p>
 
                         <p className="text-xs opacity-60">
-                            {
-                                coverImageFile.name
-                            }
+                            {coverImageFile.name}
                         </p>
 
                         <p className="text-xs opacity-60">
-                            {formatFileSize(
-                                coverImageFile.size,
-                            )}
+                            {formatFileSize(coverImageFile.size)}
                         </p>
                     </div>
                 )}
