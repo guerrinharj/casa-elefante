@@ -162,7 +162,7 @@ export default function NewsletterPage() {
                     <button
                         type="submit"
                         disabled={loading}
-                        className="w-fit rounded-xl border border-black bg-[#FFFDE9] px-6 py-3 shadow-[4px_4px_0_#000] transition-transform hover:-translate-x-1 hover:-translate-y-1 disabled:cursor-not-allowed disabled:opacity-50"
+                        className="w-fit rounded-xl border border-black bg-white text-black px-6 py-3 shadow-[4px_4px_0_#000] transition-transform hover:-translate-x-1 hover:-translate-y-1 disabled:cursor-not-allowed disabled:opacity-50"
                     >
                         {loading
                             ? "Inscrevendo..."
