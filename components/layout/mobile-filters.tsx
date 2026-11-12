@@ -20,7 +20,7 @@ export function MobileFilters({
     }, [pathname, searchParams]);
 
     return (
-        <div className="border-b border-black md:hidden">
+        <div className="border-b border-black/20 md:hidden">
             <button
                 type="button"
                 onClick={() => setOpen(!open)}

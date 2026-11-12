@@ -101,7 +101,7 @@ export function MobileNavbar({
                 `}
             >
                 <nav className="px-4 py-6">
-                    <ul className="space-y-4 text-xl uppercase">
+                    <ul className="space-y-4 text-xl">
                         <li>
                             <Link
                                 href="/"
