@@ -70,8 +70,8 @@ export function NavbarClient({
     `;
 
     const navbarBackground = isTodaTercaTem
-        ? "bg-[#D2232A] text-[#FFFDE9] border-[#FFFDE9]"
-        : "bg-[#FFFDE9] text-[#D2232A] border-[#D2232A]";
+        ? "bg-[#D2232A] text-[#FFFDE9] border-white/20"
+        : "bg-[#FFFDE9] text-[#D2232A] border-black/20";
 
     return (
         <header

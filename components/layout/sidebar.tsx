@@ -342,7 +342,7 @@ export function Sidebar({
                         w-64
                         overflow-y-auto
                         border-r
-                        border-[#D2232A]
+                        border-black/20
                         bg-[#FFFDE9]
                         p-6
                         text-[#D2232A]
