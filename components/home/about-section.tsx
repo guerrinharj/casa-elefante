@@ -3,7 +3,7 @@ export function AboutSection() {
     return (
         <section
             id="sobre"
-            className="border-t-2 border-[#D2232A] px-2 py-16 md:py-24"
+            className="border-[#D2232A] px-2 py-16 md:py-24"
         >
             <div className="grid gap-10 md:grid-cols-12">
                 <div className="md:col-span-4">

@@ -1,3 +1,4 @@
+
 "use client";
 
 import Link from "next/link";
@@ -80,8 +81,7 @@ export function FeaturedProductsCarousel({
                     null,
                 href: `/produtos/${product.slug}`,
                 eyebrow: "Destaque",
-                secondary:
-                    product.artist,
+                secondary: product.artist,
             }),
         ),
 
@@ -197,77 +197,71 @@ export function FeaturedProductsCarousel({
         <section className="w-full">
             <div className="relative overflow-hidden rounded-lg">
                 <div className="relative min-h-[420px] overflow-hidden md:min-h-[520px]">
-                    
 
-                {/* BACKGROUNDS */}
+                    {/* BACKGROUNDS */}
 
-                <div className="absolute inset-0 bg-[#D2232A]">
-                    {slides.map((item, index) => {
-                        if (!item.image) {
-                            return null;
-                        }
+                    <div className="absolute inset-0 bg-[#D2232A]">
+                        {slides.map((item, index) => {
+                            if (!item.image) {
+                                return null;
+                            }
 
-                        const isFallback =
-                            item.type === "performance" &&
-                            item.image === tttFallback.src;
+                            const isFallback =
+                                item.type === "performance" &&
+                                item.image === tttFallback.src;
 
-                        return (
-                            <div
-                                key={item.id}
-                                className={`
-                                    absolute
-                                    inset-0
-                                    bg-no-repeat
-                                    bg-center
-                                    transition-all
-                                    duration-[1400ms]
-                                    ease-in-out
-                                    ${
-                                        isFallback
-                                            ? "bg-[length:auto_60%]"
-                                            : "bg-cover"
-                                    }
-                                    ${
-                                        index === currentIndex
-                                            ? "scale-100 opacity-100"
-                                            : "scale-[1.03] opacity-0"
-                                    }
-                                `}
-                                style={{
-                                    backgroundColor: isFallback
-                                        ? "#D2232A"
-                                        : undefined,
-                                    backgroundImage: `url("${item.image}")`,
-                                }}
-                            />
-                        );
-                    })}
-                </div>
-
-
+                            return (
+                                <div
+                                    key={item.id}
+                                    className={`
+                                        absolute
+                                        inset-0
+                                        bg-no-repeat
+                                        bg-center
+                                        transition-all
+                                        duration-[1400ms]
+                                        ease-in-out
+                                        ${
+                                            isFallback
+                                                ? "bg-[length:auto_60%]"
+                                                : "bg-cover"
+                                        }
+                                        ${
+                                            index === currentIndex
+                                                ? "scale-100 opacity-100"
+                                                : "scale-[1.03] opacity-0"
+                                        }
+                                    `}
+                                    style={{
+                                        backgroundColor: isFallback
+                                            ? "#D2232A"
+                                            : undefined,
+                                        backgroundImage: `url("${item.image}")`,
+                                    }}
+                                />
+                            );
+                        })}
+                    </div>
 
                     <div className="absolute inset-0" />
 
                     {/* CLICKABLE AREA */}
 
                     <Link
-                        href={
-                            slide.href
-                        }
+                        href={slide.href}
                         aria-label={`Ver ${slide.name}`}
                         className="absolute inset-0 z-10 cursor-pointer"
                     >
                         <div className="flex min-h-[420px] items-end p-6 text-white md:min-h-[520px] md:p-8 lg:p-10">
+
+                            {/* TEXT OVERLAY — DESKTOP ONLY */}
+
                             <div
-                                key={
-                                    slide.id
-                                }
-                                className="animate-[fadeIn_700ms_ease-out]"
+                                key={slide.id}
+                                className="hidden animate-[fadeIn_700ms_ease-out] md:block"
                             >
                                 <p className="mb-3 text-xs uppercase tracking-[0.2em]">
-                                    {
-                                        slide.eyebrow
-                                    }
+                                    {slide.eyebrow}
                                 </p>
 
                                 <div
@@ -286,24 +280,18 @@ export function FeaturedProductsCarousel({
                                 >
                                     {slide.secondary && (
                                         <p className="mb-2 text-lg md:text-xl">
-                                            {
-                                                slide.secondary
-                                            }
+                                            {slide.secondary}
                                         </p>
                                     )}
 
                                     <h2 className="font-october text-4xl leading-none md:text-6xl lg:text-7xl">
-                                        {
-                                            slide.name
-                                        }
+                                        {slide.name}
                                     </h2>
 
                                     {slide.type ===
                                         "performance" && (
                                         <p className="mt-4 text-xs uppercase tracking-[0.2em]">
-                                            Toda
-                                            Terça
-                                            Tem
+                                            Toda Terça Tem
                                         </p>
                                     )}
                                 </div>
