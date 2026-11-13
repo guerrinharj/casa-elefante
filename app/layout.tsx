@@ -1,3 +1,4 @@
+
 import type {
     Metadata,
 } from "next";
@@ -19,10 +20,6 @@ import {
 } from "@/components/toda-terca-tem/audio-player-provider";
 
 import {
-    Footer,
-} from "@/components/layout/footer";
-
-import {
     Navbar,
 } from "@/components/layout/navbar";
 
@@ -36,22 +33,19 @@ import {
 
 const grotesque = localFont({
     src: "./fonts/Grotesque.ttf",
-    variable:
-        "--font-grotesque",
+    variable: "--font-grotesque",
     display: "swap",
 });
 
 const gillSans = localFont({
     src: "./fonts/GillSans.otf",
-    variable:
-        "--font-gill-sans",
+    variable: "--font-gill-sans",
     display: "swap",
 });
 
 const questrial = localFont({
     src: "./fonts/Questrial-Regular.ttf",
-    variable:
-        "--font-questrial",
+    variable: "--font-questrial",
     display: "swap",
 });
 
@@ -73,19 +67,15 @@ const october = localFont({
     display: "swap",
 });
 
-export const metadata:
-    Metadata = {
-        title:
-            "Casa Elefante",
-        description:
-            "Loja de discos, música e Toda Terça Tem.",
-    };
+export const metadata: Metadata = {
+    title: "Casa Elefante",
+    description: "Loja de discos, música e Toda Terça Tem.",
+};
 
 export default function RootLayout({
     children,
 }: Readonly<{
-    children:
-        React.ReactNode;
+    children: React.ReactNode;
 }>) {
     return (
         <html
@@ -101,6 +91,7 @@ export default function RootLayout({
         >
             <body>
                 <ScrollBackground />
+
                 <CartProvider>
                     <AudioPlayerProvider>
                         <Suspense
@@ -113,19 +104,13 @@ export default function RootLayout({
                             <Navbar />
                         </Suspense>
 
-                        <Suspense
-                            fallback={
-                                null
-                            }
-                        >
+                        <Suspense fallback={null}>
                             <OrderConfirmedBanner />
                         </Suspense>
 
-                        <main>
+                        <main className="pb-[320px]">
                             {children}
                         </main>
-
-                        <Footer />
                     </AudioPlayerProvider>
                 </CartProvider>
             </body>

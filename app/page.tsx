@@ -1,3 +1,4 @@
+
 import {
     Suspense,
 } from "react";
@@ -17,6 +18,14 @@ import {
 import {
     FeaturedProductsCarousel,
 } from "@/components/products/featured-products-carousel";
+
+import {
+    AboutSection,
+} from "@/components/home/about-section";
+
+import {
+    NewsletterSection,
+} from "@/components/home/newsletter-section";
 
 import {
     createClient,
@@ -43,22 +52,18 @@ type HomePageProps = {
 export default async function HomePage({
     searchParams,
 }: HomePageProps) {
-    const filters =
-        await searchParams;
+    const filters = await searchParams;
 
-    const hasActiveFilters =
-        Object.values(
-            filters,
-        ).some((value) => {
-            return (
-                typeof value ===
-                    "string" &&
-                value.trim() !== ""
-            );
-        });
+    const hasActiveFilters = Object.values(
+        filters,
+    ).some((value) => {
+        return (
+            typeof value === "string" &&
+            value.trim() !== ""
+        );
+    });
 
-    const supabase =
-        await createClient();
+    const supabase = await createClient();
 
     const {
         isWholesale,
@@ -79,45 +84,42 @@ export default async function HomePage({
     const canSeeWholesaleOnly =
         isAdmin ||
         isWholesale ||
-        wholesaleStatus ===
-            "pending";
+        wholesaleStatus === "pending";
 
     /*
      * PRODUTOS DESTACADOS
      */
-    let featuredQuery =
-        supabase
-            .from("products")
-            .select(`
-                id,
-                name,
-                slug,
-                artist,
-                price,
-                format,
-                year,
-                images,
-                wholesale_only
-            `)
-            .eq(
-                "is_featured",
-                true,
-            )
-            .gt(
-                "stock",
-                0,
-            );
+    let featuredQuery = supabase
+        .from("products")
+        .select(`
+            id,
+            name,
+            slug,
+            artist,
+            price,
+            format,
+            year,
+            images,
+            wholesale_only
+        `)
+        .eq(
+            "is_featured",
+            true,
+        )
+        .gt(
+            "stock",
+            0,
+        );
 
     /*
      * Rejected e usuários comuns
      * não recebem produtos exclusivos.
      */
     if (!canSeeWholesaleOnly) {
-        featuredQuery =
-            featuredQuery.eq(
-                "wholesale_only",
-                false,
-            );
+        featuredQuery = featuredQuery.eq(
+            "wholesale_only",
+            false,
+        );
     }
 
     const {
@@ -140,11 +142,9 @@ export default async function HomePage({
     /*
      * APRESENTAÇÕES FUTURAS
      */
-
-    const today =
-        new Date()
-            .toISOString()
-            .split("T")[0];
+    const today = new Date()
+        .toISOString()
+        .split("T")[0];
 
     const {
         data: upcomingPerformances,
@@ -186,12 +186,8 @@ export default async function HomePage({
      * para mostrar no carousel.
      */
     const hasFeaturedContent =
-        (featuredProducts?.length ??
-            0) >
-            0 ||
-        (upcomingPerformances?.length ??
-            0) >
-            0;
+        (featuredProducts?.length ?? 0) > 0 ||
+        (upcomingPerformances?.length ?? 0) > 0;
 
     return (
         <div className="w-full max-w-full overflow-x-hidden">
@@ -216,7 +212,7 @@ export default async function HomePage({
                     group
                     fixed
                     left-0
-                    top-16
+                    top-0
                     z-40
                     hidden
                     -translate-x-[calc(100%-50px)]
@@ -229,7 +225,7 @@ export default async function HomePage({
             >
                 <Suspense
                     fallback={
-                        <aside className="h-[calc(100vh-64px)] w-64" />
+                        <aside className="h-dvh w-64" />
                     }
                 >
                     <Sidebar />
@@ -239,7 +235,6 @@ export default async function HomePage({
             {/* CONTENT */}
 
             <main className="w-full overflow-hidden p-4 md:py-6 md:pr-6 md:pl-24">
-
                 {/* FEATURED CAROUSEL */}
 
                 {!hasActiveFilters &&
@@ -247,12 +242,10 @@ export default async function HomePage({
                         <div className="mb-8">
                             <FeaturedProductsCarousel
                                 products={
-                                    featuredProducts ??
-                                    []
+                                    featuredProducts ?? []
                                 }
                                 performances={
-                                    upcomingPerformances ??
-                                    []
+                                    upcomingPerformances ?? []
                                 }
                             />
                         </div>
@@ -260,17 +253,22 @@ export default async function HomePage({
 
                 {/* PRODUCTS */}
 
-                <Suspense
-                    fallback={<p></p>}
-                >
+                <Suspense fallback={<p></p>}>
                     <ProductsSection
                         searchParams={
-                            Promise.resolve(
-                                filters,
-                            )
+                            Promise.resolve(filters)
                         }
                     />
                 </Suspense>
+
+                {/* HOME SECTIONS */}
+
+                {!hasActiveFilters && (
+                    <>
+                        <AboutSection />
+                        <NewsletterSection />
+                    </>
+                )}
             </main>
         </div>
     );

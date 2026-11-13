@@ -1,3 +1,4 @@
+
 "use client";
 
 import {
@@ -9,414 +10,211 @@ import {
 } from "react";
 
 import type {
+    ReactNode,
+} from "react";
+
+import type {
     Performance,
 } from "@/lib/performances";
 
 type AudioPlayerContextType = {
-    currentPerformance:
-        Performance | null;
-
-    playPerformance: (
-        performance: Performance,
-    ) => void;
-
-    clearPerformance:
-        () => void;
+    currentPerformance: Performance | null;
+    isPlaying: boolean;
+    currentTime: number;
+    duration: number;
+    volume: number;
+    playPerformance: (performance: Performance) => void;
+    clearPerformance: () => void;
+    togglePlay: () => void;
+    seekTo: (seconds: number) => void;
+    changeVolume: (value: number) => void;
+    toggleMute: () => void;
 };
 
 const AudioPlayerContext =
-    createContext<
-        AudioPlayerContextType | undefined
-    >(undefined);
-
-function formatTime(
-    seconds: number,
-) {
-    if (
-        !Number.isFinite(
-            seconds,
-        )
-    ) {
-        return "0:00";
-    }
-
-    const minutes =
-        Math.floor(
-            seconds / 60,
-        );
-
-    const remainingSeconds =
-        Math.floor(
-            seconds % 60,
-        );
-
-    return `${minutes}:${remainingSeconds
-        .toString()
-        .padStart(
-            2,
-            "0",
-        )}`;
-}
-
-function formatDate(
-    date:
-        | string
-        | null
-        | undefined,
-) {
-    if (!date) {
-        return "";
-    }
-
-    return new Intl.DateTimeFormat(
-        "pt-BR",
-        {
-            day: "2-digit",
-            month: "2-digit",
-            year: "numeric",
-            timeZone: "UTC",
-        },
-    ).format(
-        new Date(date),
+    createContext<AudioPlayerContextType | undefined>(
+        undefined,
     );
-}
 
 export function AudioPlayerProvider({
     children,
 }: {
-    children: React.ReactNode;
+    children: ReactNode;
 }) {
-    const audioRef =
-        useRef<HTMLAudioElement>(
-            null,
-        );
+    const audioRef = useRef<HTMLAudioElement>(null);
 
     const [
         currentPerformance,
         setCurrentPerformance,
-    ] =
-        useState<Performance | null>(
-            null,
-        );
+    ] = useState<Performance | null>(null);
 
-    const [
-        isPlaying,
-        setIsPlaying,
-    ] = useState(false);
+    const [isPlaying, setIsPlaying] = useState(false);
+    const [currentTime, setCurrentTime] = useState(0);
+    const [duration, setDuration] = useState(0);
+    const [volume, setVolume] = useState(1);
 
-    const [
-        currentTime,
-        setCurrentTime,
-    ] = useState(0);
-
-    const [
-        duration,
-        setDuration,
-    ] = useState(0);
-
-    const [
-        volume,
-        setVolume,
-    ] = useState(1);
-
-    const [
-        previousVolume,
-        setPreviousVolume,
-    ] = useState(1);
+    const previousVolume = useRef(1);
 
     useEffect(() => {
-        const audio =
-            audioRef.current;
+        const audio = audioRef.current;
 
         if (!audio) {
             return;
         }
 
-        const handleTimeUpdate =
-            () => {
-                setCurrentTime(
-                    audio.currentTime,
-                );
-            };
+        const onTime = () => {
+            setCurrentTime(audio.currentTime);
+        };
 
-        const handleLoadedMetadata =
-            () => {
-                setDuration(
-                    audio.duration,
-                );
-            };
-
-        const handlePlay =
-            () => {
-                setIsPlaying(
-                    true,
-                );
-            };
-
-        const handlePause =
-            () => {
-                setIsPlaying(
-                    false,
-                );
-            };
-
-        const handleEnded =
-            () => {
-                setIsPlaying(
-                    false,
-                );
-
-                setCurrentTime(
-                    0,
-                );
-            };
-
-        audio.addEventListener(
-            "timeupdate",
-            handleTimeUpdate,
-        );
-
-        audio.addEventListener(
-            "loadedmetadata",
-            handleLoadedMetadata,
-        );
-
-        audio.addEventListener(
-            "play",
-            handlePlay,
-        );
-
-        audio.addEventListener(
-            "pause",
-            handlePause,
-        );
-
-        audio.addEventListener(
-            "ended",
-            handleEnded,
-        );
-
-        return () => {
-            audio.removeEventListener(
-                "timeupdate",
-                handleTimeUpdate,
-            );
-
-            audio.removeEventListener(
-                "loadedmetadata",
-                handleLoadedMetadata,
-            );
-
-            audio.removeEventListener(
-                "play",
-                handlePlay,
-            );
-
-            audio.removeEventListener(
-                "pause",
-                handlePause,
-            );
-
-            audio.removeEventListener(
-                "ended",
-                handleEnded,
+        const onMetadata = () => {
+            setDuration(
+                Number.isFinite(audio.duration)
+                    ? audio.duration
+                    : 0,
             );
         };
-    }, [
-        currentPerformance,
-    ]);
 
-    async function playPerformance(
-        performance: Performance,
-    ) {
-        if (
-            !performance.audio_url
-        ) {
-            return;
-        }
+        const onPlay = () => {
+            setIsPlaying(true);
+        };
 
-        const samePerformance =
-            currentPerformance
-                ?.id ===
-            performance.id;
+        const onPause = () => {
+            setIsPlaying(false);
+        };
 
-        if (samePerformance) {
-            const audio =
-                audioRef.current;
+        const onEnded = () => {
+            setIsPlaying(false);
+        };
 
-            if (!audio) {
-                return;
-            }
+        audio.addEventListener("timeupdate", onTime);
+        audio.addEventListener("loadedmetadata", onMetadata);
+        audio.addEventListener("durationchange", onMetadata);
+        audio.addEventListener("play", onPlay);
+        audio.addEventListener("pause", onPause);
+        audio.addEventListener("ended", onEnded);
 
-            if (audio.paused) {
-                try {
-                    await audio.play();
-                } catch {
-                    setIsPlaying(
-                        false,
-                    );
-                }
-            }
-
-            return;
-        }
-
-        setCurrentPerformance(
-            performance,
-        );
-
-        setCurrentTime(0);
-        setDuration(0);
-    }
+        return () => {
+            audio.removeEventListener("timeupdate", onTime);
+            audio.removeEventListener(
+                "loadedmetadata",
+                onMetadata,
+            );
+            audio.removeEventListener(
+                "durationchange",
+                onMetadata,
+            );
+            audio.removeEventListener("play", onPlay);
+            audio.removeEventListener("pause", onPause);
+            audio.removeEventListener("ended", onEnded);
+        };
+    }, []);
 
     useEffect(() => {
-        const audio =
-            audioRef.current;
-
-        if (
-            !audio ||
-            !currentPerformance
-                ?.audio_url
-        ) {
-            return;
-        }
-
-        audio.load();
-
-        audio.play().catch(
-            () => {
-                setIsPlaying(
-                    false,
-                );
-            },
-        );
-    }, [
-        currentPerformance,
-    ]);
-
-    function clearPerformance() {
-        const audio =
-            audioRef.current;
-
-        if (audio) {
-            audio.pause();
-        }
-
-        setCurrentPerformance(
-            null,
-        );
-
-        setIsPlaying(false);
-        setCurrentTime(0);
-        setDuration(0);
-    }
-
-    async function togglePlay() {
-        const audio =
-            audioRef.current;
+        const audio = audioRef.current;
 
         if (!audio) {
-            return;
-        }
-
-        if (audio.paused) {
-            try {
-                await audio.play();
-            } catch {
-                setIsPlaying(
-                    false,
-                );
-            }
-
             return;
         }
 
         audio.pause();
-    }
 
-    function handleSeek(
-        event:
-            React.ChangeEvent<HTMLInputElement>,
-    ) {
-        const audio =
-            audioRef.current;
+        setCurrentTime(0);
+        setDuration(0);
 
-        if (!audio) {
+        if (!currentPerformance?.audio_url) {
+            audio.removeAttribute("src");
+            audio.load();
             return;
         }
 
-        const newTime =
-            Number(
-                event.target.value,
-            );
+        audio.src = currentPerformance.audio_url;
+        audio.load();
 
-        audio.currentTime =
-            newTime;
+        void audio.play().catch(() => {
+            setIsPlaying(false);
+        });
+    }, [currentPerformance]);
 
-        setCurrentTime(
-            newTime,
-        );
-    }
-
-    function handleVolume(
-        event:
-            React.ChangeEvent<HTMLInputElement>,
-    ) {
-        const audio =
-            audioRef.current;
-
-        if (!audio) {
+    function playPerformance(performance: Performance) {
+        if (!performance.audio_url) {
             return;
         }
 
-        const newVolume =
-            Number(
-                event.target.value,
-            );
+        if (currentPerformance?.id === performance.id) {
+            const audio = audioRef.current;
 
-        audio.volume =
-            newVolume;
+            if (audio?.paused) {
+                void audio.play().catch(() => {
+                    setIsPlaying(false);
+                });
+            }
 
-        setVolume(
-            newVolume,
+            return;
+        }
+
+        setCurrentPerformance(performance);
+    }
+
+    function clearPerformance() {
+        audioRef.current?.pause();
+        setIsPlaying(false);
+        setCurrentPerformance(null);
+    }
+
+    function togglePlay() {
+        const audio = audioRef.current;
+
+        if (!audio || !currentPerformance?.audio_url) {
+            return;
+        }
+
+        if (audio.paused) {
+            void audio.play().catch(() => {
+                setIsPlaying(false);
+            });
+        } else {
+            audio.pause();
+        }
+    }
+
+    function seekTo(seconds: number) {
+        const audio = audioRef.current;
+
+        if (!audio || !Number.isFinite(audio.duration)) {
+            return;
+        }
+
+        const next = Math.max(
+            0,
+            Math.min(seconds, audio.duration),
         );
 
-        if (newVolume > 0) {
-            setPreviousVolume(
-                newVolume,
-            );
+        audio.currentTime = next;
+        setCurrentTime(next);
+    }
+
+    function changeVolume(value: number) {
+        const next = Math.max(
+            0,
+            Math.min(1, value),
+        );
+
+        if (next > 0) {
+            previousVolume.current = next;
         }
+
+        if (audioRef.current) {
+            audioRef.current.volume = next;
+        }
+
+        setVolume(next);
     }
 
     function toggleMute() {
-        const audio =
-            audioRef.current;
-
-        if (!audio) {
-            return;
-        }
-
-        if (volume > 0) {
-            setPreviousVolume(
-                volume,
-            );
-
-            audio.volume = 0;
-
-            setVolume(0);
-
-            return;
-        }
-
-        const restoredVolume =
-            previousVolume ||
-            1;
-
-        audio.volume =
-            restoredVolume;
-
-        setVolume(
-            restoredVolume,
+        changeVolume(
+            volume === 0
+                ? previousVolume.current || 1
+                : 0,
         );
     }
 
@@ -424,165 +222,35 @@ export function AudioPlayerProvider({
         <AudioPlayerContext.Provider
             value={{
                 currentPerformance,
+                isPlaying,
+                currentTime,
+                duration,
+                volume,
                 playPerformance,
                 clearPerformance,
+                togglePlay,
+                seekTo,
+                changeVolume,
+                toggleMute,
             }}
         >
             {children}
 
-            {currentPerformance &&
-                currentPerformance.audio_url && (
-                    <div className="fixed bottom-0 left-0 z-[100] w-full border-t bg-[#D2232A] text-[#FFFDE9]">
-                        <audio
-                            ref={
-                                audioRef
-                            }
-                            src={
-                                currentPerformance.audio_url
-                            }
-                            preload="metadata"
-                        />
-
-                        <div className="flex items-center gap-4 p-4 md:gap-6 md:p-6">
-                            {currentPerformance.cover_image && (
-                                <div className="hidden h-16 w-16 shrink-0 overflow-hidden md:block">
-                                    <img
-                                        src={
-                                            currentPerformance.cover_image
-                                        }
-                                        alt=""
-                                        className="h-full w-full object-cover"
-                                    />
-                                </div>
-                            )}
-
-                            <button
-                                type="button"
-                                onClick={
-                                    togglePlay
-                                }
-                                className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full border  transition-colors duration-300 hover:bg-[#FFFDE9] hover:text-black"
-                                aria-label={
-                                    isPlaying
-                                        ? "Pausar"
-                                        : "Reproduzir"
-                                }
-                            >
-                                {isPlaying
-                                    ? "Ⅱ"
-                                    : "▶"}
-                            </button>
-
-                            <div className="hidden min-w-0 shrink-0 items-baseline gap-4 md:flex">
-                                <p className="font-october max-w-[360px] truncate text-2xl leading-none">
-                                    {
-                                        currentPerformance.name
-                                    }
-                                </p>
-
-                                {currentPerformance.performance_date && (
-                                    <p className="shrink-0 text-xs tabular-nums">
-                                        {formatDate(
-                                            currentPerformance.performance_date,
-                                        )}
-                                    </p>
-                                )}
-                            </div>
-
-                            <div className="flex min-w-0 flex-1 items-center gap-3">
-                                <span className="w-10 shrink-0 text-xs tabular-nums">
-                                    {formatTime(
-                                        currentTime,
-                                    )}
-                                </span>
-
-                                <input
-                                    type="range"
-                                    min={
-                                        0
-                                    }
-                                    max={
-                                        duration ||
-                                        0
-                                    }
-                                    step="0.1"
-                                    value={
-                                        currentTime
-                                    }
-                                    onChange={
-                                        handleSeek
-                                    }
-                                    aria-label="Progresso do áudio"
-                                    className="audio-slider h-px min-w-0 flex-1 cursor-pointer bg-[#FFFDE9]"
-                                />
-
-                                <span className="w-10 shrink-0 text-right text-xs tabular-nums">
-                                    {formatTime(
-                                        duration,
-                                    )}
-                                </span>
-                            </div>
-
-                            <div className="hidden items-center gap-3 lg:flex">
-                                <button
-                                    type="button"
-                                    onClick={
-                                        toggleMute
-                                    }
-                                    className="w-8 text-xs uppercase text-white"
-                                >
-                                    {volume ===
-                                    0
-                                        ? "Mudo"
-                                        : "Vol"}
-                                </button>
-
-                                <input
-                                    type="range"
-                                    min={
-                                        0
-                                    }
-                                    max={
-                                        1
-                                    }
-                                    step="0.01"
-                                    value={
-                                        volume
-                                    }
-                                    onChange={
-                                        handleVolume
-                                    }
-                                    aria-label="Volume"
-                                    className="audio-slider h-px w-20 cursor-pointer bg-[#FFFDE9]"
-                                />
-                            </div>
-
-                            <button
-                                type="button"
-                                onClick={
-                                    clearPerformance
-                                }
-                                className="flex h-8 w-8 shrink-0 items-center justify-center text-xl"
-                                aria-label="Fechar player"
-                            >
-                                ×
-                            </button>
-                        </div>
-                    </div>
-                )}
+            <audio
+                ref={audioRef}
+                preload="metadata"
+                className="hidden"
+            />
         </AudioPlayerContext.Provider>
     );
 }
 
 export function useAudioPlayer() {
-    const context =
-        useContext(
-            AudioPlayerContext,
-        );
+    const context = useContext(AudioPlayerContext);
 
     if (!context) {
         throw new Error(
-            "useAudioPlayer must be used inside AudioPlayerProvider",
+            "useAudioPlayer deve ser usado dentro de AudioPlayerProvider",
         );
     }
 
