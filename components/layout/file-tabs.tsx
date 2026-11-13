@@ -976,13 +976,13 @@ export function FileTabs({
         currentPerformance?.performance_date,
     );
 
-    const dialPixels = hasPlayer
-        ? "min(96vw, 590px)"
-        : "min(96vw, 380px)";
+    const mobileDialPixels = hasPlayer
+        ? "min(92vw, 340px)"
+        : "min(82vw, 260px)";
 
-    const halfHeight = hasPlayer
-        ? "min(48vw, 295px)"
-        : "min(48vw, 190px)";
+    const desktopDialPixels = hasPlayer
+        ? "590px"
+        : "380px";
 
     const svgScale = hasPlayer ? 1 : 1.5;
 
@@ -1000,241 +1000,329 @@ export function FileTabs({
                 md:w-auto
             "
             style={{
-                height: halfHeight,
+                height: "var(--dial-half-height)",
+                ["--dial-mobile-size" as string]:
+                    mobileDialPixels,
+                ["--dial-desktop-size" as string]:
+                    desktopDialPixels,
+                ["--dial-half-height" as string]:
+                    `calc(var(--dial-mobile-size) / 2)`,
             }}
         >
+            <style>
+                {`
+                    @media (min-width: 768px) {
+                        [data-dial-wrapper] {
+                            --dial-half-height:
+                                calc(var(--dial-desktop-size) / 2) !important;
+                        }
+
+                        [data-dial-body] {
+                            width: var(--dial-desktop-size) !important;
+                            height: var(--dial-desktop-size) !important;
+                        }
+                    }
+                `}
+            </style>
+
             <div
-                ref={dialRef}
-                data-page-transition-origin
-                onPointerDown={handlePointerDown}
-                onPointerMove={handlePointerMove}
-                onPointerUp={handlePointerUp}
-                onPointerCancel={handlePointerCancel}
-                onWheel={handleWheel}
-                className="
-                    pointer-events-auto
-                    absolute
-                    left-1/2
-                    top-0
-                    aspect-square
-                    -translate-x-1/2
-                    touch-none
-                    select-none
-                    md:left-auto
-                    md:right-0
-                    md:translate-x-0
-                "
+                data-dial-wrapper
+                className="absolute inset-0"
                 style={{
-                    width: dialPixels,
-                    height: dialPixels,
+                    height: "var(--dial-half-height)",
                 }}
             >
-                <svg
-                    viewBox={`0 0 ${SIZE} ${SIZE}`}
-                    className="h-full w-full"
-                    aria-label="Dial Casa Elefante e player de áudio"
+                <div
+                    ref={dialRef}
+                    data-dial-body
+                    data-page-transition-origin
+                    onPointerDown={handlePointerDown}
+                    onPointerMove={handlePointerMove}
+                    onPointerUp={handlePointerUp}
+                    onPointerCancel={handlePointerCancel}
+                    onWheel={handleWheel}
+                    className="
+                        pointer-events-auto
+                        absolute
+                        left-1/2
+                        top-0
+                        aspect-square
+                        -translate-x-1/2
+                        touch-none
+                        select-none
+                        md:left-auto
+                        md:right-0
+                        md:translate-x-0
+                    "
+                    style={{
+                        width: "var(--dial-mobile-size)",
+                        height: "var(--dial-mobile-size)",
+                    }}
                 >
-                    <defs>
-                        <path
-                            id={`${uniqueId}-info-line`}
-                            d={arcPath(309, 185, 355)}
-                        />
-                    </defs>
-
-                    <g
-                        transform={
-                            hasPlayer
-                                ? undefined
-                                : `translate(${CENTER} ${CENTER}) scale(${svgScale}) translate(${-CENTER} ${-CENTER})`
-                        }
+                    <svg
+                        viewBox={`0 0 ${SIZE} ${SIZE}`}
+                        className="h-full w-full"
+                        aria-label="Dial Casa Elefante e player de áudio"
                     >
-                        {/* BASE COMPLETA DO DIAL */}
+                        <defs>
+                            <path
+                                id={`${uniqueId}-info-line`}
+                                d={arcPath(309, 185, 355)}
+                            />
+                        </defs>
 
-                        <circle
-                            cx={CENTER}
-                            cy={CENTER}
-                            r={hasPlayer ? INFO_OUTER : OUTER_RADIUS}
-                            fill={CREAM}
-                            stroke={RED}
-                            strokeWidth="2"
-                            pointerEvents="none"
-                        />
+                        <g
+                            transform={
+                                hasPlayer
+                                    ? undefined
+                                    : `translate(${CENTER} ${CENTER}) scale(${svgScale}) translate(${-CENTER} ${-CENTER})`
+                            }
+                        >
+                            {/* BASE COMPLETA DO DIAL */}
 
-                        {/* BASE COMPLETA DOS ANÉIS */}
+                            <circle
+                                cx={CENTER}
+                                cy={CENTER}
+                                r={hasPlayer ? INFO_OUTER : OUTER_RADIUS}
+                                fill={CREAM}
+                                stroke={RED}
+                                strokeWidth="2"
+                                pointerEvents="none"
+                            />
 
-                        {hasPlayer && (
-                            <>
-                                <circle
-                                    cx={CENTER}
-                                    cy={CENTER}
-                                    r={PROGRESS_OUTER}
-                                    fill={CREAM}
-                                    stroke={RED}
-                                    strokeWidth="2"
-                                    pointerEvents="none"
-                                />
+                            {/* BASE COMPLETA DOS ANÉIS */}
 
-                                <circle
-                                    cx={CENTER}
-                                    cy={CENTER}
-                                    r={CONTROL_OUTER}
-                                    fill={CREAM}
-                                    stroke={RED}
-                                    strokeWidth="2"
-                                    pointerEvents="none"
-                                />
-                            </>
-                        )}
+                            {hasPlayer && (
+                                <>
+                                    <circle
+                                        cx={CENTER}
+                                        cy={CENTER}
+                                        r={PROGRESS_OUTER}
+                                        fill={CREAM}
+                                        stroke={RED}
+                                        strokeWidth="2"
+                                        pointerEvents="none"
+                                    />
 
-                        <circle
-                            cx={CENTER}
-                            cy={CENTER}
-                            r={OUTER_RADIUS}
-                            fill={CREAM}
-                            stroke={RED}
-                            strokeWidth="2"
-                            pointerEvents="none"
-                        />
+                                    <circle
+                                        cx={CENTER}
+                                        cy={CENTER}
+                                        r={CONTROL_OUTER}
+                                        fill={CREAM}
+                                        stroke={RED}
+                                        strokeWidth="2"
+                                        pointerEvents="none"
+                                    />
+                                </>
+                            )}
 
-                        <circle
-                            cx={CENTER}
-                            cy={CENTER}
-                            r={INNER_RADIUS}
-                            fill={CREAM}
-                            stroke={RED}
-                            strokeWidth="2"
-                            pointerEvents="none"
-                        />
+                            <circle
+                                cx={CENTER}
+                                cy={CENTER}
+                                r={OUTER_RADIUS}
+                                fill={CREAM}
+                                stroke={RED}
+                                strokeWidth="2"
+                                pointerEvents="none"
+                            />
 
-                        {hasPlayer && (
-                            <g>
-                                {/* ANEL 5 — INFORMAÇÕES */}
+                            <circle
+                                cx={CENTER}
+                                cy={CENTER}
+                                r={INNER_RADIUS}
+                                fill={CREAM}
+                                stroke={RED}
+                                strokeWidth="2"
+                                pointerEvents="none"
+                            />
 
-                                <path
-                                    d={sectorPath(
-                                        PROGRESS_OUTER,
-                                        INFO_OUTER,
-                                        180,
-                                        360,
-                                    )}
-                                    fill={CREAM}
-                                    stroke={RED}
-                                    strokeWidth="2"
-                                />
+                            {hasPlayer && (
+                                <g>
+                                    {/* ANEL 5 — INFORMAÇÕES */}
 
-                                <text
-                                    fill={RED}
-                                    fontSize="17"
-                                    fontWeight="900"
-                                    textAnchor="middle"
-                                    pointerEvents="none"
-                                    style={{
-                                        fontFamily:
-                                            "var(--font-anton), sans-serif",
-                                    }}
-                                >
-                                    <textPath
-                                        href={`#${uniqueId}-info-line`}
-                                        startOffset="50%"
+                                    <path
+                                        d={sectorPath(
+                                            PROGRESS_OUTER,
+                                            INFO_OUTER,
+                                            180,
+                                            360,
+                                        )}
+                                        fill={CREAM}
+                                        stroke={RED}
+                                        strokeWidth="2"
+                                    />
+
+                                    <text
+                                        fill={RED}
+                                        fontSize="17"
+                                        fontWeight="900"
+                                        textAnchor="middle"
+                                        pointerEvents="none"
+                                        style={{
+                                            fontFamily:
+                                                "var(--font-anton), sans-serif",
+                                        }}
                                     >
-                                        {date
-                                            ? `${title.toUpperCase()}   •   ${date}`
-                                            : title.toUpperCase()}
-                                    </textPath>
-                                </text>
+                                        <textPath
+                                            href={`#${uniqueId}-info-line`}
+                                            startOffset="50%"
+                                        >
+                                            {date
+                                                ? `${title.toUpperCase()}   •   ${date}`
+                                                : title.toUpperCase()}
+                                        </textPath>
+                                    </text>
 
-                                {/* ANEL 4 — PROGRESSO */}
+                                    {/* ANEL 4 — PROGRESSO */}
 
-                                <path
-                                    d={sectorPath(
-                                        CONTROL_OUTER,
-                                        PROGRESS_OUTER,
-                                        180,
-                                        360,
-                                    )}
-                                    fill={CREAM}
-                                    stroke={RED}
-                                    strokeWidth="2"
-                                />
+                                    <path
+                                        d={sectorPath(
+                                            CONTROL_OUTER,
+                                            PROGRESS_OUTER,
+                                            180,
+                                            360,
+                                        )}
+                                        fill={CREAM}
+                                        stroke={RED}
+                                        strokeWidth="2"
+                                    />
 
-                                <path
-                                    d={arcPath(
-                                        274,
-                                        180,
-                                        360,
-                                    )}
-                                    fill="none"
-                                    stroke={RED}
-                                    strokeWidth="3"
-                                    opacity="0.22"
-                                />
-
-                                <path
-                                    d={arcPath(
-                                        274,
-                                        180,
-                                        progressEnd,
-                                    )}
-                                    fill="none"
-                                    stroke={RED}
-                                    strokeWidth="8"
-                                    strokeLinecap="round"
-                                />
-
-                                <circle
-                                    cx={
-                                        polar(
+                                    <path
+                                        d={arcPath(
                                             274,
-                                            progressEnd,
-                                        ).x
-                                    }
-                                    cy={
-                                        polar(
+                                            180,
+                                            360,
+                                        )}
+                                        fill="none"
+                                        stroke={RED}
+                                        strokeWidth="3"
+                                        opacity="0.22"
+                                    />
+
+                                    <path
+                                        d={arcPath(
                                             274,
+                                            180,
                                             progressEnd,
-                                        ).y
-                                    }
-                                    r="6"
-                                    fill={RED}
-                                />
+                                        )}
+                                        fill="none"
+                                        stroke={RED}
+                                        strokeWidth="8"
+                                        strokeLinecap="round"
+                                    />
 
-                                {/* ANEL 3 — CONTROLES */}
+                                    <circle
+                                        cx={
+                                            polar(
+                                                274,
+                                                progressEnd,
+                                            ).x
+                                        }
+                                        cy={
+                                            polar(
+                                                274,
+                                                progressEnd,
+                                            ).y
+                                        }
+                                        r="6"
+                                        fill={RED}
+                                    />
 
-                                {[0, 1, 2].map((index) => {
+                                    {/* ANEL 3 — CONTROLES */}
+
+                                    {[0, 1, 2].map((index) => {
+                                        const start =
+                                            180 + index * 60;
+
+                                        const end = start + 60;
+
+                                        const p = polar(
+                                            234,
+                                            (start + end) / 2,
+                                        );
+
+                                        const Icon = index === 0
+                                            ? isPlaying
+                                                ? Pause
+                                                : Play
+                                            : index === 1
+                                                ? volume === 0
+                                                    ? VolumeX
+                                                    : Volume2
+                                                : X;
+
+                                        return (
+                                            <g
+                                                key={index}
+                                                className="group cursor-pointer"
+                                            >
+                                                <path
+                                                    d={sectorPath(
+                                                        OUTER_RADIUS,
+                                                        CONTROL_OUTER,
+                                                        start,
+                                                        end,
+                                                    )}
+                                                    fill={CREAM}
+                                                    stroke={RED}
+                                                    strokeWidth="2"
+                                                    className="
+                                                        transition-colors
+                                                        duration-200
+                                                        group-hover:fill-[#D2232A]
+                                                    "
+                                                />
+
+                                                <g
+                                                    transform={`translate(${p.x - 13} ${p.y - 13})`}
+                                                    pointerEvents="none"
+                                                >
+                                                    <Icon
+                                                        size={26}
+                                                        className="
+                                                            text-[#D2232A]
+                                                            transition-colors
+                                                            duration-200
+                                                            group-hover:text-[#FFFDE9]
+                                                        "
+                                                    />
+                                                </g>
+                                            </g>
+                                        );
+                                    })}
+                                </g>
+                            )}
+
+                            {/* ANEL 2 — NAVEGAÇÃO */}
+
+                            <g
+                                transform={`rotate(${outerAngle} ${CENTER} ${CENTER})`}
+                            >
+                                {tabs.map((tab, index) => {
                                     const start =
-                                        180 + index * 60;
+                                        180 +
+                                        index * OUTER_SEGMENT;
 
-                                    const end = start + 60;
+                                    const end =
+                                        start + OUTER_SEGMENT;
 
-                                    const p = polar(
-                                        234,
-                                        (start + end) / 2,
-                                    );
-
-                                    const Icon = index === 0
-                                        ? isPlaying
-                                            ? Pause
-                                            : Play
-                                        : index === 1
-                                            ? volume === 0
-                                                ? VolumeX
-                                                : Volume2
-                                            : X;
+                                    const pathId =
+                                        `${uniqueId}-outer-${index}`;
 
                                     return (
                                         <g
-                                            key={index}
+                                            key={tab.href}
                                             className="group cursor-pointer"
                                         >
                                             <path
                                                 d={sectorPath(
+                                                    OUTER_INNER_RADIUS,
                                                     OUTER_RADIUS,
-                                                    CONTROL_OUTER,
                                                     start,
                                                     end,
                                                 )}
-                                                fill={CREAM}
-                                                stroke={RED}
+                                                fill={background}
+                                                stroke={foreground}
                                                 strokeWidth="2"
                                                 className="
                                                     transition-colors
@@ -1243,258 +1331,201 @@ export function FileTabs({
                                                 "
                                             />
 
-                                            <g
-                                                transform={`translate(${p.x - 13} ${p.y - 13})`}
+                                            <path
+                                                id={pathId}
+                                                d={arcPath(
+                                                    183,
+                                                    start + 5,
+                                                    end - 5,
+                                                )}
+                                                fill="none"
                                                 pointerEvents="none"
+                                            />
+
+                                            <text
+                                                fill={foreground}
+                                                fontSize="21"
+                                                fontWeight="900"
+                                                textAnchor="middle"
+                                                pointerEvents="none"
+                                                className="
+                                                    transition-colors
+                                                    duration-200
+                                                    group-hover:fill-[#FFFDE9]
+                                                "
+                                                style={{
+                                                    fontFamily:
+                                                        "var(--font-anton), sans-serif",
+                                                }}
                                             >
-                                                <Icon
-                                                    size={26}
-                                                    className="
-                                                        text-[#D2232A]
-                                                        transition-colors
-                                                        duration-200
-                                                        group-hover:text-[#FFFDE9]
-                                                    "
-                                                />
-                                            </g>
+                                                <textPath
+                                                    href={`#${pathId}`}
+                                                    startOffset="50%"
+                                                >
+                                                    {tab.lines[0]}
+                                                </textPath>
+                                            </text>
                                         </g>
                                     );
                                 })}
                             </g>
-                        )}
 
-                        {/* ANEL 2 — NAVEGAÇÃO */}
+                            {/* ANEL 1 — CONTA */}
 
-                        <g
-                            transform={`rotate(${outerAngle} ${CENTER} ${CENTER})`}
-                        >
-                            {tabs.map((tab, index) => {
-                                const start =
-                                    180 +
-                                    index * OUTER_SEGMENT;
+                            <g
+                                transform={`rotate(${innerAngle} ${CENTER} ${CENTER})`}
+                            >
+                                {accountActions.map(
+                                    (item, index) => {
+                                        const start =
+                                            180 +
+                                            index * INNER_SEGMENT;
 
-                                const end =
-                                    start + OUTER_SEGMENT;
+                                        const end =
+                                            start + INNER_SEGMENT;
 
-                                const pathId =
-                                    `${uniqueId}-outer-${index}`;
+                                        const p = polar(
+                                            111,
+                                            (start + end) / 2,
+                                        );
 
-                                return (
-                                    <g
-                                        key={tab.href}
-                                        className="group cursor-pointer"
-                                    >
-                                        <path
-                                            d={sectorPath(
-                                                OUTER_INNER_RADIUS,
-                                                OUTER_RADIUS,
-                                                start,
-                                                end,
-                                            )}
-                                            fill={background}
-                                            stroke={foreground}
-                                            strokeWidth="2"
-                                            className="
-                                                transition-colors
-                                                duration-200
-                                                group-hover:fill-[#D2232A]
-                                            "
-                                        />
+                                        const Icon = item.icon;
 
-                                        <path
-                                            id={pathId}
-                                            d={arcPath(
-                                                183,
-                                                start + 5,
-                                                end - 5,
-                                            )}
-                                            fill="none"
-                                            pointerEvents="none"
-                                        />
-
-                                        <text
-                                            fill={foreground}
-                                            fontSize="21"
-                                            fontWeight="900"
-                                            textAnchor="middle"
-                                            pointerEvents="none"
-                                            className="
-                                                transition-colors
-                                                duration-200
-                                                group-hover:fill-[#FFFDE9]
-                                            "
-                                            style={{
-                                                fontFamily:
-                                                    "var(--font-anton), sans-serif",
-                                            }}
-                                        >
-                                            <textPath
-                                                href={`#${pathId}`}
-                                                startOffset="50%"
-                                            >
-                                                {tab.lines[0]}
-                                            </textPath>
-                                        </text>
-                                    </g>
-                                );
-                            })}
-                        </g>
-
-                        {/* ANEL 1 — CONTA */}
-
-                        <g
-                            transform={`rotate(${innerAngle} ${CENTER} ${CENTER})`}
-                        >
-                            {accountActions.map(
-                                (item, index) => {
-                                    const start =
-                                        180 +
-                                        index * INNER_SEGMENT;
-
-                                    const end =
-                                        start + INNER_SEGMENT;
-
-                                    const p = polar(
-                                        111,
-                                        (start + end) / 2,
-                                    );
-
-                                    const Icon = item.icon;
-
-                                    return (
-                                        <g
-                                            key={item.action}
-                                            className="group cursor-pointer"
-                                        >
-                                            <path
-                                                d={sectorPath(
-                                                    HUB_RADIUS,
-                                                    INNER_RADIUS,
-                                                    start,
-                                                    end,
-                                                )}
-                                                fill={background}
-                                                stroke={foreground}
-                                                strokeWidth="1.5"
-                                                className="
-                                                    transition-colors
-                                                    duration-200
-                                                    group-hover:fill-[#D2232A]
-                                                "
-                                            />
-
+                                        return (
                                             <g
-                                                transform={`translate(${p.x - 13} ${p.y - 13})`}
-                                                pointerEvents="none"
+                                                key={item.action}
+                                                className="group cursor-pointer"
                                             >
-                                                <Icon
-                                                    size={26}
-                                                    strokeWidth={2.5}
+                                                <path
+                                                    d={sectorPath(
+                                                        HUB_RADIUS,
+                                                        INNER_RADIUS,
+                                                        start,
+                                                        end,
+                                                    )}
+                                                    fill={background}
+                                                    stroke={foreground}
+                                                    strokeWidth="1.5"
                                                     className="
-                                                        text-[#D2232A]
                                                         transition-colors
                                                         duration-200
-                                                        group-hover:text-[#FFFDE9]
+                                                        group-hover:fill-[#D2232A]
                                                     "
                                                 />
+
+                                                <g
+                                                    transform={`translate(${p.x - 13} ${p.y - 13})`}
+                                                    pointerEvents="none"
+                                                >
+                                                    <Icon
+                                                        size={26}
+                                                        strokeWidth={2.5}
+                                                        className="
+                                                            text-[#D2232A]
+                                                            transition-colors
+                                                            duration-200
+                                                            group-hover:text-[#FFFDE9]
+                                                        "
+                                                    />
+                                                </g>
                                             </g>
-                                        </g>
-                                    );
-                                },
-                            )}
+                                        );
+                                    },
+                                )}
+                            </g>
+
+                            {/* CENTRO */}
+
+                            <circle
+                                cx={CENTER}
+                                cy={CENTER}
+                                r={HUB_RADIUS}
+                                fill={background}
+                                stroke={foreground}
+                                strokeWidth="2.5"
+                                pointerEvents="none"
+                            />
+
+                            <circle
+                                cx={CENTER}
+                                cy={CENTER}
+                                r="9"
+                                fill={foreground}
+                                pointerEvents="none"
+                            />
                         </g>
+                    </svg>
 
-                        {/* CENTRO */}
+                    {/* CONTROLE DE VOLUME */}
 
-                        <circle
-                            cx={CENTER}
-                            cy={CENTER}
-                            r={HUB_RADIUS}
-                            fill={background}
-                            stroke={foreground}
-                            strokeWidth="2.5"
-                            pointerEvents="none"
-                        />
-
-                        <circle
-                            cx={CENTER}
-                            cy={CENTER}
-                            r="9"
-                            fill={foreground}
-                            pointerEvents="none"
-                        />
-                    </g>
-                </svg>
-
-                {/* CONTROLE DE VOLUME */}
-
-                {hasPlayer && volumeOpen && (
-                    <div
-                        className="
-                            absolute
-                            left-1/2
-                            top-[12%]
-                            z-10
-                            flex
-                            -translate-x-1/2
-                            items-center
-                            gap-2
-                            rounded-full
-                            border-2
-                            border-[#D2232A]
-                            bg-[#FFFDE9]
-                            px-3
-                            py-2
-                            text-[#D2232A]
-                            shadow-[3px_3px_0_#D2232A]
-                        "
-                        onPointerDown={(event) => {
-                            event.stopPropagation();
-                        }}
-                        onPointerMove={(event) => {
-                            event.stopPropagation();
-                        }}
-                        onPointerUp={(event) => {
-                            event.stopPropagation();
-                        }}
-                    >
-                        <button
-                            type="button"
-                            onClick={toggleMute}
-                            aria-label={
-                                volume === 0
-                                    ? "Ativar som"
-                                    : "Silenciar"
-                            }
-                        >
-                            {volume === 0 ? (
-                                <VolumeX size={18} />
-                            ) : (
-                                <Volume2 size={18} />
-                            )}
-                        </button>
-
-                        <input
-                            aria-label="Volume"
-                            type="range"
-                            min="0"
-                            max="1"
-                            step="0.01"
-                            value={volume}
-                            onChange={(event) => {
-                                changeVolume(
-                                    Number(
-                                        event.target.value,
-                                    ),
-                                );
-                            }}
+                    {hasPlayer && volumeOpen && (
+                        <div
                             className="
-                                w-24
-                                accent-[#D2232A]
+                                absolute
+                                left-1/2
+                                top-[12%]
+                                z-10
+                                flex
+                                -translate-x-1/2
+                                items-center
+                                gap-2
+                                rounded-full
+                                border-2
+                                border-[#D2232A]
+                                bg-[#FFFDE9]
+                                px-3
+                                py-2
+                                text-[#D2232A]
+                                shadow-[3px_3px_0_#D2232A]
                             "
-                        />
-                    </div>
-                )}
+                            onPointerDown={(event) => {
+                                event.stopPropagation();
+                            }}
+                            onPointerMove={(event) => {
+                                event.stopPropagation();
+                            }}
+                            onPointerUp={(event) => {
+                                event.stopPropagation();
+                            }}
+                        >
+                            <button
+                                type="button"
+                                onClick={toggleMute}
+                                aria-label={
+                                    volume === 0
+                                        ? "Ativar som"
+                                        : "Silenciar"
+                                }
+                            >
+                                {volume === 0 ? (
+                                    <VolumeX size={18} />
+                                ) : (
+                                    <Volume2 size={18} />
+                                )}
+                            </button>
+
+                            <input
+                                aria-label="Volume"
+                                type="range"
+                                min="0"
+                                max="1"
+                                step="0.01"
+                                value={volume}
+                                onChange={(event) => {
+                                    changeVolume(
+                                        Number(
+                                            event.target.value,
+                                        ),
+                                    );
+                                }}
+                                className="
+                                    w-24
+                                    accent-[#D2232A]
+                                "
+                            />
+                        </div>
+                    )}
+                </div>
             </div>
         </div>
     );
