@@ -31,6 +31,10 @@ import {
     ScrollBackground,
 } from "@/components/layout/scroll-background";
 
+import {
+    PageTransitionProvider,
+} from "@/components/layout/page-transition-provider";
+
 const grotesque = localFont({
     src: "./fonts/Grotesque.ttf",
     variable: "--font-grotesque",
@@ -94,23 +98,25 @@ export default function RootLayout({
 
                 <CartProvider>
                     <AudioPlayerProvider>
-                        <Suspense
-                            fallback={
-                                <header className="border-b border-black">
-                                    <div className="h-[65px]" />
-                                </header>
-                            }
-                        >
-                            <Navbar />
-                        </Suspense>
+                        <PageTransitionProvider>
+                            <Suspense
+                                fallback={
+                                    <header className="border-b border-black">
+                                        <div className="h-[65px]" />
+                                    </header>
+                                }
+                            >
+                                <Navbar />
+                            </Suspense>
 
-                        <Suspense fallback={null}>
-                            <OrderConfirmedBanner />
-                        </Suspense>
+                            <Suspense fallback={null}>
+                                <OrderConfirmedBanner />
+                            </Suspense>
 
-                        <main className="pb-[320px]">
-                            {children}
-                        </main>
+                            <main className="pb-[320px]">
+                                {children}
+                            </main>
+                        </PageTransitionProvider>
                     </AudioPlayerProvider>
                 </CartProvider>
             </body>
