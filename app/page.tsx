@@ -1,3 +1,4 @@
+
 import {
     Suspense,
 } from "react";
@@ -186,12 +187,8 @@ export default async function HomePage({
      * para mostrar no carousel.
      */
     const hasFeaturedContent =
-        (featuredProducts?.length ??
-            0) >
-            0 ||
-        (upcomingPerformances?.length ??
-            0) >
-            0;
+        (featuredProducts?.length ?? 0) > 0 ||
+        (upcomingPerformances?.length ?? 0) > 0;
 
     return (
         <div className="w-full max-w-full overflow-x-hidden">
@@ -216,7 +213,7 @@ export default async function HomePage({
                     group
                     fixed
                     left-0
-                    top-16
+                    top-0
                     z-40
                     hidden
                     -translate-x-[calc(100%-50px)]
@@ -229,7 +226,7 @@ export default async function HomePage({
             >
                 <Suspense
                     fallback={
-                        <aside className="h-[calc(100vh-64px)] w-64" />
+                        <aside className="h-dvh w-64" />
                     }
                 >
                     <Sidebar />

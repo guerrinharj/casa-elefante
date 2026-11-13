@@ -21,6 +21,10 @@ import {
     PRODUCT_GENRES,
 } from "@/lib/products";
 
+import type {
+    ReactNode,
+} from "react";
+
 type SidebarProps = {
     mobile?: boolean;
 };
@@ -50,12 +54,12 @@ export function Sidebar({
     const [openSections, setOpenSections] = useState<
         Record<FilterSection, boolean>
     >({
-        genre: false,
-        format: false,
-        condition: false,
-        availability: false,
-        country: false,
-        year: false,
+        genre: !mobile,
+        format: !mobile,
+        condition: !mobile,
+        availability: !mobile,
+        country: !mobile,
+        year: !mobile,
     });
 
     /*
@@ -284,7 +288,7 @@ export function Sidebar({
     function renderSection(
         section: FilterSection,
         title: string,
-        content: React.ReactNode,
+        content: ReactNode,
     ) {
         return (
             <div
@@ -338,11 +342,13 @@ export function Sidebar({
                         ease-in-out
                     `
                     : `
-                        h-[calc(100vh-64px)]
+                        h-dvh
                         w-64
+                        shrink-0
                         overflow-y-auto
+                        overscroll-contain
                         border-r
-                        border-black/20
+                        border-[#D2232A]/20
                         bg-[#FFFDE9]
                         p-6
                         text-[#D2232A]
