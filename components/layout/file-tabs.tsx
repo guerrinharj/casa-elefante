@@ -2,7 +2,6 @@
 "use client";
 
 import {
-    usePathname,
     useRouter,
 } from "next/navigation";
 
@@ -24,27 +23,38 @@ import {
 } from "@/lib/supabase/client";
 
 import {
+    useAudioPlayer,
+} from "@/components/toda-terca-tem/audio-player-provider";
+
+import {
     ShoppingCart,
     UserRound,
     LogOut,
     UserPlus,
+    Play,
+    Pause,
+    Volume2,
+    VolumeX,
+    X,
 } from "lucide-react";
 
 const RED = "#D2232A";
 const CREAM = "#FFFDE9";
 
-const SIZE = 440;
+const SIZE = 660;
 const CENTER = SIZE / 2;
 
-const OUTER_RADIUS = 210;
-const OUTER_INNER_RADIUS = 155;
-
-const INNER_RADIUS = 155;
 const HUB_RADIUS = 57;
+const INNER_RADIUS = 155;
+const OUTER_INNER_RADIUS = 155;
+const OUTER_RADIUS = 210;
+
+const CONTROL_OUTER = 258;
+const PROGRESS_OUTER = 290;
+const INFO_OUTER = 326;
 
 const INNER_SEGMENT = 60;
 const OUTER_SEGMENT = 90;
-
 const DRAG_THRESHOLD = 7;
 
 const tabs = [
@@ -66,11 +76,19 @@ type FileTabsProps = {
     accountHref: string;
 };
 
-type DialRing = "inner" | "outer";
+type DialRing =
+    | "inner"
+    | "outer"
+    | "seek"
+    | "control";
 
 type AccountAction = {
     label: string;
-    action: "cart" | "account" | "logout" | "register";
+    action:
+        | "cart"
+        | "account"
+        | "logout"
+        | "register";
     icon: typeof ShoppingCart;
 };
 
@@ -92,16 +110,16 @@ function sectorPath(
     start: number,
     end: number,
 ) {
-    const outerStart = polar(outerRadius, start);
-    const outerEnd = polar(outerRadius, end);
-    const innerEnd = polar(innerRadius, end);
-    const innerStart = polar(innerRadius, start);
+    const a = polar(outerRadius, start);
+    const b = polar(outerRadius, end);
+    const c = polar(innerRadius, end);
+    const d = polar(innerRadius, start);
 
     return [
-        `M ${outerStart.x} ${outerStart.y}`,
-        `A ${outerRadius} ${outerRadius} 0 0 1 ${outerEnd.x} ${outerEnd.y}`,
-        `L ${innerEnd.x} ${innerEnd.y}`,
-        `A ${innerRadius} ${innerRadius} 0 0 0 ${innerStart.x} ${innerStart.y}`,
+        `M ${a.x} ${a.y}`,
+        `A ${outerRadius} ${outerRadius} 0 0 1 ${b.x} ${b.y}`,
+        `L ${c.x} ${c.y}`,
+        `A ${innerRadius} ${innerRadius} 0 0 0 ${d.x} ${d.y}`,
         "Z",
     ].join(" ");
 }
@@ -120,24 +138,49 @@ function arcPath(
     ].join(" ");
 }
 
-function normalizeAngle(
-    degrees: number,
-) {
+function normalizeAngle(degrees: number) {
     return ((degrees % 360) + 360) % 360;
 }
 
-function normalizeDifference(
-    difference: number,
+function normalizeDifference(degrees: number) {
+    if (degrees > 180) {
+        return degrees - 360;
+    }
+
+    if (degrees < -180) {
+        return degrees + 360;
+    }
+
+    return degrees;
+}
+
+function clamp(
+    value: number,
+    min: number,
+    max: number,
 ) {
-    if (difference > 180) {
-        return difference - 360;
+    return Math.max(min, Math.min(max, value));
+}
+
+function formatDate(
+    value: string | null | undefined,
+) {
+    if (!value) {
+        return "";
     }
 
-    if (difference < -180) {
-        return difference + 360;
+    const date = new Date(value);
+
+    if (Number.isNaN(date.getTime())) {
+        return "";
     }
 
-    return difference;
+    return new Intl.DateTimeFormat("pt-BR", {
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
+        timeZone: "UTC",
+    }).format(date);
 }
 
 export function FileTabs({
@@ -146,8 +189,24 @@ export function FileTabs({
     accountHref,
 }: FileTabsProps) {
     const router = useRouter();
-    const pathname = usePathname();
     const uniqueId = useId().replace(/:/g, "");
+
+    const {
+        currentPerformance,
+        isPlaying,
+        currentTime,
+        duration,
+        volume,
+        togglePlay,
+        seekTo,
+        changeVolume,
+        toggleMute,
+        clearPerformance,
+    } = useAudioPlayer();
+
+    const hasPlayer = Boolean(
+        currentPerformance?.audio_url,
+    );
 
     const dialRef = useRef<HTMLDivElement>(null);
 
@@ -161,7 +220,9 @@ export function FileTabs({
     const hasDraggedRef = useRef(false);
     const lastPointerAngleRef = useRef(0);
 
-    const pointerRingRef = useRef<DialRing | null>(null);
+    const pointerRingRef = useRef<DialRing | null>(
+        null,
+    );
 
     const pointerStartRef = useRef({
         x: 0,
@@ -174,18 +235,10 @@ export function FileTabs({
     const [outerAngle, setOuterAngle] = useState(0);
     const [mounted, setMounted] = useState(false);
     const [loggingOut, setLoggingOut] = useState(false);
+    const [volumeOpen, setVolumeOpen] = useState(false);
 
-    const isTodaTercaTem = pathname.startsWith(
-        "/toda-terca-tem",
-    );
-
-    const foreground = isTodaTercaTem
-        ? CREAM
-        : RED;
-
-    const background = isTodaTercaTem
-        ? RED
-        : CREAM;
+    const foreground = RED;
+    const background = CREAM;
 
     const accountActions: AccountAction[] = [
         {
@@ -201,21 +254,33 @@ export function FileTabs({
             icon: UserRound,
         },
         {
-            label: isLoggedIn ? "Logout" : "Cadastro",
-            action: isLoggedIn ? "logout" : "register",
-            icon: isLoggedIn ? LogOut : UserPlus,
+            label: isLoggedIn
+                ? "Logout"
+                : "Cadastro",
+            action: isLoggedIn
+                ? "logout"
+                : "register",
+            icon: isLoggedIn
+                ? LogOut
+                : UserPlus,
         },
     ];
 
-    const setInnerRotation = useCallback((next: number) => {
-        innerAngleRef.current = next;
-        setInnerAngle(next);
-    }, []);
+    const setInnerRotation = useCallback(
+        (next: number) => {
+            innerAngleRef.current = next;
+            setInnerAngle(next);
+        },
+        [],
+    );
 
-    const setOuterRotation = useCallback((next: number) => {
-        outerAngleRef.current = next;
-        setOuterAngle(next);
-    }, []);
+    const setOuterRotation = useCallback(
+        (next: number) => {
+            outerAngleRef.current = next;
+            setOuterAngle(next);
+        },
+        [],
+    );
 
     useEffect(() => {
         setMounted(true);
@@ -226,11 +291,11 @@ export function FileTabs({
             return;
         }
 
-        const reducedMotion = window.matchMedia(
-            "(prefers-reduced-motion: reduce)",
-        ).matches;
-
-        if (reducedMotion) {
+        if (
+            window.matchMedia(
+                "(prefers-reduced-motion: reduce)",
+            ).matches
+        ) {
             return;
         }
 
@@ -258,61 +323,54 @@ export function FileTabs({
                 const restingMotion =
                     Math.sin(time * 0.00065) * 1.2;
 
-                const difference =
-                    restingMotion - innerAngleRef.current;
-
                 innerVelocityRef.current +=
-                    difference * 0.018 * delta;
+                    (
+                        restingMotion -
+                        innerAngleRef.current
+                    ) * 0.018 * delta;
 
                 innerVelocityRef.current *= Math.pow(
                     0.88,
                     delta,
                 );
 
-                const next = Math.max(
+                const next = clamp(
+                    innerAngleRef.current +
+                        innerVelocityRef.current * delta,
                     -45,
-                    Math.min(
-                        45,
-                        innerAngleRef.current +
-                            innerVelocityRef.current * delta,
-                    ),
+                    45,
                 );
 
                 setInnerRotation(next);
             }
 
             if (!draggingOuter) {
-                const difference =
-                    -outerAngleRef.current;
-
                 outerVelocityRef.current +=
-                    difference * 0.008 * delta;
+                    -outerAngleRef.current *
+                    0.008 *
+                    delta;
 
                 outerVelocityRef.current *= Math.pow(
                     0.94,
                     delta,
                 );
 
-                const next = Math.max(
+                const next = clamp(
+                    outerAngleRef.current +
+                        outerVelocityRef.current * delta,
                     -40,
-                    Math.min(
-                        40,
-                        outerAngleRef.current +
-                            outerVelocityRef.current * delta,
-                    ),
+                    40,
                 );
 
                 setOuterRotation(next);
             }
 
-            frameRef.current = requestAnimationFrame(
-                animate,
-            );
+            frameRef.current =
+                requestAnimationFrame(animate);
         }
 
-        frameRef.current = requestAnimationFrame(
-            animate,
-        );
+        frameRef.current =
+            requestAnimationFrame(animate);
 
         return () => {
             if (frameRef.current !== null) {
@@ -341,24 +399,24 @@ export function FileTabs({
             };
         }
 
-        const centerX =
-            rect.left + rect.width / 2;
+        const dx =
+            clientX - (rect.left + rect.width / 2);
 
-        const centerY =
-            rect.top + rect.height / 2;
+        const dy =
+            clientY - (rect.top + rect.height / 2);
 
-        const dx = clientX - centerX;
-        const dy = clientY - centerY;
-
-        const scale = SIZE / rect.width;
+        const svgScale = hasPlayer ? 1 : 1.5;
 
         return {
-            radius: Math.sqrt(
-                dx * dx + dy * dy,
-            ) * scale,
+            radius:
+                Math.hypot(dx, dy) *
+                SIZE /
+                rect.width /
+                svgScale,
             degrees: normalizeAngle(
                 Math.atan2(dy, dx) *
-                    (180 / Math.PI),
+                180 /
+                Math.PI,
             ),
         };
     }
@@ -367,21 +425,41 @@ export function FileTabs({
         clientX: number,
         clientY: number,
     ): DialRing | null {
-        const position = getPointerPosition(
-            clientX,
-            clientY,
-        );
+        const {
+            radius,
+            degrees,
+        } = getPointerPosition(clientX, clientY);
+
+        if (degrees < 180) {
+            return null;
+        }
 
         if (
-            position.radius >= OUTER_INNER_RADIUS &&
-            position.radius <= OUTER_RADIUS
+            hasPlayer &&
+            radius >= CONTROL_OUTER &&
+            radius <= PROGRESS_OUTER
+        ) {
+            return "seek";
+        }
+
+        if (
+            hasPlayer &&
+            radius >= OUTER_RADIUS &&
+            radius < CONTROL_OUTER
+        ) {
+            return "control";
+        }
+
+        if (
+            radius >= OUTER_INNER_RADIUS &&
+            radius <= OUTER_RADIUS
         ) {
             return "outer";
         }
 
         if (
-            position.radius >= HUB_RADIUS &&
-            position.radius < INNER_RADIUS
+            radius >= HUB_RADIUS &&
+            radius < INNER_RADIUS
         ) {
             return "inner";
         }
@@ -393,13 +471,11 @@ export function FileTabs({
         clientX: number,
         clientY: number,
     ) {
-        const position = getPointerPosition(
-            clientX,
-            clientY,
-        );
-
         const degrees = normalizeAngle(
-            position.degrees - innerAngleRef.current,
+            getPointerPosition(
+                clientX,
+                clientY,
+            ).degrees - innerAngleRef.current,
         );
 
         if (degrees < 180) {
@@ -410,7 +486,8 @@ export function FileTabs({
             (degrees - 180) / INNER_SEGMENT,
         );
 
-        return index >= 0 && index < accountActions.length
+        return index >= 0 &&
+            index < accountActions.length
             ? index
             : -1;
     }
@@ -419,13 +496,11 @@ export function FileTabs({
         clientX: number,
         clientY: number,
     ) {
-        const position = getPointerPosition(
-            clientX,
-            clientY,
-        );
-
         const degrees = normalizeAngle(
-            position.degrees - outerAngleRef.current,
+            getPointerPosition(
+                clientX,
+                clientY,
+            ).degrees - outerAngleRef.current,
         );
 
         if (degrees < 180) {
@@ -441,10 +516,33 @@ export function FileTabs({
             : -1;
     }
 
+    function seekFromPointer(
+        clientX: number,
+        clientY: number,
+    ) {
+        if (duration <= 0) {
+            return;
+        }
+
+        const degrees = getPointerPosition(
+            clientX,
+            clientY,
+        ).degrees;
+
+        seekTo(
+            clamp(
+                (degrees - 180) / 180,
+                0,
+                1,
+            ) * duration,
+        );
+    }
+
     async function handleAccountAction(
         index: number,
     ) {
-        const action = accountActions[index]?.action;
+        const action =
+            accountActions[index]?.action;
 
         if (action === "cart") {
             router.push("/carrinho");
@@ -453,7 +551,9 @@ export function FileTabs({
 
         if (action === "account") {
             router.push(
-                isLoggedIn ? accountHref : "/login",
+                isLoggedIn
+                    ? accountHref
+                    : "/login",
             );
             return;
         }
@@ -494,6 +594,25 @@ export function FileTabs({
         }
     }
 
+    function handleControlClick(
+        clientX: number,
+        clientY: number,
+    ) {
+        const degrees = getPointerPosition(
+            clientX,
+            clientY,
+        ).degrees;
+
+        if (degrees < 240) {
+            togglePlay();
+        } else if (degrees < 300) {
+            setVolumeOpen(!volumeOpen);
+        } else {
+            clearPerformance();
+            setVolumeOpen(false);
+        }
+    }
+
     function handlePointerDown(
         event: ReactPointerEvent<HTMLDivElement>,
     ) {
@@ -519,7 +638,9 @@ export function FileTabs({
 
         if (ring === "inner") {
             innerVelocityRef.current = 0;
-        } else {
+        }
+
+        if (ring === "outer") {
             outerVelocityRef.current = 0;
         }
 
@@ -534,6 +655,13 @@ export function FileTabs({
                 event.clientY,
             ).degrees;
 
+        if (ring === "seek") {
+            seekFromPointer(
+                event.clientX,
+                event.clientY,
+            );
+        }
+
         event.currentTarget.setPointerCapture(
             event.pointerId,
         );
@@ -547,21 +675,17 @@ export function FileTabs({
         }
 
         const dx =
-            event.clientX - pointerStartRef.current.x;
+            event.clientX -
+            pointerStartRef.current.x;
 
         const dy =
-            event.clientY - pointerStartRef.current.y;
+            event.clientY -
+            pointerStartRef.current.y;
 
-        const distance = Math.sqrt(
-            dx * dx + dy * dy,
-        );
+        const distance = Math.hypot(dx, dy);
 
         if (distance >= DRAG_THRESHOLD) {
             hasDraggedRef.current = true;
-        }
-
-        if (!hasDraggedRef.current) {
-            return;
         }
 
         const current = getPointerPosition(
@@ -569,17 +693,29 @@ export function FileTabs({
             event.clientY,
         ).degrees;
 
+        if (pointerRingRef.current === "seek") {
+            seekFromPointer(
+                event.clientX,
+                event.clientY,
+            );
+
+            return;
+        }
+
+        if (!hasDraggedRef.current) {
+            return;
+        }
+
         const difference = normalizeDifference(
-            current - lastPointerAngleRef.current,
+            current -
+            lastPointerAngleRef.current,
         );
 
         if (pointerRingRef.current === "inner") {
-            const next = Math.max(
+            const next = clamp(
+                innerAngleRef.current + difference,
                 -45,
-                Math.min(
-                    45,
-                    innerAngleRef.current + difference,
-                ),
+                45,
             );
 
             innerVelocityRef.current =
@@ -589,13 +725,11 @@ export function FileTabs({
         }
 
         if (pointerRingRef.current === "outer") {
-            const next = Math.max(
+            const next = clamp(
+                outerAngleRef.current +
+                    difference * 0.55,
                 -40,
-                Math.min(
-                    40,
-                    outerAngleRef.current +
-                        difference * 0.55,
-                ),
+                40,
             );
 
             outerVelocityRef.current =
@@ -616,16 +750,16 @@ export function FileTabs({
 
         draggingRef.current = false;
 
-        if (!hasDraggedRef.current) {
-            const ring = getRing(
-                event.clientX,
-                event.clientY,
-            );
+        const ring = getRing(
+            event.clientX,
+            event.clientY,
+        );
 
-            if (
-                ring === "inner" &&
-                pointerRingRef.current === "inner"
-            ) {
+        if (
+            !hasDraggedRef.current &&
+            ring === pointerRingRef.current
+        ) {
+            if (ring === "inner") {
                 const index = getInnerIndex(
                     event.clientX,
                     event.clientY,
@@ -636,10 +770,7 @@ export function FileTabs({
                 }
             }
 
-            if (
-                ring === "outer" &&
-                pointerRingRef.current === "outer"
-            ) {
+            if (ring === "outer") {
                 const index = getOuterIndex(
                     event.clientX,
                     event.clientY,
@@ -648,6 +779,13 @@ export function FileTabs({
                 if (index >= 0) {
                     router.push(tabs[index].href);
                 }
+            }
+
+            if (ring === "control") {
+                handleControlClick(
+                    event.clientX,
+                    event.clientY,
+                );
             }
         }
 
@@ -678,51 +816,79 @@ export function FileTabs({
             event.clientY,
         );
 
-        if (!ring) {
-            return;
-        }
-
         const difference =
-            Math.abs(event.deltaX) > Math.abs(event.deltaY)
+            Math.abs(event.deltaX) >
+            Math.abs(event.deltaY)
                 ? event.deltaX
                 : event.deltaY;
 
         if (ring === "inner") {
-            const next = Math.max(
-                -45,
-                Math.min(
-                    45,
-                    innerAngleRef.current +
-                        difference * 0.045,
-                ),
-            );
-
             innerVelocityRef.current =
                 difference * 0.004;
 
-            setInnerRotation(next);
+            setInnerRotation(
+                clamp(
+                    innerAngleRef.current +
+                        difference * 0.045,
+                    -45,
+                    45,
+                ),
+            );
         }
 
         if (ring === "outer") {
-            const next = Math.max(
-                -40,
-                Math.min(
-                    40,
-                    outerAngleRef.current +
-                        difference * 0.025,
-                ),
-            );
-
             outerVelocityRef.current =
                 difference * 0.002;
 
-            setOuterRotation(next);
+            setOuterRotation(
+                clamp(
+                    outerAngleRef.current +
+                        difference * 0.025,
+                    -40,
+                    40,
+                ),
+            );
+        }
+
+        if (
+            ring === "seek" &&
+            duration > 0
+        ) {
+            seekTo(
+                currentTime +
+                (difference > 0 ? 5 : -5),
+            );
         }
     }
 
     if (!mounted) {
         return null;
     }
+
+    const progress = duration > 0
+        ? clamp(currentTime / duration, 0, 1)
+        : 0;
+
+    const progressEnd =
+        180 + Math.max(progress * 180, 0.01);
+
+    const title =
+        currentPerformance?.name ||
+        "APRESENTAÇÃO";
+
+    const date = formatDate(
+        currentPerformance?.performance_date,
+    );
+
+    const dialPixels = hasPlayer
+        ? "min(96vw, 590px)"
+        : "min(96vw, 380px)";
+
+    const halfHeight = hasPlayer
+        ? "min(48vw, 295px)"
+        : "min(48vw, 190px)";
+
+    const svgScale = hasPlayer ? 1 : 1.5;
 
     return (
         <div
@@ -732,14 +898,14 @@ export function FileTabs({
                 bottom-0
                 left-0
                 z-[100]
-                h-[160px]
                 w-full
-                overflow-hidden
                 md:left-auto
                 md:right-6
-                md:h-[190px]
-                md:w-[380px]
+                md:w-auto
             "
+            style={{
+                height: halfHeight,
+            }}
         >
             <div
                 ref={dialRef}
@@ -751,169 +917,429 @@ export function FileTabs({
                 className="
                     pointer-events-auto
                     absolute
-                    top-0
                     left-1/2
+                    top-0
                     aspect-square
-                    h-[320px]
-                    w-[320px]
                     -translate-x-1/2
                     touch-none
                     select-none
-                    md:h-[380px]
-                    md:w-[380px]
+                    md:left-auto
+                    md:right-0
+                    md:translate-x-0
                 "
+                style={{
+                    width: dialPixels,
+                    height: dialPixels,
+                }}
             >
                 <svg
                     viewBox={`0 0 ${SIZE} ${SIZE}`}
                     className="h-full w-full"
-                    aria-label="Navegação Casa Elefante"
+                    aria-label="Dial Casa Elefante e player de áudio"
                 >
-                    {/* ANEL EXTERNO — DUAS ÁREAS */}
+                    <defs>
+                        <path
+                            id={`${uniqueId}-info-line`}
+                            d={arcPath(309, 185, 355)}
+                        />
+                    </defs>
 
                     <g
-                        transform={`rotate(${outerAngle} ${CENTER} ${CENTER})`}
+                        transform={
+                            hasPlayer
+                                ? undefined
+                                : `translate(${CENTER} ${CENTER}) scale(${svgScale}) translate(${-CENTER} ${-CENTER})`
+                        }
                     >
-                        {tabs.map((tab, index) => {
-                            const start =
-                                180 + index * OUTER_SEGMENT;
+                        {hasPlayer && (
+                            <g>
+                                {/* ANEL 5 — INFORMAÇÕES */}
 
-                            const end =
-                                start + OUTER_SEGMENT;
+                                <path
+                                    d={sectorPath(
+                                        PROGRESS_OUTER,
+                                        INFO_OUTER,
+                                        180,
+                                        360,
+                                    )}
+                                    fill={CREAM}
+                                    stroke={RED}
+                                    strokeWidth="2"
+                                />
 
-                            const pathId =
-                                `${uniqueId}-outer-${index}`;
-
-                            return (
-                                <g key={tab.href}>
-                                    <path
-                                        d={sectorPath(
-                                            OUTER_INNER_RADIUS,
-                                            OUTER_RADIUS,
-                                            start,
-                                            end,
-                                        )}
-                                        fill={background}
-                                        stroke={foreground}
-                                        strokeWidth="2"
-                                        className="
-                                            cursor-grab
-                                            active:cursor-grabbing
-                                        "
-                                    />
-
-                                    <path
-                                        id={pathId}
-                                        d={arcPath(
-                                            183,
-                                            start + 5,
-                                            end - 5,
-                                        )}
-                                        fill="none"
-                                    />
-
-                                    <text
-                                        fill={foreground}
-                                        fontSize="21"
-                                        fontWeight="900"
-                                        textAnchor="middle"
-                                        pointerEvents="none"
-                                        style={{
-                                            fontFamily:
-                                                "var(--font-anton), sans-serif",
-                                        }}
+                                <text
+                                    fill={RED}
+                                    fontSize="17"
+                                    fontWeight="900"
+                                    textAnchor="middle"
+                                    pointerEvents="none"
+                                    style={{
+                                        fontFamily:
+                                            "var(--font-anton), sans-serif",
+                                    }}
+                                >
+                                    <textPath
+                                        href={`#${uniqueId}-info-line`}
+                                        startOffset="50%"
                                     >
-                                        <textPath
-                                            href={`#${pathId}`}
-                                            startOffset="50%"
+                                        {date
+                                            ? `${title.toUpperCase()}   •   ${date}`
+                                            : title.toUpperCase()}
+                                    </textPath>
+                                </text>
+
+                                {/* ANEL 4 — PROGRESSO */}
+
+                                <path
+                                    d={sectorPath(
+                                        CONTROL_OUTER,
+                                        PROGRESS_OUTER,
+                                        180,
+                                        360,
+                                    )}
+                                    fill={CREAM}
+                                    stroke={RED}
+                                    strokeWidth="2"
+                                />
+
+                                <path
+                                    d={arcPath(
+                                        274,
+                                        180,
+                                        360,
+                                    )}
+                                    fill="none"
+                                    stroke={RED}
+                                    strokeWidth="3"
+                                    opacity="0.22"
+                                />
+
+                                <path
+                                    d={arcPath(
+                                        274,
+                                        180,
+                                        progressEnd,
+                                    )}
+                                    fill="none"
+                                    stroke={RED}
+                                    strokeWidth="8"
+                                    strokeLinecap="round"
+                                />
+
+                                <circle
+                                    cx={
+                                        polar(
+                                            274,
+                                            progressEnd,
+                                        ).x
+                                    }
+                                    cy={
+                                        polar(
+                                            274,
+                                            progressEnd,
+                                        ).y
+                                    }
+                                    r="6"
+                                    fill={RED}
+                                />
+
+                                {/* ANEL 3 — CONTROLES */}
+
+                                {[0, 1, 2].map((index) => {
+                                    const start =
+                                        180 + index * 60;
+
+                                    const end = start + 60;
+
+                                    const p = polar(
+                                        234,
+                                        (start + end) / 2,
+                                    );
+
+                                    const Icon = index === 0
+                                        ? isPlaying
+                                            ? Pause
+                                            : Play
+                                        : index === 1
+                                            ? volume === 0
+                                                ? VolumeX
+                                                : Volume2
+                                            : X;
+
+                                    return (
+                                        <g
+                                            key={index}
+                                            className="group cursor-pointer"
                                         >
-                                            {tab.lines[0]}
-                                        </textPath>
-                                    </text>
-                                </g>
-                            );
-                        })}
-                    </g>
+                                            <path
+                                                d={sectorPath(
+                                                    OUTER_RADIUS,
+                                                    CONTROL_OUTER,
+                                                    start,
+                                                    end,
+                                                )}
+                                                fill={CREAM}
+                                                stroke={RED}
+                                                strokeWidth="2"
+                                                className="
+                                                    transition-colors
+                                                    duration-200
+                                                    group-hover:fill-[#D2232A]
+                                                "
+                                            />
 
-                    {/* ANEL INTERNO — ÍCONES */}
+                                            <g
+                                                transform={`translate(${p.x - 13} ${p.y - 13})`}
+                                                pointerEvents="none"
+                                            >
+                                                <Icon
+                                                    size={26}
+                                                    className="
+                                                        text-[#D2232A]
+                                                        transition-colors
+                                                        duration-200
+                                                        group-hover:text-[#FFFDE9]
+                                                    "
+                                                />
+                                            </g>
+                                        </g>
+                                    );
+                                })}
+                            </g>
+                        )}
 
-                    <g
-                        transform={`rotate(${innerAngle} ${CENTER} ${CENTER})`}
-                    >
-                        {accountActions.map((item, index) => {
-                            const start =
-                                180 + index * INNER_SEGMENT;
+                        {/* ANEL 2 — NAVEGAÇÃO */}
 
-                            const end =
-                                start + INNER_SEGMENT;
+                        <g
+                            transform={`rotate(${outerAngle} ${CENTER} ${CENTER})`}
+                        >
+                            {tabs.map((tab, index) => {
+                                const start =
+                                    180 +
+                                    index * OUTER_SEGMENT;
 
-                            const middle =
-                                (start + end) / 2;
+                                const end =
+                                    start + OUTER_SEGMENT;
 
-                            const iconPosition = polar(
-                                111,
-                                middle,
-                            );
+                                const pathId =
+                                    `${uniqueId}-outer-${index}`;
 
-                            const Icon = item.icon;
-
-                            return (
-                                <g key={item.action}>
-                                    <path
-                                        d={sectorPath(
-                                            HUB_RADIUS,
-                                            INNER_RADIUS,
-                                            start,
-                                            end,
-                                        )}
-                                        fill={background}
-                                        stroke={foreground}
-                                        strokeWidth="1.5"
-                                        className="
-                                            cursor-grab
-                                            active:cursor-grabbing
-                                        "
-                                    />
-
+                                return (
                                     <g
-                                        transform={`
-                                            translate(
-                                                ${iconPosition.x - 13}
-                                                ${iconPosition.y - 13}
-                                            )
-                                        `}
-                                        pointerEvents="none"
+                                        key={tab.href}
+                                        className="group cursor-pointer"
                                     >
-                                        <Icon
-                                            size={26}
-                                            strokeWidth={2.5}
-                                            color={foreground}
+                                        <path
+                                            d={sectorPath(
+                                                OUTER_INNER_RADIUS,
+                                                OUTER_RADIUS,
+                                                start,
+                                                end,
+                                            )}
+                                            fill={background}
+                                            stroke={foreground}
+                                            strokeWidth="2"
+                                            className="
+                                                transition-colors
+                                                duration-200
+                                                group-hover:fill-[#D2232A]
+                                            "
                                         />
+
+                                        <path
+                                            id={pathId}
+                                            d={arcPath(
+                                                183,
+                                                start + 5,
+                                                end - 5,
+                                            )}
+                                            fill="none"
+                                            pointerEvents="none"
+                                        />
+
+                                        <text
+                                            fill={foreground}
+                                            fontSize="21"
+                                            fontWeight="900"
+                                            textAnchor="middle"
+                                            pointerEvents="none"
+                                            className="
+                                                transition-colors
+                                                duration-200
+                                                group-hover:fill-[#FFFDE9]
+                                            "
+                                            style={{
+                                                fontFamily:
+                                                    "var(--font-anton), sans-serif",
+                                            }}
+                                        >
+                                            <textPath
+                                                href={`#${pathId}`}
+                                                startOffset="50%"
+                                            >
+                                                {tab.lines[0]}
+                                            </textPath>
+                                        </text>
                                     </g>
-                                </g>
-                            );
-                        })}
+                                );
+                            })}
+                        </g>
+
+                        {/* ANEL 1 — CONTA */}
+
+                        <g
+                            transform={`rotate(${innerAngle} ${CENTER} ${CENTER})`}
+                        >
+                            {accountActions.map(
+                                (item, index) => {
+                                    const start =
+                                        180 +
+                                        index * INNER_SEGMENT;
+
+                                    const end =
+                                        start + INNER_SEGMENT;
+
+                                    const p = polar(
+                                        111,
+                                        (start + end) / 2,
+                                    );
+
+                                    const Icon = item.icon;
+
+                                    return (
+                                        <g
+                                            key={item.action}
+                                            className="group cursor-pointer"
+                                        >
+                                            <path
+                                                d={sectorPath(
+                                                    HUB_RADIUS,
+                                                    INNER_RADIUS,
+                                                    start,
+                                                    end,
+                                                )}
+                                                fill={background}
+                                                stroke={foreground}
+                                                strokeWidth="1.5"
+                                                className="
+                                                    transition-colors
+                                                    duration-200
+                                                    group-hover:fill-[#D2232A]
+                                                "
+                                            />
+
+                                            <g
+                                                transform={`translate(${p.x - 13} ${p.y - 13})`}
+                                                pointerEvents="none"
+                                            >
+                                                <Icon
+                                                    size={26}
+                                                    strokeWidth={2.5}
+                                                    className="
+                                                        text-[#D2232A]
+                                                        transition-colors
+                                                        duration-200
+                                                        group-hover:text-[#FFFDE9]
+                                                    "
+                                                />
+                                            </g>
+                                        </g>
+                                    );
+                                },
+                            )}
+                        </g>
+
+                        {/* CENTRO */}
+
+                        <circle
+                            cx={CENTER}
+                            cy={CENTER}
+                            r={HUB_RADIUS}
+                            fill={background}
+                            stroke={foreground}
+                            strokeWidth="2.5"
+                            pointerEvents="none"
+                        />
+
+                        <circle
+                            cx={CENTER}
+                            cy={CENTER}
+                            r="9"
+                            fill={foreground}
+                            pointerEvents="none"
+                        />
                     </g>
-
-                    {/* CENTRO */}
-
-                    <circle
-                        cx={CENTER}
-                        cy={CENTER}
-                        r={HUB_RADIUS}
-                        fill={background}
-                        stroke={foreground}
-                        strokeWidth="2.5"
-                        pointerEvents="none"
-                    />
-
-                    <circle
-                        cx={CENTER}
-                        cy={CENTER}
-                        r="9"
-                        fill={foreground}
-                        pointerEvents="none"
-                    />
                 </svg>
+
+                {/* CONTROLE DE VOLUME */}
+
+                {hasPlayer && volumeOpen && (
+                    <div
+                        className="
+                            absolute
+                            left-1/2
+                            top-[12%]
+                            z-10
+                            flex
+                            -translate-x-1/2
+                            items-center
+                            gap-2
+                            rounded-full
+                            border-2
+                            border-[#D2232A]
+                            bg-[#FFFDE9]
+                            px-3
+                            py-2
+                            text-[#D2232A]
+                            shadow-[3px_3px_0_#D2232A]
+                        "
+                        onPointerDown={(event) => {
+                            event.stopPropagation();
+                        }}
+                        onPointerMove={(event) => {
+                            event.stopPropagation();
+                        }}
+                        onPointerUp={(event) => {
+                            event.stopPropagation();
+                        }}
+                    >
+                        <button
+                            type="button"
+                            onClick={toggleMute}
+                            aria-label={
+                                volume === 0
+                                    ? "Ativar som"
+                                    : "Silenciar"
+                            }
+                        >
+                            {volume === 0 ? (
+                                <VolumeX size={18} />
+                            ) : (
+                                <Volume2 size={18} />
+                            )}
+                        </button>
+
+                        <input
+                            aria-label="Volume"
+                            type="range"
+                            min="0"
+                            max="1"
+                            step="0.01"
+                            value={volume}
+                            onChange={(event) => {
+                                changeVolume(
+                                    Number(
+                                        event.target.value,
+                                    ),
+                                );
+                            }}
+                            className="
+                                w-24
+                                accent-[#D2232A]
+                            "
+                        />
+                    </div>
+                )}
             </div>
         </div>
     );
