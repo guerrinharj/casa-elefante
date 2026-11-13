@@ -43,30 +43,20 @@ const INNER_RADIUS = 155;
 const HUB_RADIUS = 57;
 
 const INNER_SEGMENT = 60;
-const OUTER_SEGMENT = 45;
+const OUTER_SEGMENT = 90;
 
 const DRAG_THRESHOLD = 7;
 
 const tabs = [
     {
-        label: "Loja",
+        label: "Casa Elefante",
         href: "/",
-        lines: ["LOJA"],
+        lines: ["CASA ELEFANTE"],
     },
     {
         label: "Toda Terça Tem",
         href: "/toda-terca-tem",
-        lines: ["TODA TERÇA", "TEM"],
-    },
-    {
-        label: "Newsletter",
-        href: "/newsletter",
-        lines: ["NEWSLETTER"],
-    },
-    {
-        label: "Sobre",
-        href: "/sobre",
-        lines: ["SOBRE"],
+        lines: ["TODA TERÇA TEM"],
     },
 ];
 
@@ -197,14 +187,6 @@ export function FileTabs({
         ? RED
         : CREAM;
 
-    const displayName = isLoggedIn
-        ? (
-            name?.trim() && !name.includes("@")
-                ? name.trim()
-                : "CONTA"
-        ).toLocaleUpperCase("pt-BR")
-        : "ENTRAR";
-
     const accountActions: AccountAction[] = [
         {
             label: "Carrinho",
@@ -212,7 +194,9 @@ export function FileTabs({
             icon: ShoppingCart,
         },
         {
-            label: isLoggedIn ? displayName : "Entrar",
+            label: isLoggedIn
+                ? name?.trim() || "Minha conta"
+                : "Entrar",
             action: "account",
             icon: UserRound,
         },
@@ -236,10 +220,6 @@ export function FileTabs({
     useEffect(() => {
         setMounted(true);
     }, []);
-
-    /*
-     * ANIMAÇÃO INDEPENDENTE DOS DOIS ANÉIS
-     */
 
     useEffect(() => {
         if (!mounted) {
@@ -274,11 +254,6 @@ export function FileTabs({
                 draggingRef.current &&
                 pointerRingRef.current === "outer";
 
-            /*
-             * ANEL INTERNO
-             * Carrinho / Conta / Logout
-             */
-
             if (!draggingInner) {
                 const restingMotion =
                     Math.sin(time * 0.00065) * 1.2;
@@ -305,11 +280,6 @@ export function FileTabs({
 
                 setInnerRotation(next);
             }
-
-            /*
-             * ANEL EXTERNO
-             * Menu principal
-             */
 
             if (!draggingOuter) {
                 const difference =
@@ -356,10 +326,6 @@ export function FileTabs({
         setInnerRotation,
         setOuterRotation,
     ]);
-
-    /*
-     * POSIÇÃO DO PONTEIRO
-     */
 
     function getPointerPosition(
         clientX: number,
@@ -423,10 +389,6 @@ export function FileTabs({
         return null;
     }
 
-    /*
-     * IDENTIFICAÇÃO DOS SETORES
-     */
-
     function getInnerIndex(
         clientX: number,
         clientY: number,
@@ -478,10 +440,6 @@ export function FileTabs({
             ? index
             : -1;
     }
-
-    /*
-     * AÇÕES DO ANEL INTERNO
-     */
 
     async function handleAccountAction(
         index: number,
@@ -535,10 +493,6 @@ export function FileTabs({
             }
         }
     }
-
-    /*
-     * INTERAÇÃO COM O PONTEIRO
-     */
 
     function handlePointerDown(
         event: ReactPointerEvent<HTMLDivElement>,
@@ -716,10 +670,6 @@ export function FileTabs({
         pointerRingRef.current = null;
     }
 
-    /*
-     * TRACKPAD / MOUSE WHEEL
-     */
-
     function handleWheel(
         event: ReactWheelEvent<HTMLDivElement>,
     ) {
@@ -818,7 +768,7 @@ export function FileTabs({
                     className="h-full w-full"
                     aria-label="Navegação Casa Elefante"
                 >
-                    {/* ANEL EXTERNO — MENU PRINCIPAL */}
+                    {/* ANEL EXTERNO — DUAS ÁREAS */}
 
                     <g
                         transform={`rotate(${outerAngle} ${CENTER} ${CENTER})`}
@@ -830,8 +780,8 @@ export function FileTabs({
                             const end =
                                 start + OUTER_SEGMENT;
 
-                            const hasTwoLines =
-                                tab.lines.length > 1;
+                            const pathId =
+                                `${uniqueId}-outer-${index}`;
 
                             return (
                                 <g key={tab.href}>
@@ -851,67 +801,40 @@ export function FileTabs({
                                         "
                                     />
 
-                                    {tab.lines.map(
-                                        (line, lineIndex) => {
-                                            const radius =
-                                                hasTwoLines
-                                                    ? lineIndex === 0
-                                                        ? 198
-                                                        : 174
-                                                    : 183;
+                                    <path
+                                        id={pathId}
+                                        d={arcPath(
+                                            183,
+                                            start + 5,
+                                            end - 5,
+                                        )}
+                                        fill="none"
+                                    />
 
-                                            const fontSize =
-                                                hasTwoLines
-                                                    ? lineIndex === 0
-                                                        ? 14
-                                                        : 20
-                                                    : index === 2
-                                                      ? 16
-                                                      : 23;
-
-                                            const pathId =
-                                                `${uniqueId}-outer-${index}-${lineIndex}`;
-
-                                            return (
-                                                <g key={pathId}>
-                                                    <path
-                                                        id={pathId}
-                                                        d={arcPath(
-                                                            radius,
-                                                            start + 2,
-                                                            end - 2,
-                                                        )}
-                                                        fill="none"
-                                                    />
-
-                                                    <text
-                                                        fill={foreground}
-                                                        fontSize={fontSize}
-                                                        fontWeight="900"
-                                                        textAnchor="middle"
-                                                        pointerEvents="none"
-                                                        style={{
-                                                            fontFamily:
-                                                                "var(--font-anton), sans-serif",
-                                                        }}
-                                                    >
-                                                        <textPath
-                                                            href={`#${pathId}`}
-                                                            startOffset="50%"
-                                                        >
-                                                            {line}
-                                                        </textPath>
-                                                    </text>
-                                                </g>
-                                            );
-                                        },
-                                    )}
+                                    <text
+                                        fill={foreground}
+                                        fontSize="21"
+                                        fontWeight="900"
+                                        textAnchor="middle"
+                                        pointerEvents="none"
+                                        style={{
+                                            fontFamily:
+                                                "var(--font-anton), sans-serif",
+                                        }}
+                                    >
+                                        <textPath
+                                            href={`#${pathId}`}
+                                            startOffset="50%"
+                                        >
+                                            {tab.lines[0]}
+                                        </textPath>
+                                    </text>
                                 </g>
                             );
                         })}
                     </g>
 
-                    {/* ANEL INTERNO — APENAS ÍCONES */}
+                    {/* ANEL INTERNO — ÍCONES */}
 
                     <g
                         transform={`rotate(${innerAngle} ${CENTER} ${CENTER})`}
