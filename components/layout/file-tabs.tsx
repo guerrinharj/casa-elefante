@@ -61,6 +61,11 @@ const INNER_SEGMENT = 60;
 const OUTER_SEGMENT = 90;
 const DRAG_THRESHOLD = 7;
 
+const SCROLL_SENSITIVITY = 0.008;
+const SCROLL_INNER_FORCE = 0.025;
+const SCROLL_OUTER_FORCE = 0.015;
+const SCROLL_DECAY = 0.78;
+
 const tabs = [
     {
         label: "Casa Elefante",
@@ -226,6 +231,9 @@ export function FileTabs({
     const innerVelocityRef = useRef(0);
     const outerVelocityRef = useRef(0);
 
+    const scrollVelocityRef = useRef(0);
+    const lastScrollYRef = useRef(0);
+
     const draggingRef = useRef(false);
     const hasDraggedRef = useRef(false);
     const lastPointerAngleRef = useRef(0);
@@ -296,6 +304,54 @@ export function FileTabs({
         setMounted(true);
     }, []);
 
+    // Detecta a direção e a intensidade do scroll.
+
+    useEffect(() => {
+        lastScrollYRef.current = window.scrollY;
+
+        function handleScroll() {
+            const currentY = window.scrollY;
+
+            const delta =
+                currentY - lastScrollYRef.current;
+
+            lastScrollYRef.current = currentY;
+
+            if (
+                draggingRef.current ||
+                window.matchMedia(
+                    "(prefers-reduced-motion: reduce)",
+                ).matches
+            ) {
+                return;
+            }
+
+            scrollVelocityRef.current = clamp(
+                scrollVelocityRef.current +
+                    delta * SCROLL_SENSITIVITY,
+                -3,
+                3,
+            );
+        }
+
+        window.addEventListener(
+            "scroll",
+            handleScroll,
+            {
+                passive: true,
+            },
+        );
+
+        return () => {
+            window.removeEventListener(
+                "scroll",
+                handleScroll,
+            );
+        };
+    }, []);
+
+    // Animação contínua dos anéis com inércia.
+
     useEffect(() => {
         if (!mounted) {
             return;
@@ -328,6 +384,33 @@ export function FileTabs({
             const draggingOuter =
                 draggingRef.current &&
                 pointerRingRef.current === "outer";
+
+            const scrollForce =
+                scrollVelocityRef.current;
+
+            scrollVelocityRef.current *= Math.pow(
+                SCROLL_DECAY,
+                delta,
+            );
+
+            if (
+                Math.abs(scrollVelocityRef.current) <
+                0.001
+            ) {
+                scrollVelocityRef.current = 0;
+            }
+
+            if (!draggingRef.current) {
+                innerVelocityRef.current +=
+                    scrollForce *
+                    SCROLL_INNER_FORCE *
+                    delta;
+
+                outerVelocityRef.current -=
+                    scrollForce *
+                    SCROLL_OUTER_FORCE *
+                    delta;
+            }
 
             if (!draggingInner) {
                 const restingMotion =
@@ -780,16 +863,19 @@ export function FileTabs({
                 }
             }
 
-                if (ring === "outer") {
-                    const index = getOuterIndex(
-                        event.clientX,
-                        event.clientY,
-                    );
+            if (ring === "outer") {
+                const index = getOuterIndex(
+                    event.clientX,
+                    event.clientY,
+                );
 
-                    if (index >= 0 && !isTransitioning) {
-                        void navigate(tabs[index].href);
-                    }
+                if (
+                    index >= 0 &&
+                    !isTransitioning
+                ) {
+                    void navigate(tabs[index].href);
                 }
+            }
 
             if (ring === "control") {
                 handleControlClick(
@@ -962,6 +1048,64 @@ export function FileTabs({
                                 : `translate(${CENTER} ${CENTER}) scale(${svgScale}) translate(${-CENTER} ${-CENTER})`
                         }
                     >
+                        {/* BASE COMPLETA DO DIAL */}
+
+                        <circle
+                            cx={CENTER}
+                            cy={CENTER}
+                            r={hasPlayer ? INFO_OUTER : OUTER_RADIUS}
+                            fill={CREAM}
+                            stroke={RED}
+                            strokeWidth="2"
+                            pointerEvents="none"
+                        />
+
+                        {/* BASE COMPLETA DOS ANÉIS */}
+
+                        {hasPlayer && (
+                            <>
+                                <circle
+                                    cx={CENTER}
+                                    cy={CENTER}
+                                    r={PROGRESS_OUTER}
+                                    fill={CREAM}
+                                    stroke={RED}
+                                    strokeWidth="2"
+                                    pointerEvents="none"
+                                />
+
+                                <circle
+                                    cx={CENTER}
+                                    cy={CENTER}
+                                    r={CONTROL_OUTER}
+                                    fill={CREAM}
+                                    stroke={RED}
+                                    strokeWidth="2"
+                                    pointerEvents="none"
+                                />
+                            </>
+                        )}
+
+                        <circle
+                            cx={CENTER}
+                            cy={CENTER}
+                            r={OUTER_RADIUS}
+                            fill={CREAM}
+                            stroke={RED}
+                            strokeWidth="2"
+                            pointerEvents="none"
+                        />
+
+                        <circle
+                            cx={CENTER}
+                            cy={CENTER}
+                            r={INNER_RADIUS}
+                            fill={CREAM}
+                            stroke={RED}
+                            strokeWidth="2"
+                            pointerEvents="none"
+                        />
+
                         {hasPlayer && (
                             <g>
                                 {/* ANEL 5 — INFORMAÇÕES */}
