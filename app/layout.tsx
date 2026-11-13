@@ -1,4 +1,3 @@
-
 import type {
     Metadata,
 } from "next";
@@ -34,6 +33,10 @@ import {
 import {
     PageTransitionProvider,
 } from "@/components/layout/page-transition-provider";
+
+import {
+    RouteBackground,
+} from "@/components/layout/route-background";
 
 const grotesque = localFont({
     src: "./fonts/Grotesque.ttf",
@@ -94,6 +97,8 @@ export default function RootLayout({
             `}
         >
             <body>
+                <RouteBackground />
+
                 <ScrollBackground />
 
                 <CartProvider>
