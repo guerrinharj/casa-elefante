@@ -38,6 +38,10 @@ import {
     X,
 } from "lucide-react";
 
+import {
+    usePageTransition,
+} from "@/components/layout/page-transition-provider";
+
 const RED = "#D2232A";
 const CREAM = "#FFFDE9";
 
@@ -189,6 +193,12 @@ export function FileTabs({
     accountHref,
 }: FileTabsProps) {
     const router = useRouter();
+
+    const {
+        navigate,
+        isTransitioning,
+    } = usePageTransition();
+
     const uniqueId = useId().replace(/:/g, "");
 
     const {
@@ -770,16 +780,16 @@ export function FileTabs({
                 }
             }
 
-            if (ring === "outer") {
-                const index = getOuterIndex(
-                    event.clientX,
-                    event.clientY,
-                );
+                if (ring === "outer") {
+                    const index = getOuterIndex(
+                        event.clientX,
+                        event.clientY,
+                    );
 
-                if (index >= 0) {
-                    router.push(tabs[index].href);
+                    if (index >= 0 && !isTransitioning) {
+                        void navigate(tabs[index].href);
+                    }
                 }
-            }
 
             if (ring === "control") {
                 handleControlClick(
@@ -909,6 +919,7 @@ export function FileTabs({
         >
             <div
                 ref={dialRef}
+                data-page-transition-origin
                 onPointerDown={handlePointerDown}
                 onPointerMove={handlePointerMove}
                 onPointerUp={handlePointerUp}
