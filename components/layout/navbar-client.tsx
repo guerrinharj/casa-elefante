@@ -8,20 +8,14 @@ import {
 } from "next/navigation";
 
 import {
-    MobileNavbar,
-} from "@/components/layout/mobile-navbar";
+    useEffect,
+    useRef,
+    useState,
+} from "react";
 
-import {
-    InteractiveLogo,
-} from "@/components/layout/interactive-logo";
-
-import {
-    LogoutButton,
-} from "@/components/logout-button";
-
-import {
-    CartIcon,
-} from "@/components/cart/cart-icon";
+import { CartIcon } from "@/components/cart/cart-icon";
+import { LogoutButton } from "@/components/logout-button";
+import { FileTabs } from "@/components/layout/file-tabs";
 
 type WholesaleStatus =
     | "pending"
@@ -48,190 +42,277 @@ export function NavbarClient({
 }: NavbarClientProps) {
     const pathname = usePathname();
 
+    const [accountOpen, setAccountOpen] = useState(false);
+
+    const accountRef = useRef<HTMLDivElement>(null);
+
     const isTodaTercaTem = pathname.startsWith(
         "/toda-terca-tem",
     );
 
-    const linkClassName = `
-        relative
-        pb-1
-        after:absolute
-        after:bottom-0
-        after:left-0
-        after:h-px
-        after:w-full
-        after:origin-left
-        after:scale-x-0
-        after:bg-current
-        after:transition-transform
-        after:duration-300
-        after:ease-out
-        hover:after:scale-x-100
-    `;
+    const foreground = isTodaTercaTem
+        ? "#FFFDE9"
+        : "#D2232A";
 
-    const navbarBackground = isTodaTercaTem
-        ? "bg-[#D2232A] text-[#FFFDE9] border-white/20"
-        : "bg-[#FFFDE9] text-[#D2232A] border-black/20";
+    const background = isTodaTercaTem
+        ? "#D2232A"
+        : "#FFFDE9";
+
+    const accountHref = isAdmin
+        ? "/admin"
+        : isCollaborator
+          ? "/admin/produtos"
+          : "/minha-conta";
+
+    const accountLabel = isAdmin
+        ? "Painel administrativo"
+        : isCollaborator
+          ? "Painel de produtos"
+          : "Minha conta";
+
+    useEffect(() => {
+        function handleOutsideClick(event: MouseEvent) {
+            if (
+                accountRef.current &&
+                !accountRef.current.contains(
+                    event.target as Node,
+                )
+            ) {
+                setAccountOpen(false);
+            }
+        }
+
+        function handleEscape(event: KeyboardEvent) {
+            if (event.key === "Escape") {
+                setAccountOpen(false);
+            }
+        }
+
+        document.addEventListener(
+            "pointerdown",
+            handleOutsideClick,
+        );
+
+        document.addEventListener(
+            "keydown",
+            handleEscape,
+        );
+
+        return () => {
+            document.removeEventListener(
+                "pointerdown",
+                handleOutsideClick,
+            );
+
+            document.removeEventListener(
+                "keydown",
+                handleEscape,
+            );
+        };
+    }, []);
+
+    useEffect(() => {
+        setAccountOpen(false);
+    }, [pathname]);
 
     return (
-        <header
-            className={`
-                animate-navbar-in
-                sticky
-                top-0
-                z-50
-                border-b
-                transition-colors
-                duration-700
-                ease-in-out
-                ${navbarBackground}
-            `}
-        >
-            <div className="flex items-center justify-between px-4 py-2 md:px-6">
-                <InteractiveLogo
-                    text={
-                        isTodaTercaTem
-                            ? "Toda Terça Tem"
-                            : "Casa Elefante"
-                    }
-                />
+        <>
+            <div
+                className="
+                    fixed
+                    right-4
+                    top-4
+                    z-[110]
+                    flex
+                    items-center
+                    gap-4
+                    md:right-6
+                    md:top-6
+                "
+                style={{
+                    color: foreground,
+                }}
+            >
+                <CartIcon />
 
-                <nav className="hidden md:block">
-                    <ul className="flex items-center gap-6">
-                        <li>
-                            <Link
-                                href="/"
-                                className={linkClassName}
-                            >
-                                Loja
-                            </Link>
-                        </li>
+                <div
+                    ref={accountRef}
+                    className="relative"
+                >
+                    <button
+                        type="button"
+                        aria-label={
+                            accountOpen
+                                ? "Fechar menu da conta"
+                                : "Abrir menu da conta"
+                        }
+                        aria-expanded={accountOpen}
+                        aria-haspopup="menu"
+                        onClick={() => {
+                            setAccountOpen(!accountOpen);
+                        }}
+                        className="
+                            flex
+                            h-10
+                            items-center
+                            justify-center
+                            gap-2
+                            rounded-full
+                            border
+                            border-current
+                            px-4
+                            text-sm
+                            font-bold
+                            uppercase
+                            tracking-wide
+                            transition-colors
+                            duration-200
+                            hover:opacity-70
+                        "
+                    >
+                        <svg
+                            width="18"
+                            height="18"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="1.8"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            aria-hidden="true"
+                        >
+                            <circle
+                                cx="12"
+                                cy="8"
+                                r="3.5"
+                            />
 
-                        <li>
-                            <Link
-                                href="/toda-terca-tem"
-                                className={linkClassName}
-                            >
-                                Toda Terça Tem
-                            </Link>
-                        </li>
+                            <path
+                                d="M4.5 20c0-4 3-6 7.5-6s7.5 2 7.5 6"
+                            />
+                        </svg>
 
-                        <li>
-                            <Link
-                                href="/sobre"
-                                className={linkClassName}
-                            >
-                                Sobre
-                            </Link>
-                        </li>
+                        <span>
+                            {isLoggedIn
+                                ? "Minha conta"
+                                : "Entrar"}
+                        </span>
+                    </button>
 
-                        <li>
-                            <Link
-                                href="/newsletter"
-                                className={linkClassName}
-                            >
-                                Newsletter
-                            </Link>
-                        </li>
-
-                        <li>
-                            <CartIcon />
-                        </li>
-
-                        {!isLoggedIn && (
-                            <li>
+                    {accountOpen && (
+                        <div
+                            role="menu"
+                            className="
+                                absolute
+                                right-0
+                                top-12
+                                flex
+                                w-[230px]
+                                flex-col
+                                gap-4
+                                rounded-xl
+                                border
+                                p-5
+                                text-sm
+                            "
+                            style={{
+                                backgroundColor: background,
+                                color: foreground,
+                                borderColor: foreground,
+                            }}
+                        >
+                            {!isLoggedIn ? (
                                 <Link
                                     href="/login"
-                                    className={linkClassName}
+                                    role="menuitem"
+                                    onClick={() => {
+                                        setAccountOpen(false);
+                                    }}
+                                    className="
+                                        transition-opacity
+                                        hover:opacity-60
+                                    "
                                 >
-                                    Login
+                                    Fazer login
                                 </Link>
-                            </li>
-                        )}
+                            ) : (
+                                <>
+                                    {name && (
+                                        <div
+                                            className="
+                                                border-b
+                                                pb-3
+                                                text-sm
+                                                font-bold
+                                            "
+                                            style={{
+                                                borderColor: foreground,
+                                            }}
+                                        >
+                                            {name}
+                                        </div>
+                                    )}
 
-                        {isWholesale &&
-                            !isAdmin &&
-                            !isCollaborator && (
-                                <li>
                                     <Link
-                                        href="/minha-conta"
-                                        className={linkClassName}
+                                        href={accountHref}
+                                        role="menuitem"
+                                        onClick={() => {
+                                            setAccountOpen(false);
+                                        }}
+                                        className="
+                                            transition-opacity
+                                            hover:opacity-60
+                                        "
                                     >
-                                        {name ?? "Atacadista"}
+                                        {accountLabel}
                                     </Link>
-                                </li>
-                            )}
 
-                        {isAdmin && (
-                            <li>
-                                <Link
-                                    href="/admin"
-                                    className={linkClassName}
-                                >
-                                    Admin
-                                </Link>
-                            </li>
-                        )}
+                                    {!isAdmin &&
+                                        !isCollaborator &&
+                                        isWholesale &&
+                                        wholesaleStatus === "pending" && (
+                                            <Link
+                                                href="/minha-conta"
+                                                role="menuitem"
+                                                onClick={() => {
+                                                    setAccountOpen(false);
+                                                }}
+                                            >
+                                                Atacado pendente
+                                            </Link>
+                                        )}
 
-                        {isCollaborator &&
-                            !isAdmin && (
-                                <li>
-                                    <Link
-                                        href="/admin/produtos"
-                                        className={linkClassName}
+                                    {!isAdmin &&
+                                        !isCollaborator &&
+                                        isWholesale &&
+                                        wholesaleStatus === "rejected" && (
+                                            <Link
+                                                href="/minha-conta"
+                                                role="menuitem"
+                                                onClick={() => {
+                                                    setAccountOpen(false);
+                                                }}
+                                            >
+                                                Atacado recusado
+                                            </Link>
+                                        )}
+
+                                    <div
+                                        className="border-t pt-3"
+                                        style={{
+                                            borderColor: foreground,
+                                        }}
                                     >
-                                        {name ?? "Colaborador"}
-                                    </Link>
-                                </li>
+                                        <LogoutButton />
+                                    </div>
+                                </>
                             )}
-
-                        {isLoggedIn &&
-                            !isAdmin &&
-                            !isCollaborator &&
-                            wholesaleStatus ===
-                                "pending" && (
-                                <li>
-                                    <Link
-                                        href="/minha-conta"
-                                        className="text-xs uppercase opacity-50"
-                                    >
-                                        Atacado pendente
-                                    </Link>
-                                </li>
-                            )}
-
-                        {isLoggedIn &&
-                            !isAdmin &&
-                            !isCollaborator &&
-                            wholesaleStatus ===
-                                "rejected" && (
-                                <li>
-                                    <Link
-                                        href="/minha-conta"
-                                        className="text-xs uppercase opacity-50"
-                                    >
-                                        Atacado recusado
-                                    </Link>
-                                </li>
-                            )}
-
-                        {isLoggedIn && (
-                            <li>
-                                <LogoutButton />
-                            </li>
-                        )}
-                    </ul>
-                </nav>
-
-                <MobileNavbar
-                    name={name}
-                    isLoggedIn={isLoggedIn}
-                    isAdmin={isAdmin}
-                    isCollaborator={isCollaborator}
-                    isWholesale={isWholesale}
-                    dark={isTodaTercaTem}
-                />
+                        </div>
+                    )}
+                </div>
             </div>
-        </header>
+
+            <FileTabs />
+        </>
     );
 }
