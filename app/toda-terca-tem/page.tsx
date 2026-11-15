@@ -11,6 +11,10 @@ import {
     createClient,
 } from "@/lib/supabase/server";
 
+import {
+    PageHeader,
+} from "@/components/layout/page-header";
+
 export type Performance = {
     id: string;
     name: string;
@@ -90,7 +94,13 @@ export default async function TodaTercaTemPage() {
     );
 
     return (
-        <main className="theme-ttt min-h-screen bg-background text-foreground">
+        <main className="w-full overflow-hidden p-4 md:py-6 md:pr-6 md:pl-24">
+
+            <PageHeader
+                title="Toda Terça Tem"
+                variant="ttt"
+            />
+
             <UpcomingPerformances
                 performances={upcomingPerformances}
             />

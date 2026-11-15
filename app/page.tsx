@@ -35,6 +35,10 @@ import {
     getUserAccess,
 } from "@/lib/auth";
 
+import {
+    PageHeader,
+} from "@/components/layout/page-header";
+
 type HomePageProps = {
     searchParams: Promise<{
         genre?: string;
@@ -239,6 +243,9 @@ export default async function HomePage({
             {/* CONTENT */}
 
             <main className="w-full overflow-hidden p-4 md:py-6 md:pr-6 md:pl-24">
+                {/* TÍTULO PRINCIPAL */}
+
+                <PageHeader title="Casa Elefante" />
                 {/* FEATURED CAROUSEL */}
 
                 {!hasActiveFilters &&
