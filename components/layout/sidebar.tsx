@@ -2,28 +2,14 @@
 "use client";
 
 import Link from "next/link";
+import { useEffect, useState } from "react";
+import { SlidersHorizontal, ChevronLeft } from "lucide-react";
 
-import {
-    useEffect,
-    useState,
-} from "react";
+import { createClient } from "@/lib/supabase/client";
+import { AnimatedCount } from "@/components/ui/animated-count";
+import { PRODUCT_FORMATS, PRODUCT_GENRES } from "@/lib/products";
 
-import {
-    createClient,
-} from "@/lib/supabase/client";
-
-import {
-    AnimatedCount,
-} from "@/components/ui/animated-count";
-
-import {
-    PRODUCT_FORMATS,
-    PRODUCT_GENRES,
-} from "@/lib/products";
-
-import type {
-    ReactNode,
-} from "react";
+import type { ReactNode } from "react";
 
 type SidebarProps = {
     mobile?: boolean;
@@ -50,6 +36,7 @@ export function Sidebar({
     mobile = false,
 }: SidebarProps) {
     const [products, setProducts] = useState<SidebarProduct[]>([]);
+    const [expanded, setExpanded] = useState(false);
 
     const [openSections, setOpenSections] = useState<
         Record<FilterSection, boolean>
@@ -62,18 +49,11 @@ export function Sidebar({
         year: !mobile,
     });
 
-    /*
-     * PRODUTOS
-     */
-
     useEffect(() => {
         const supabase = createClient();
 
         async function loadProducts() {
-            const {
-                data,
-                error,
-            } = await supabase
+            const { data, error } = await supabase
                 .from("products")
                 .select(`
                     genre,
@@ -85,30 +65,21 @@ export function Sidebar({
                 `);
 
             if (error) {
-                console.error(
-                    "Sidebar Supabase error:",
-                    {
-                        message: error.message,
-                        details: error.details,
-                        hint: error.hint,
-                        code: error.code,
-                    },
-                );
+                console.error("Sidebar Supabase error:", {
+                    message: error.message,
+                    details: error.details,
+                    hint: error.hint,
+                    code: error.code,
+                });
 
                 return;
             }
 
-            setProducts(
-                (data ?? []) as SidebarProduct[],
-            );
+            setProducts((data ?? []) as SidebarProduct[]);
         }
 
-        loadProducts();
+        void loadProducts();
     }, []);
-
-    /*
-     * SEÇÕES
-     */
 
     function toggleSection(section: FilterSection) {
         setOpenSections((current) => ({
@@ -117,65 +88,33 @@ export function Sidebar({
         }));
     }
 
-    /*
-     * CONTADORES
-     */
+    function countValues(
+        key: "genre" | "format" | "condition" | "country",
+    ) {
+        return products.reduce<Record<string, number>>(
+            (acc, product) => {
+                const value = product[key];
 
-    const genreCounts = products.reduce<Record<string, number>>(
-        (acc, product) => {
-            if (product.genre) {
-                acc[product.genre] =
-                    (acc[product.genre] ?? 0) + 1;
-            }
+                if (value) {
+                    acc[value] = (acc[value] ?? 0) + 1;
+                }
 
-            return acc;
-        },
-        {},
-    );
+                return acc;
+            },
+            {},
+        );
+    }
 
-    const formatCounts = products.reduce<Record<string, number>>(
-        (acc, product) => {
-            if (product.format) {
-                acc[product.format] =
-                    (acc[product.format] ?? 0) + 1;
-            }
-
-            return acc;
-        },
-        {},
-    );
+    const genreCounts = countValues("genre");
+    const formatCounts = countValues("format");
+    const conditionCounts = countValues("condition");
+    const countryCounts = countValues("country");
 
     const yearCounts = products.reduce<Record<string, number>>(
         (acc, product) => {
             if (product.year) {
                 const year = String(product.year);
-
-                acc[year] =
-                    (acc[year] ?? 0) + 1;
-            }
-
-            return acc;
-        },
-        {},
-    );
-
-    const conditionCounts = products.reduce<Record<string, number>>(
-        (acc, product) => {
-            if (product.condition) {
-                acc[product.condition] =
-                    (acc[product.condition] ?? 0) + 1;
-            }
-
-            return acc;
-        },
-        {},
-    );
-
-    const countryCounts = products.reduce<Record<string, number>>(
-        (acc, product) => {
-            if (product.country) {
-                acc[product.country] =
-                    (acc[product.country] ?? 0) + 1;
+                acc[year] = (acc[year] ?? 0) + 1;
             }
 
             return acc;
@@ -200,10 +139,6 @@ export function Sidebar({
     const readyCount = products.filter(
         (product) => product.pre_order !== true,
     ).length;
-
-    /*
-     * CLASSES
-     */
 
     const filterLinkClassName =
         "group/link flex items-center justify-between gap-4 " +
@@ -248,10 +183,6 @@ export function Sidebar({
         `;
     }
 
-    /*
-     * RENDERIZAÇÃO DOS LINKS
-     */
-
     function renderFilterLink(
         href: string,
         label: string,
@@ -268,9 +199,7 @@ export function Sidebar({
                             →
                         </span>
 
-                        <span>
-                            {label}
-                        </span>
+                        <span>{label}</span>
                     </span>
 
                     <span className="shrink-0">
@@ -281,20 +210,13 @@ export function Sidebar({
         );
     }
 
-    /*
-     * RENDERIZAÇÃO DAS SEÇÕES
-     */
-
     function renderSection(
         section: FilterSection,
         title: string,
         content: ReactNode,
     ) {
         return (
-            <div
-                key={section}
-                className="mb-8"
-            >
+            <div key={section} className="mb-8">
                 <button
                     type="button"
                     onClick={() => toggleSection(section)}
@@ -305,9 +227,7 @@ export function Sidebar({
                         {title}
                     </h2>
 
-                    <span
-                        className={sectionArrowClassName(section)}
-                    >
+                    <span className={sectionArrowClassName(section)}>
                         →
                     </span>
                 </button>
@@ -321,43 +241,8 @@ export function Sidebar({
         );
     }
 
-    /*
-     * SIDEBAR
-     */
-
-    return (
-        <aside
-            className={
-                mobile
-                    ? `
-                        animate-sidebar-in
-                        w-full
-                        bg-[#FFFDE9]
-                        px-4
-                        pb-6
-                        pt-2
-                        text-[#D2232A]
-                        transition-colors
-                        duration-700
-                        ease-in-out
-                    `
-                    : `
-                        h-dvh
-                        w-64
-                        shrink-0
-                        overflow-y-auto
-                        overscroll-contain
-                        border-r
-                        border-[#D2232A]/20
-                        bg-[#FFFDE9]
-                        p-6
-                        text-[#D2232A]
-                        transition-colors
-                        duration-700
-                        ease-in-out
-                    `
-            }
-        >
+    const filterSections = (
+        <>
             {renderSection(
                 "genre",
                 "Gênero",
@@ -390,9 +275,7 @@ export function Sidebar({
                 "condition",
                 "Condição",
                 conditions.length === 0 ? (
-                    <span className="mt-3 block text-sm">
-                        —
-                    </span>
+                    <span className="mt-3 block text-sm">—</span>
                 ) : (
                     <ul className="mt-3 space-y-1 text-sm">
                         {conditions.map((condition) =>
@@ -428,9 +311,7 @@ export function Sidebar({
                 "country",
                 "País",
                 countries.length === 0 ? (
-                    <span className="mt-3 block text-sm">
-                        —
-                    </span>
+                    <span className="mt-3 block text-sm">—</span>
                 ) : (
                     <ul className="mt-3 space-y-1 text-sm">
                         {countries.map((country) =>
@@ -448,9 +329,7 @@ export function Sidebar({
                 "year",
                 "Ano",
                 years.length === 0 ? (
-                    <span className="mt-3 block text-sm">
-                        —
-                    </span>
+                    <span className="mt-3 block text-sm">—</span>
                 ) : (
                     <ul className="mt-3 space-y-1 text-sm">
                         {years.map((year) =>
@@ -463,6 +342,118 @@ export function Sidebar({
                     </ul>
                 ),
             )}
+        </>
+    );
+
+    if (mobile) {
+        return (
+            <aside
+                className="
+                    animate-sidebar-in
+                    w-full
+                    px-4
+                    pb-6
+                    pt-2
+                    text-black
+                    transition-colors
+                    duration-700
+                    ease-in-out
+                "
+            >
+                {filterSections}
+            </aside>
+        );
+    }
+
+    return (
+        <aside
+            className={`
+                flex
+                max-h-[calc(100dvh-48px)]
+                flex-col
+                overflow-hidden
+                rounded-xl
+                border
+                border-black
+                bg-white
+                text-black
+                shadow-[-5px_5px_0_0_#000]
+                transition-[width]
+                duration-300
+                ease-in-out
+                ${expanded ? "w-72" : "w-14"}
+            `}
+        >
+            <div
+                className={`
+                    flex
+                    h-14
+                    shrink-0
+                    items-center
+                    ${expanded ? "justify-between px-4" : "justify-center"}
+                `}
+            >
+                {expanded && (
+                    <h2 className="font-october text-3xl uppercase leading-none">
+                        Filtros
+                    </h2>
+                )}
+
+                <button
+                    type="button"
+                    onClick={() => setExpanded((current) => !current)}
+                    aria-label={
+                        expanded
+                            ? "Recolher filtros"
+                            : "Expandir filtros"
+                    }
+                    aria-expanded={expanded}
+                    title={
+                        expanded
+                            ? "Recolher filtros"
+                            : "Expandir filtros"
+                    }
+                    className="
+                        flex
+                        h-10
+                        w-10
+                        shrink-0
+                        items-center
+                        justify-center
+                        rounded-lg
+                        transition-colors
+                        hover:bg-black/5
+                    "
+                >
+                    {expanded ? (
+                        <ChevronLeft size={24} strokeWidth={2} />
+                    ) : (
+                        <SlidersHorizontal size={24} strokeWidth={2} />
+                    )}
+                </button>
+            </div>
+
+            <div
+                className={`
+                    min-h-0
+                    overflow-x-hidden
+                    overflow-y-auto
+                    overscroll-contain
+                    transition-opacity
+                    duration-200
+                    ${
+                        expanded
+                            ? "px-5 pb-5 opacity-100"
+                            : "pointer-events-none h-0 opacity-0"
+                    }
+                `}
+                aria-hidden={!expanded}
+                inert={!expanded}
+            >
+                <div className="w-[246px] border-t border-black pt-5">
+                    {filterSections}
+                </div>
+            </div>
         </aside>
     );
 }

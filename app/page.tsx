@@ -209,23 +209,27 @@ export default async function HomePage({
 
             <div
                 className="
-                    group
                     fixed
-                    left-0
-                    top-0
+                    left-6
+                    top-6
                     z-40
                     hidden
-                    -translate-x-[calc(100%-50px)]
-                    transition-transform
-                    duration-500
-                    ease-out
-                    hover:translate-x-0
                     md:block
                 "
             >
                 <Suspense
                     fallback={
-                        <aside className="h-dvh w-64" />
+                        <aside
+                            className="
+                                h-14
+                                w-14
+                                rounded-xl
+                                border
+                                border-black
+                                bg-white
+                                shadow-[-5px_5px_0_0_#000]
+                            "
+                        />
                     }
                 >
                     <Sidebar />
