@@ -240,25 +240,6 @@ export async function ProductsSection({
 
     return (
         <>
-            <div className="mb-8 flex justify-between gap-8">
-            {/* SEARCH */}
-
-            <div
-                className="
-                    fixed
-                    right-4
-                    top-4
-                    z-40
-                    md:right-6
-                    md:top-6
-                "
-            >
-            =
-                <ProductSearch />
-
-            </div>
-            </div>
-
             {products.length === 0 ? (
                 <p>
                     Nenhum produto

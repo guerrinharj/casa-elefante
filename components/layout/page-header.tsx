@@ -26,7 +26,7 @@ export function PageHeader({
                 mb-8
                 w-full
                 overflow-hidden
-                pt-16
+                pt-4
                 md:pt-0
                 ${className}
             `}

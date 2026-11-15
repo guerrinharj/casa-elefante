@@ -39,7 +39,7 @@ export function MobileFilters({
                 pointer-events-none
                 fixed
                 left-4
-                top-4
+                top-[84px]
                 z-40
                 md:hidden
             "
@@ -48,7 +48,7 @@ export function MobileFilters({
                 className={`
                     pointer-events-auto
                     flex
-                    max-h-[calc(100dvh-32px)]
+                    max-h-[calc(100dvh-100px)]
                     flex-col
                     overflow-hidden
                     rounded-xl
