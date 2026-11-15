@@ -14,7 +14,7 @@ import {
 } from "next/navigation";
 
 import {
-    ChevronLeft,
+    ChevronRight,
     Search,
     X,
 } from "lucide-react";
@@ -38,17 +38,14 @@ export function ProductSearch() {
     const inputRef = useRef<HTMLInputElement>(null);
 
     /*
-     * Mantém o campo sincronizado
-     * com a URL quando a navegação
-     * acontece externamente.
+     * Sincroniza a pesquisa com a URL.
      */
     useEffect(() => {
         setSearch(currentSearch);
     }, [currentSearch]);
 
     /*
-     * Foca automaticamente o campo
-     * quando a busca é expandida.
+     * Foca o campo ao expandir.
      */
     useEffect(() => {
         if (expanded) {
@@ -58,7 +55,7 @@ export function ProductSearch() {
 
     /*
      * Busca com debounce de 300ms.
-     * Preserva os demais filtros da URL.
+     * Preserva os filtros existentes.
      */
     useEffect(() => {
         if (search.trim() === currentSearch) {
@@ -105,6 +102,7 @@ export function ProductSearch() {
     return (
         <div
             className={`
+                ml-auto
                 flex
                 h-14
                 max-w-full
@@ -126,42 +124,6 @@ export function ProductSearch() {
                 }
             `}
         >
-            {/* ÍCONE DE BUSCA */}
-
-            <button
-                type="button"
-                onClick={() => {
-                    if (!expanded) {
-                        setExpanded(true);
-                    } else {
-                        inputRef.current?.focus();
-                    }
-                }}
-                aria-label={
-                    expanded
-                        ? "Focar pesquisa"
-                        : "Expandir pesquisa"
-                }
-                aria-expanded={expanded}
-                title="Pesquisar produtos"
-                className="
-                    flex
-                    h-14
-                    w-[54px]
-                    shrink-0
-                    items-center
-                    justify-center
-                    transition-colors
-                    duration-200
-                    hover:bg-black/5
-                "
-            >
-                <Search
-                    size={24}
-                    strokeWidth={2}
-                />
-            </button>
-
             {/* CAMPO DE PESQUISA */}
 
             <div
@@ -171,6 +133,7 @@ export function ProductSearch() {
                     flex-1
                     items-center
                     gap-1
+                    pl-3
                     transition-opacity
                     duration-200
                     ${
@@ -182,6 +145,33 @@ export function ProductSearch() {
                 aria-hidden={!expanded}
                 inert={!expanded}
             >
+                {/* RECOLHER */}
+
+                <button
+                    type="button"
+                    onClick={() => {
+                        setExpanded(false);
+                    }}
+                    aria-label="Recolher pesquisa"
+                    title="Recolher pesquisa"
+                    className="
+                        flex
+                        h-9
+                        w-7
+                        shrink-0
+                        items-center
+                        justify-center
+                        rounded-lg
+                        transition-colors
+                        hover:bg-black/5
+                    "
+                >
+                    <ChevronRight
+                        size={20}
+                        strokeWidth={2}
+                    />
+                </button>
+
                 <input
                     ref={inputRef}
                     type="search"
@@ -219,7 +209,7 @@ export function ProductSearch() {
                         className="
                             flex
                             h-9
-                            w-9
+                            w-8
                             shrink-0
                             items-center
                             justify-center
@@ -234,35 +224,43 @@ export function ProductSearch() {
                         />
                     </button>
                 )}
-
-                {/* RECOLHER PESQUISA */}
-
-                <button
-                    type="button"
-                    onClick={() => {
-                        setExpanded(false);
-                    }}
-                    aria-label="Recolher pesquisa"
-                    title="Recolher pesquisa"
-                    className="
-                        mr-2
-                        flex
-                        h-9
-                        w-9
-                        shrink-0
-                        items-center
-                        justify-center
-                        rounded-lg
-                        transition-colors
-                        hover:bg-black/5
-                    "
-                >
-                    <ChevronLeft
-                        size={22}
-                        strokeWidth={2}
-                    />
-                </button>
             </div>
+
+            {/* LUPA FIXA À DIREITA */}
+
+            <button
+                type="button"
+                onClick={() => {
+                    if (!expanded) {
+                        setExpanded(true);
+                    } else {
+                        inputRef.current?.focus();
+                    }
+                }}
+                aria-label={
+                    expanded
+                        ? "Focar pesquisa"
+                        : "Expandir pesquisa"
+                }
+                aria-expanded={expanded}
+                title="Pesquisar produtos"
+                className="
+                    flex
+                    h-[54px]
+                    w-[54px]
+                    shrink-0
+                    items-center
+                    justify-center
+                    transition-colors
+                    duration-200
+                    hover:bg-black/5
+                "
+            >
+                <Search
+                    size={24}
+                    strokeWidth={2}
+                />
+            </button>
         </div>
     );
 }

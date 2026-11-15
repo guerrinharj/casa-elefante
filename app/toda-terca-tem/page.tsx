@@ -94,7 +94,7 @@ export default async function TodaTercaTemPage() {
     );
 
     return (
-        <main className="w-full overflow-hidden p-4 md:py-6 md:pr-6 md:pl-24">
+        <main className="w-full overflow-hidden p-4 md:p-6">
 
             <PageHeader
                 title="Toda Terça Tem"

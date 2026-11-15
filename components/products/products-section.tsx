@@ -241,21 +241,22 @@ export async function ProductsSection({
     return (
         <>
             <div className="mb-8 flex justify-between gap-8">
-                <div className="flex flex-end">
-                    <div className="flex gap-3">
-                        {hasActiveFilters && (
-                            <Link
-                                href="/"
-                                aria-label="Voltar para Loja"
-                                className="text-3xl transition-transform hover:-translate-x-1"
-                            >
-                                ←
-                            </Link>
-                        )}
-                    </div>
+            {/* SEARCH */}
 
-                    <ProductSearch />
-                </div>
+            <div
+                className="
+                    fixed
+                    right-4
+                    top-4
+                    z-40
+                    md:right-6
+                    md:top-6
+                "
+            >
+            =
+                <ProductSearch />
+
+            </div>
             </div>
 
             {products.length === 0 ? (
