@@ -1,30 +1,10 @@
 
 "use client";
 
-import {
-    useRouter,
-} from "next/navigation";
-
-import {
-    useCallback,
-    useEffect,
-    useId,
-    useRef,
-    useState,
-} from "react";
-
-import type {
-    PointerEvent as ReactPointerEvent,
-    WheelEvent as ReactWheelEvent,
-} from "react";
-
-import {
-    createClient,
-} from "@/lib/supabase/client";
-
-import {
-    useAudioPlayer,
-} from "@/components/toda-terca-tem/audio-player-provider";
+import Link from "next/link";
+import Image from "next/image";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 
 import {
     ShoppingCart,
@@ -39,45 +19,18 @@ import {
 } from "lucide-react";
 
 import {
+    createClient,
+} from "@/lib/supabase/client";
+
+import {
+    useAudioPlayer,
+} from "@/components/toda-terca-tem/audio-player-provider";
+
+import {
     usePageTransition,
 } from "@/components/layout/page-transition-provider";
 
-const RED = "#D2232A";
-const CREAM = "#FFFDE9";
-
-const SIZE = 660;
-const CENTER = SIZE / 2;
-
-const HUB_RADIUS = 57;
-const INNER_RADIUS = 155;
-const OUTER_INNER_RADIUS = 155;
-const OUTER_RADIUS = 210;
-
-const CONTROL_OUTER = 258;
-const PROGRESS_OUTER = 290;
-const INFO_OUTER = 326;
-
-const INNER_SEGMENT = 60;
-const OUTER_SEGMENT = 90;
-const DRAG_THRESHOLD = 7;
-
-const SCROLL_SENSITIVITY = 0.008;
-const SCROLL_INNER_FORCE = 0.025;
-const SCROLL_OUTER_FORCE = 0.015;
-const SCROLL_DECAY = 0.78;
-
-const tabs = [
-    {
-        label: "Casa Elefante",
-        href: "/",
-        lines: ["CASA ELEFANTE"],
-    },
-    {
-        label: "Toda Terça Tem",
-        href: "/toda-terca-tem",
-        lines: ["TODA TERÇA TEM"],
-    },
-];
+import tttPlaceholder from "@/app/images/ttt-2.png";
 
 type FileTabsProps = {
     name: string | null;
@@ -85,95 +38,19 @@ type FileTabsProps = {
     accountHref: string;
 };
 
-type DialRing =
-    | "inner"
-    | "outer"
-    | "seek"
-    | "control";
-
-type AccountAction = {
-    label: string;
-    action:
-        | "cart"
-        | "account"
-        | "logout"
-        | "register";
-    icon: typeof ShoppingCart;
-};
-
-function polar(
-    radius: number,
-    degrees: number,
-) {
-    const radians = degrees * Math.PI / 180;
-
-    return {
-        x: CENTER + radius * Math.cos(radians),
-        y: CENTER + radius * Math.sin(radians),
-    };
-}
-
-function sectorPath(
-    innerRadius: number,
-    outerRadius: number,
-    start: number,
-    end: number,
-) {
-    const a = polar(outerRadius, start);
-    const b = polar(outerRadius, end);
-    const c = polar(innerRadius, end);
-    const d = polar(innerRadius, start);
-
-    return [
-        `M ${a.x} ${a.y}`,
-        `A ${outerRadius} ${outerRadius} 0 0 1 ${b.x} ${b.y}`,
-        `L ${c.x} ${c.y}`,
-        `A ${innerRadius} ${innerRadius} 0 0 0 ${d.x} ${d.y}`,
-        "Z",
-    ].join(" ");
-}
-
-function arcPath(
-    radius: number,
-    start: number,
-    end: number,
-) {
-    const a = polar(radius, start);
-    const b = polar(radius, end);
-
-    return [
-        `M ${a.x} ${a.y}`,
-        `A ${radius} ${radius} 0 0 1 ${b.x} ${b.y}`,
-    ].join(" ");
-}
-
-function normalizeAngle(degrees: number) {
-    return ((degrees % 360) + 360) % 360;
-}
-
-function normalizeDifference(degrees: number) {
-    if (degrees > 180) {
-        return degrees - 360;
+function formatTime(seconds: number) {
+    if (!Number.isFinite(seconds)) {
+        return "0:00";
     }
 
-    if (degrees < -180) {
-        return degrees + 360;
-    }
+    const total = Math.max(0, Math.floor(seconds));
+    const minutes = Math.floor(total / 60);
+    const remaining = total % 60;
 
-    return degrees;
+    return `${minutes}:${String(remaining).padStart(2, "0")}`;
 }
 
-function clamp(
-    value: number,
-    min: number,
-    max: number,
-) {
-    return Math.max(min, Math.min(max, value));
-}
-
-function formatDate(
-    value: string | null | undefined,
-) {
+function formatDate(value: string | null | undefined) {
     if (!value) {
         return "";
     }
@@ -204,8 +81,6 @@ export function FileTabs({
         isTransitioning,
     } = usePageTransition();
 
-    const uniqueId = useId().replace(/:/g, "");
-
     const {
         currentPerformance,
         isPlaying,
@@ -219,1275 +94,367 @@ export function FileTabs({
         clearPerformance,
     } = useAudioPlayer();
 
-    const hasPlayer = Boolean(
-        currentPerformance?.audio_url,
-    );
-
-    const dialRef = useRef<HTMLDivElement>(null);
-
-    const innerAngleRef = useRef(0);
-    const outerAngleRef = useRef(0);
-
-    const innerVelocityRef = useRef(0);
-    const outerVelocityRef = useRef(0);
-
-    const scrollVelocityRef = useRef(0);
-    const lastScrollYRef = useRef(0);
-
-    const draggingRef = useRef(false);
-    const hasDraggedRef = useRef(false);
-    const lastPointerAngleRef = useRef(0);
-
-    const pointerRingRef = useRef<DialRing | null>(
-        null,
-    );
-
-    const pointerStartRef = useRef({
-        x: 0,
-        y: 0,
-    });
-
-    const frameRef = useRef<number | null>(null);
-
-    const [innerAngle, setInnerAngle] = useState(0);
-    const [outerAngle, setOuterAngle] = useState(0);
     const [mounted, setMounted] = useState(false);
     const [loggingOut, setLoggingOut] = useState(false);
-    const [volumeOpen, setVolumeOpen] = useState(false);
-
-    const foreground = RED;
-    const background = CREAM;
-
-    const accountActions: AccountAction[] = [
-        {
-            label: "Carrinho",
-            action: "cart",
-            icon: ShoppingCart,
-        },
-        {
-            label: isLoggedIn
-                ? name?.trim() || "Minha conta"
-                : "Entrar",
-            action: "account",
-            icon: UserRound,
-        },
-        {
-            label: isLoggedIn
-                ? "Logout"
-                : "Cadastro",
-            action: isLoggedIn
-                ? "logout"
-                : "register",
-            icon: isLoggedIn
-                ? LogOut
-                : UserPlus,
-        },
-    ];
-
-    const setInnerRotation = useCallback(
-        (next: number) => {
-            innerAngleRef.current = next;
-            setInnerAngle(next);
-        },
-        [],
-    );
-
-    const setOuterRotation = useCallback(
-        (next: number) => {
-            outerAngleRef.current = next;
-            setOuterAngle(next);
-        },
-        [],
-    );
+    const [imageFailed, setImageFailed] = useState(false);
 
     useEffect(() => {
         setMounted(true);
     }, []);
 
-    // Detecta a direção e a intensidade do scroll.
+    const hasPlayer = Boolean(
+        currentPerformance?.audio_url,
+    );
 
-    useEffect(() => {
-        lastScrollYRef.current = window.scrollY;
+    const performanceImage = currentPerformance?.cover_image;
 
-        function handleScroll() {
-            const currentY = window.scrollY;
+    const imageSrc = performanceImage && !imageFailed
+        ? performanceImage
+        : tttPlaceholder;
 
-            const delta =
-                currentY - lastScrollYRef.current;
+    const progress = duration > 0
+        ? Math.min(100, Math.max(0, currentTime / duration * 100))
+        : 0;
 
-            lastScrollYRef.current = currentY;
+    const title = currentPerformance?.name || "APRESENTAÇÃO";
 
-            if (
-                draggingRef.current ||
-                window.matchMedia(
-                    "(prefers-reduced-motion: reduce)",
-                ).matches
-            ) {
-                return;
-            }
+    const date = formatDate(
+        currentPerformance?.performance_date,
+    );
 
-            scrollVelocityRef.current = clamp(
-                scrollVelocityRef.current +
-                    delta * SCROLL_SENSITIVITY,
-                -3,
-                3,
-            );
-        }
-
-        window.addEventListener(
-            "scroll",
-            handleScroll,
-            {
-                passive: true,
-            },
-        );
-
-        return () => {
-            window.removeEventListener(
-                "scroll",
-                handleScroll,
-            );
-        };
-    }, []);
-
-    // Animação contínua dos anéis com inércia.
-
-    useEffect(() => {
-        if (!mounted) {
+    async function handleLogout() {
+        if (loggingOut) {
             return;
         }
 
-        if (
-            window.matchMedia(
-                "(prefers-reduced-motion: reduce)",
-            ).matches
-        ) {
-            return;
-        }
+        setLoggingOut(true);
 
-        let lastTime = 0;
+        try {
+            const supabase = createClient();
 
-        function animate(time: number) {
-            const delta = lastTime
-                ? Math.min(
-                    (time - lastTime) / 16.67,
-                    2,
-                )
-                : 1;
+            const { error } = await supabase.auth.signOut();
 
-            lastTime = time;
-
-            const draggingInner =
-                draggingRef.current &&
-                pointerRingRef.current === "inner";
-
-            const draggingOuter =
-                draggingRef.current &&
-                pointerRingRef.current === "outer";
-
-            const scrollForce =
-                scrollVelocityRef.current;
-
-            scrollVelocityRef.current *= Math.pow(
-                SCROLL_DECAY,
-                delta,
-            );
-
-            if (
-                Math.abs(scrollVelocityRef.current) <
-                0.001
-            ) {
-                scrollVelocityRef.current = 0;
+            if (error) {
+                throw error;
             }
 
-            if (!draggingRef.current) {
-                innerVelocityRef.current +=
-                    scrollForce *
-                    SCROLL_INNER_FORCE *
-                    delta;
-
-                outerVelocityRef.current -=
-                    scrollForce *
-                    SCROLL_OUTER_FORCE *
-                    delta;
-            }
-
-            if (!draggingInner) {
-                const restingMotion =
-                    Math.sin(time * 0.00065) * 1.2;
-
-                innerVelocityRef.current +=
-                    (
-                        restingMotion -
-                        innerAngleRef.current
-                    ) * 0.018 * delta;
-
-                innerVelocityRef.current *= Math.pow(
-                    0.88,
-                    delta,
-                );
-
-                const next = clamp(
-                    innerAngleRef.current +
-                        innerVelocityRef.current * delta,
-                    -45,
-                    45,
-                );
-
-                setInnerRotation(next);
-            }
-
-            if (!draggingOuter) {
-                outerVelocityRef.current +=
-                    -outerAngleRef.current *
-                    0.008 *
-                    delta;
-
-                outerVelocityRef.current *= Math.pow(
-                    0.94,
-                    delta,
-                );
-
-                const next = clamp(
-                    outerAngleRef.current +
-                        outerVelocityRef.current * delta,
-                    -40,
-                    40,
-                );
-
-                setOuterRotation(next);
-            }
-
-            frameRef.current =
-                requestAnimationFrame(animate);
-        }
-
-        frameRef.current =
-            requestAnimationFrame(animate);
-
-        return () => {
-            if (frameRef.current !== null) {
-                cancelAnimationFrame(
-                    frameRef.current,
-                );
-            }
-        };
-    }, [
-        mounted,
-        setInnerRotation,
-        setOuterRotation,
-    ]);
-
-    function getPointerPosition(
-        clientX: number,
-        clientY: number,
-    ) {
-        const rect =
-            dialRef.current?.getBoundingClientRect();
-
-        if (!rect) {
-            return {
-                radius: 0,
-                degrees: 0,
-            };
-        }
-
-        const dx =
-            clientX - (rect.left + rect.width / 2);
-
-        const dy =
-            clientY - (rect.top + rect.height / 2);
-
-        const svgScale = hasPlayer ? 1 : 1.5;
-
-        return {
-            radius:
-                Math.hypot(dx, dy) *
-                SIZE /
-                rect.width /
-                svgScale,
-            degrees: normalizeAngle(
-                Math.atan2(dy, dx) *
-                180 /
-                Math.PI,
-            ),
-        };
-    }
-
-    function getRing(
-        clientX: number,
-        clientY: number,
-    ): DialRing | null {
-        const {
-            radius,
-            degrees,
-        } = getPointerPosition(clientX, clientY);
-
-        if (degrees < 180) {
-            return null;
-        }
-
-        if (
-            hasPlayer &&
-            radius >= CONTROL_OUTER &&
-            radius <= PROGRESS_OUTER
-        ) {
-            return "seek";
-        }
-
-        if (
-            hasPlayer &&
-            radius >= OUTER_RADIUS &&
-            radius < CONTROL_OUTER
-        ) {
-            return "control";
-        }
-
-        if (
-            radius >= OUTER_INNER_RADIUS &&
-            radius <= OUTER_RADIUS
-        ) {
-            return "outer";
-        }
-
-        if (
-            radius >= HUB_RADIUS &&
-            radius < INNER_RADIUS
-        ) {
-            return "inner";
-        }
-
-        return null;
-    }
-
-    function getInnerIndex(
-        clientX: number,
-        clientY: number,
-    ) {
-        const degrees = normalizeAngle(
-            getPointerPosition(
-                clientX,
-                clientY,
-            ).degrees - innerAngleRef.current,
-        );
-
-        if (degrees < 180) {
-            return -1;
-        }
-
-        const index = Math.floor(
-            (degrees - 180) / INNER_SEGMENT,
-        );
-
-        return index >= 0 &&
-            index < accountActions.length
-            ? index
-            : -1;
-    }
-
-    function getOuterIndex(
-        clientX: number,
-        clientY: number,
-    ) {
-        const degrees = normalizeAngle(
-            getPointerPosition(
-                clientX,
-                clientY,
-            ).degrees - outerAngleRef.current,
-        );
-
-        if (degrees < 180) {
-            return -1;
-        }
-
-        const index = Math.floor(
-            (degrees - 180) / OUTER_SEGMENT,
-        );
-
-        return index >= 0 && index < tabs.length
-            ? index
-            : -1;
-    }
-
-    function seekFromPointer(
-        clientX: number,
-        clientY: number,
-    ) {
-        if (duration <= 0) {
-            return;
-        }
-
-        const degrees = getPointerPosition(
-            clientX,
-            clientY,
-        ).degrees;
-
-        seekTo(
-            clamp(
-                (degrees - 180) / 180,
-                0,
-                1,
-            ) * duration,
-        );
-    }
-
-    async function handleAccountAction(
-        index: number,
-    ) {
-        const action =
-            accountActions[index]?.action;
-
-        if (action === "cart") {
-            router.push("/carrinho");
-            return;
-        }
-
-        if (action === "account") {
-            router.push(
-                isLoggedIn
-                    ? accountHref
-                    : "/login",
-            );
-            return;
-        }
-
-        if (action === "register") {
-            router.push("/cadastro");
-            return;
-        }
-
-        if (action === "logout") {
-            if (loggingOut) {
-                return;
-            }
-
-            setLoggingOut(true);
-
-            try {
-                const supabase = createClient();
-
-                const {
-                    error,
-                } = await supabase.auth.signOut();
-
-                if (error) {
-                    throw error;
-                }
-
-                router.replace("/");
-                router.refresh();
-            } catch (error) {
-                console.error(
-                    "Erro ao fazer logout:",
-                    error,
-                );
-
-                setLoggingOut(false);
-            }
+            router.replace("/");
+            router.refresh();
+        } catch (error) {
+            console.error("Erro ao fazer logout:", error);
+            setLoggingOut(false);
         }
     }
 
-    function handleControlClick(
-        clientX: number,
-        clientY: number,
-    ) {
-        const degrees = getPointerPosition(
-            clientX,
-            clientY,
-        ).degrees;
-
-        if (degrees < 240) {
-            togglePlay();
-        } else if (degrees < 300) {
-            setVolumeOpen(!volumeOpen);
-        } else {
-            clearPerformance();
-            setVolumeOpen(false);
-        }
-    }
-
-    function handlePointerDown(
-        event: ReactPointerEvent<HTMLDivElement>,
-    ) {
-        if (
-            event.pointerType === "mouse" &&
-            event.button !== 0
-        ) {
+    function handleNavigation(href: string) {
+        if (isTransitioning) {
             return;
         }
 
-        const ring = getRing(
-            event.clientX,
-            event.clientY,
-        );
-
-        if (!ring) {
-            return;
-        }
-
-        pointerRingRef.current = ring;
-        draggingRef.current = true;
-        hasDraggedRef.current = false;
-
-        if (ring === "inner") {
-            innerVelocityRef.current = 0;
-        }
-
-        if (ring === "outer") {
-            outerVelocityRef.current = 0;
-        }
-
-        pointerStartRef.current = {
-            x: event.clientX,
-            y: event.clientY,
-        };
-
-        lastPointerAngleRef.current =
-            getPointerPosition(
-                event.clientX,
-                event.clientY,
-            ).degrees;
-
-        if (ring === "seek") {
-            seekFromPointer(
-                event.clientX,
-                event.clientY,
-            );
-        }
-
-        event.currentTarget.setPointerCapture(
-            event.pointerId,
-        );
-    }
-
-    function handlePointerMove(
-        event: ReactPointerEvent<HTMLDivElement>,
-    ) {
-        if (!draggingRef.current) {
-            return;
-        }
-
-        const dx =
-            event.clientX -
-            pointerStartRef.current.x;
-
-        const dy =
-            event.clientY -
-            pointerStartRef.current.y;
-
-        const distance = Math.hypot(dx, dy);
-
-        if (distance >= DRAG_THRESHOLD) {
-            hasDraggedRef.current = true;
-        }
-
-        const current = getPointerPosition(
-            event.clientX,
-            event.clientY,
-        ).degrees;
-
-        if (pointerRingRef.current === "seek") {
-            seekFromPointer(
-                event.clientX,
-                event.clientY,
-            );
-
-            return;
-        }
-
-        if (!hasDraggedRef.current) {
-            return;
-        }
-
-        const difference = normalizeDifference(
-            current -
-            lastPointerAngleRef.current,
-        );
-
-        if (pointerRingRef.current === "inner") {
-            const next = clamp(
-                innerAngleRef.current + difference,
-                -45,
-                45,
-            );
-
-            innerVelocityRef.current =
-                difference * 0.65;
-
-            setInnerRotation(next);
-        }
-
-        if (pointerRingRef.current === "outer") {
-            const next = clamp(
-                outerAngleRef.current +
-                    difference * 0.55,
-                -40,
-                40,
-            );
-
-            outerVelocityRef.current =
-                difference * 0.3;
-
-            setOuterRotation(next);
-        }
-
-        lastPointerAngleRef.current = current;
-    }
-
-    function handlePointerUp(
-        event: ReactPointerEvent<HTMLDivElement>,
-    ) {
-        if (!draggingRef.current) {
-            return;
-        }
-
-        draggingRef.current = false;
-
-        const ring = getRing(
-            event.clientX,
-            event.clientY,
-        );
-
-        if (
-            !hasDraggedRef.current &&
-            ring === pointerRingRef.current
-        ) {
-            if (ring === "inner") {
-                const index = getInnerIndex(
-                    event.clientX,
-                    event.clientY,
-                );
-
-                if (index >= 0) {
-                    void handleAccountAction(index);
-                }
-            }
-
-            if (ring === "outer") {
-                const index = getOuterIndex(
-                    event.clientX,
-                    event.clientY,
-                );
-
-                if (
-                    index >= 0 &&
-                    !isTransitioning
-                ) {
-                    void navigate(tabs[index].href);
-                }
-            }
-
-            if (ring === "control") {
-                handleControlClick(
-                    event.clientX,
-                    event.clientY,
-                );
-            }
-        }
-
-        pointerRingRef.current = null;
-
-        if (
-            event.currentTarget.hasPointerCapture(
-                event.pointerId,
-            )
-        ) {
-            event.currentTarget.releasePointerCapture(
-                event.pointerId,
-            );
-        }
-    }
-
-    function handlePointerCancel() {
-        draggingRef.current = false;
-        hasDraggedRef.current = false;
-        pointerRingRef.current = null;
-    }
-
-    function handleWheel(
-        event: ReactWheelEvent<HTMLDivElement>,
-    ) {
-        const ring = getRing(
-            event.clientX,
-            event.clientY,
-        );
-
-        const difference =
-            Math.abs(event.deltaX) >
-            Math.abs(event.deltaY)
-                ? event.deltaX
-                : event.deltaY;
-
-        if (ring === "inner") {
-            innerVelocityRef.current =
-                difference * 0.004;
-
-            setInnerRotation(
-                clamp(
-                    innerAngleRef.current +
-                        difference * 0.045,
-                    -45,
-                    45,
-                ),
-            );
-        }
-
-        if (ring === "outer") {
-            outerVelocityRef.current =
-                difference * 0.002;
-
-            setOuterRotation(
-                clamp(
-                    outerAngleRef.current +
-                        difference * 0.025,
-                    -40,
-                    40,
-                ),
-            );
-        }
-
-        if (
-            ring === "seek" &&
-            duration > 0
-        ) {
-            seekTo(
-                currentTime +
-                (difference > 0 ? 5 : -5),
-            );
-        }
+        void navigate(href);
     }
 
     if (!mounted) {
         return null;
     }
 
-    const progress = duration > 0
-        ? clamp(currentTime / duration, 0, 1)
-        : 0;
-
-    const progressEnd =
-        180 + Math.max(progress * 180, 0.01);
-
-    const title =
-        currentPerformance?.name ||
-        "APRESENTAÇÃO";
-
-    const date = formatDate(
-        currentPerformance?.performance_date,
-    );
-
-    const mobileDialPixels = hasPlayer
-        ? "min(92vw, 340px)"
-        : "min(82vw, 260px)";
-
-    const desktopDialPixels = hasPlayer
-        ? "590px"
-        : "380px";
-
-    const svgScale = hasPlayer ? 1 : 1.5;
-
     return (
         <div
             className="
                 pointer-events-none
                 fixed
-                bottom-0
-                left-0
+                bottom-4
+                right-4
                 z-[100]
-                w-full
-                md:left-auto
+                w-[calc(100%-2rem)]
+                max-w-[560px]
+                md:bottom-6
                 md:right-6
-                md:w-auto
             "
-            style={{
-                height: "var(--dial-half-height)",
-                ["--dial-mobile-size" as string]:
-                    mobileDialPixels,
-                ["--dial-desktop-size" as string]:
-                    desktopDialPixels,
-                ["--dial-half-height" as string]:
-                    `calc(var(--dial-mobile-size) / 2)`,
-            }}
         >
-            <style>
-                {`
-                    @media (min-width: 768px) {
-                        [data-dial-wrapper] {
-                            --dial-half-height:
-                                calc(var(--dial-desktop-size) / 2) !important;
-                        }
-
-                        [data-dial-body] {
-                            width: var(--dial-desktop-size) !important;
-                            height: var(--dial-desktop-size) !important;
-                        }
-                    }
-                `}
-            </style>
-
             <div
-                data-dial-wrapper
-                className="absolute inset-0"
-                style={{
-                    height: "var(--dial-half-height)",
-                }}
+                data-page-transition-origin
+                className="
+                    pointer-events-auto
+                    overflow-hidden
+                    rounded-xl
+                    border
+                    border-black
+                    bg-white
+                    p-4
+                    text-black
+                    shadow-[-5px_5px_0_0_#000]
+                    transition-all
+                    duration-200
+                    ease-out
+                    md:p-5
+                "
             >
-                <div
-                    ref={dialRef}
-                    data-dial-body
-                    data-page-transition-origin
-                    onPointerDown={handlePointerDown}
-                    onPointerMove={handlePointerMove}
-                    onPointerUp={handlePointerUp}
-                    onPointerCancel={handlePointerCancel}
-                    onWheel={handleWheel}
-                    className="
-                        pointer-events-auto
-                        absolute
-                        left-1/2
-                        top-0
-                        aspect-square
-                        -translate-x-1/2
-                        touch-none
-                        select-none
-                        md:left-auto
-                        md:right-0
-                        md:translate-x-0
-                    "
-                    style={{
-                        width: "var(--dial-mobile-size)",
-                        height: "var(--dial-mobile-size)",
-                    }}
-                >
-                    <svg
-                        viewBox={`0 0 ${SIZE} ${SIZE}`}
-                        className="h-full w-full"
-                        aria-label="Dial Casa Elefante e player de áudio"
+                {/* NAVEGAÇÃO PRINCIPAL */}
+
+                <div className="flex items-center gap-3">
+                    <button
+                        type="button"
+                        onClick={() => handleNavigation("/")}
+                        disabled={isTransitioning}
+                        className="
+                            shrink-0
+                            whitespace-nowrap
+                            text-left
+                            font-black
+                            uppercase
+                            leading-none
+                            tracking-tight
+                            transition-opacity
+                            hover:opacity-60
+                            disabled:opacity-50
+                        "
+                        style={{
+                            fontFamily: "var(--font-anton), sans-serif",
+                            fontSize: "clamp(16px, 3vw, 22px)",
+                        }}
                     >
-                        <defs>
-                            <path
-                                id={`${uniqueId}-info-line`}
-                                d={arcPath(309, 185, 355)}
-                            />
-                        </defs>
+                        CASA ELEFANTE
+                    </button>
 
-                        <g
-                            transform={
-                                hasPlayer
-                                    ? undefined
-                                    : `translate(${CENTER} ${CENTER}) scale(${svgScale}) translate(${-CENTER} ${-CENTER})`
+                    <div className="h-8 w-px shrink-0 bg-black" />
+
+                    <button
+                        type="button"
+                        onClick={() => handleNavigation("/toda-terca-tem")}
+                        disabled={isTransitioning}
+                        className="
+                            min-w-0
+                            flex-1
+                            text-left
+                            text-base
+                            font-black
+                            uppercase
+                            leading-none
+                            transition-opacity
+                            hover:opacity-60
+                            disabled:opacity-50
+                            md:text-xl
+                        "
+                        style={{
+                            fontFamily: "var(--font-anton), sans-serif",
+                        }}
+                    >
+                        TODA TERÇA TEM
+                    </button>
+
+                    {/* 3 ÍCONES */}
+
+                    <div className="flex shrink-0 items-center gap-3">
+                        <Link
+                            href="/carrinho"
+                            aria-label="Carrinho"
+                            title="Carrinho"
+                            className="transition-opacity hover:opacity-50"
+                        >
+                            <ShoppingCart size={24} strokeWidth={2} />
+                        </Link>
+
+                        <button
+                            type="button"
+                            onClick={() => {
+                                router.push(
+                                    isLoggedIn ? accountHref : "/login",
+                                );
+                            }}
+                            aria-label={
+                                isLoggedIn
+                                    ? name?.trim() || "Minha conta"
+                                    : "Entrar"
                             }
+                            title={
+                                isLoggedIn
+                                    ? name?.trim() || "Minha conta"
+                                    : "Entrar"
+                            }
+                            className="transition-opacity hover:opacity-50"
                         >
-                            {/* BASE COMPLETA DO DIAL */}
+                            <UserRound size={23} strokeWidth={2} />
+                        </button>
 
-                            <circle
-                                cx={CENTER}
-                                cy={CENTER}
-                                r={hasPlayer ? INFO_OUTER : OUTER_RADIUS}
-                                fill={CREAM}
-                                stroke={RED}
-                                strokeWidth="2"
-                                pointerEvents="none"
-                            />
-
-                            {/* BASE COMPLETA DOS ANÉIS */}
-
-                            {hasPlayer && (
-                                <>
-                                    <circle
-                                        cx={CENTER}
-                                        cy={CENTER}
-                                        r={PROGRESS_OUTER}
-                                        fill={CREAM}
-                                        stroke={RED}
-                                        strokeWidth="2"
-                                        pointerEvents="none"
-                                    />
-
-                                    <circle
-                                        cx={CENTER}
-                                        cy={CENTER}
-                                        r={CONTROL_OUTER}
-                                        fill={CREAM}
-                                        stroke={RED}
-                                        strokeWidth="2"
-                                        pointerEvents="none"
-                                    />
-                                </>
-                            )}
-
-                            <circle
-                                cx={CENTER}
-                                cy={CENTER}
-                                r={OUTER_RADIUS}
-                                fill={CREAM}
-                                stroke={RED}
-                                strokeWidth="2"
-                                pointerEvents="none"
-                            />
-
-                            <circle
-                                cx={CENTER}
-                                cy={CENTER}
-                                r={INNER_RADIUS}
-                                fill={CREAM}
-                                stroke={RED}
-                                strokeWidth="2"
-                                pointerEvents="none"
-                            />
-
-                            {hasPlayer && (
-                                <g>
-                                    {/* ANEL 5 — INFORMAÇÕES */}
-
-                                    <path
-                                        d={sectorPath(
-                                            PROGRESS_OUTER,
-                                            INFO_OUTER,
-                                            180,
-                                            360,
-                                        )}
-                                        fill={CREAM}
-                                        stroke={RED}
-                                        strokeWidth="2"
-                                    />
-
-                                    <text
-                                        fill={RED}
-                                        fontSize="17"
-                                        fontWeight="900"
-                                        textAnchor="middle"
-                                        pointerEvents="none"
-                                        style={{
-                                            fontFamily:
-                                                "var(--font-anton), sans-serif",
-                                        }}
-                                    >
-                                        <textPath
-                                            href={`#${uniqueId}-info-line`}
-                                            startOffset="50%"
-                                        >
-                                            {date
-                                                ? `${title.toUpperCase()}   •   ${date}`
-                                                : title.toUpperCase()}
-                                        </textPath>
-                                    </text>
-
-                                    {/* ANEL 4 — PROGRESSO */}
-
-                                    <path
-                                        d={sectorPath(
-                                            CONTROL_OUTER,
-                                            PROGRESS_OUTER,
-                                            180,
-                                            360,
-                                        )}
-                                        fill={CREAM}
-                                        stroke={RED}
-                                        strokeWidth="2"
-                                    />
-
-                                    <path
-                                        d={arcPath(
-                                            274,
-                                            180,
-                                            360,
-                                        )}
-                                        fill="none"
-                                        stroke={RED}
-                                        strokeWidth="3"
-                                        opacity="0.22"
-                                    />
-
-                                    <path
-                                        d={arcPath(
-                                            274,
-                                            180,
-                                            progressEnd,
-                                        )}
-                                        fill="none"
-                                        stroke={RED}
-                                        strokeWidth="8"
-                                        strokeLinecap="round"
-                                    />
-
-                                    <circle
-                                        cx={
-                                            polar(
-                                                274,
-                                                progressEnd,
-                                            ).x
-                                        }
-                                        cy={
-                                            polar(
-                                                274,
-                                                progressEnd,
-                                            ).y
-                                        }
-                                        r="6"
-                                        fill={RED}
-                                    />
-
-                                    {/* ANEL 3 — CONTROLES */}
-
-                                    {[0, 1, 2].map((index) => {
-                                        const start =
-                                            180 + index * 60;
-
-                                        const end = start + 60;
-
-                                        const p = polar(
-                                            234,
-                                            (start + end) / 2,
-                                        );
-
-                                        const Icon = index === 0
-                                            ? isPlaying
-                                                ? Pause
-                                                : Play
-                                            : index === 1
-                                                ? volume === 0
-                                                    ? VolumeX
-                                                    : Volume2
-                                                : X;
-
-                                        return (
-                                            <g
-                                                key={index}
-                                                className="group cursor-pointer"
-                                            >
-                                                <path
-                                                    d={sectorPath(
-                                                        OUTER_RADIUS,
-                                                        CONTROL_OUTER,
-                                                        start,
-                                                        end,
-                                                    )}
-                                                    fill={CREAM}
-                                                    stroke={RED}
-                                                    strokeWidth="2"
-                                                    className="
-                                                        transition-colors
-                                                        duration-200
-                                                        group-hover:fill-[#D2232A]
-                                                    "
-                                                />
-
-                                                <g
-                                                    transform={`translate(${p.x - 13} ${p.y - 13})`}
-                                                    pointerEvents="none"
-                                                >
-                                                    <Icon
-                                                        size={26}
-                                                        className="
-                                                            text-[#D2232A]
-                                                            transition-colors
-                                                            duration-200
-                                                            group-hover:text-[#FFFDE9]
-                                                        "
-                                                    />
-                                                </g>
-                                            </g>
-                                        );
-                                    })}
-                                </g>
-                            )}
-
-                            {/* ANEL 2 — NAVEGAÇÃO */}
-
-                            <g
-                                transform={`rotate(${outerAngle} ${CENTER} ${CENTER})`}
+                        {isLoggedIn ? (
+                            <button
+                                type="button"
+                                onClick={() => void handleLogout()}
+                                disabled={loggingOut}
+                                aria-label="Sair"
+                                title="Sair"
+                                className="
+                                    transition-opacity
+                                    hover:opacity-50
+                                    disabled:opacity-50
+                                "
                             >
-                                {tabs.map((tab, index) => {
-                                    const start =
-                                        180 +
-                                        index * OUTER_SEGMENT;
-
-                                    const end =
-                                        start + OUTER_SEGMENT;
-
-                                    const pathId =
-                                        `${uniqueId}-outer-${index}`;
-
-                                    return (
-                                        <g
-                                            key={tab.href}
-                                            className="group cursor-pointer"
-                                        >
-                                            <path
-                                                d={sectorPath(
-                                                    OUTER_INNER_RADIUS,
-                                                    OUTER_RADIUS,
-                                                    start,
-                                                    end,
-                                                )}
-                                                fill={background}
-                                                stroke={foreground}
-                                                strokeWidth="2"
-                                                className="
-                                                    transition-colors
-                                                    duration-200
-                                                    group-hover:fill-[#D2232A]
-                                                "
-                                            />
-
-                                            <path
-                                                id={pathId}
-                                                d={arcPath(
-                                                    183,
-                                                    start + 5,
-                                                    end - 5,
-                                                )}
-                                                fill="none"
-                                                pointerEvents="none"
-                                            />
-
-                                            <text
-                                                fill={foreground}
-                                                fontSize="21"
-                                                fontWeight="900"
-                                                textAnchor="middle"
-                                                pointerEvents="none"
-                                                className="
-                                                    transition-colors
-                                                    duration-200
-                                                    group-hover:fill-[#FFFDE9]
-                                                "
-                                                style={{
-                                                    fontFamily:
-                                                        "var(--font-anton), sans-serif",
-                                                }}
-                                            >
-                                                <textPath
-                                                    href={`#${pathId}`}
-                                                    startOffset="50%"
-                                                >
-                                                    {tab.lines[0]}
-                                                </textPath>
-                                            </text>
-                                        </g>
-                                    );
-                                })}
-                            </g>
-
-                            {/* ANEL 1 — CONTA */}
-
-                            <g
-                                transform={`rotate(${innerAngle} ${CENTER} ${CENTER})`}
+                                <LogOut size={23} strokeWidth={2} />
+                            </button>
+                        ) : (
+                            <Link
+                                href="/cadastro"
+                                aria-label="Criar conta"
+                                title="Criar conta"
+                                className="transition-opacity hover:opacity-50"
                             >
-                                {accountActions.map(
-                                    (item, index) => {
-                                        const start =
-                                            180 +
-                                            index * INNER_SEGMENT;
+                                <UserPlus size={23} strokeWidth={2} />
+                            </Link>
+                        )}
+                    </div>
+                </div>
 
-                                        const end =
-                                            start + INNER_SEGMENT;
+                {/* PLAYER */}
 
-                                        const p = polar(
-                                            111,
-                                            (start + end) / 2,
-                                        );
+                {hasPlayer && (
+                    <div className="mt-4 border-t border-black pt-4">
+                        <div className="flex items-start gap-3">
+                            {/* IMAGEM DA PERFORMANCE */}
 
-                                        const Icon = item.icon;
+                            <div
+                                className="
+                                    relative
+                                    h-[76px]
+                                    w-[76px]
+                                    shrink-0
+                                    overflow-hidden
+                                    rounded-lg
+                                    bg-[#D2232A]
+                                "
+                            >
+                                <Image
+                                    key={String(imageSrc)}
+                                    src={imageSrc}
+                                    alt={title}
+                                    fill
+                                    sizes="76px"
+                                    className="object-cover"
+                                    unoptimized={
+                                        typeof imageSrc === "string"
+                                    }
+                                    onError={() => {
+                                        setImageFailed(true);
+                                    }}
+                                />
+                            </div>
 
-                                        return (
-                                            <g
-                                                key={item.action}
-                                                className="group cursor-pointer"
-                                            >
-                                                <path
-                                                    d={sectorPath(
-                                                        HUB_RADIUS,
-                                                        INNER_RADIUS,
-                                                        start,
-                                                        end,
-                                                    )}
-                                                    fill={background}
-                                                    stroke={foreground}
-                                                    strokeWidth="1.5"
-                                                    className="
-                                                        transition-colors
-                                                        duration-200
-                                                        group-hover:fill-[#D2232A]
-                                                    "
-                                                />
+                            <div className="min-w-0 flex-1">
+                                <p
+                                    className="
+                                        text-xs
+                                        font-black
+                                        uppercase
+                                        tracking-wide
+                                    "
+                                >
+                                    TODA TERÇA TEM
+                                </p>
 
-                                                <g
-                                                    transform={`translate(${p.x - 13} ${p.y - 13})`}
-                                                    pointerEvents="none"
-                                                >
-                                                    <Icon
-                                                        size={26}
-                                                        strokeWidth={2.5}
-                                                        className="
-                                                            text-[#D2232A]
-                                                            transition-colors
-                                                            duration-200
-                                                            group-hover:text-[#FFFDE9]
-                                                        "
-                                                    />
-                                                </g>
-                                            </g>
-                                        );
-                                    },
+                                <h2
+                                    className="
+                                        mt-1
+                                        line-clamp-2
+                                        text-xl
+                                        font-black
+                                        leading-tight
+                                        md:text-2xl
+                                    "
+                                    style={{
+                                        fontFamily:
+                                            "var(--font-anton), sans-serif",
+                                    }}
+                                >
+                                    {title}
+                                </h2>
+
+                                {date && (
+                                    <p className="mt-1 text-xs">
+                                        {date}
+                                    </p>
                                 )}
-                            </g>
+                            </div>
 
-                            {/* CENTRO */}
+                            <button
+                                type="button"
+                                onClick={clearPerformance}
+                                aria-label="Fechar player"
+                                className="
+                                    shrink-0
+                                    transition-opacity
+                                    hover:opacity-50
+                                "
+                            >
+                                <X size={22} />
+                            </button>
+                        </div>
 
-                            <circle
-                                cx={CENTER}
-                                cy={CENTER}
-                                r={HUB_RADIUS}
-                                fill={background}
-                                stroke={foreground}
-                                strokeWidth="2.5"
-                                pointerEvents="none"
+                        {/* CONTROLES */}
+
+                        <div className="mt-4 flex items-center gap-3">
+                            <button
+                                type="button"
+                                onClick={togglePlay}
+                                aria-label={
+                                    isPlaying ? "Pausar" : "Reproduzir"
+                                }
+                                className="
+                                    flex
+                                    h-11
+                                    w-11
+                                    shrink-0
+                                    items-center
+                                    justify-center
+                                    rounded-full
+                                    bg-black
+                                    text-white
+                                    transition-transform
+                                    hover:scale-105
+                                "
+                            >
+                                {isPlaying ? (
+                                    <Pause size={20} fill="currentColor" />
+                                ) : (
+                                    <Play size={20} fill="currentColor" />
+                                )}
+                            </button>
+
+                            <span className="shrink-0 text-xs tabular-nums">
+                                {formatTime(currentTime)}
+                            </span>
+
+                            <input
+                                type="range"
+                                min={0}
+                                max={duration || 1}
+                                step={0.1}
+                                value={Math.min(currentTime, duration || 1)}
+                                onChange={(event) => {
+                                    seekTo(Number(event.target.value));
+                                }}
+                                disabled={duration <= 0}
+                                aria-label="Progresso da apresentação"
+                                className="
+                                    h-1.5
+                                    min-w-0
+                                    flex-1
+                                    cursor-pointer
+                                    accent-black
+                                    disabled:cursor-not-allowed
+                                "
+                                style={{
+                                    background: `linear-gradient(to right, #000 ${progress}%, #d4d4d4 ${progress}%)`,
+                                }}
                             />
 
-                            <circle
-                                cx={CENTER}
-                                cy={CENTER}
-                                r="9"
-                                fill={foreground}
-                                pointerEvents="none"
-                            />
-                        </g>
-                    </svg>
+                            <span className="shrink-0 text-xs tabular-nums">
+                                {formatTime(duration)}
+                            </span>
+                        </div>
 
-                    {/* CONTROLE DE VOLUME */}
+                        {/* VOLUME */}
 
-                    {hasPlayer && volumeOpen && (
-                        <div
-                            className="
-                                absolute
-                                left-1/2
-                                top-[12%]
-                                z-10
-                                flex
-                                -translate-x-1/2
-                                items-center
-                                gap-2
-                                rounded-full
-                                border-2
-                                border-[#D2232A]
-                                bg-[#FFFDE9]
-                                px-3
-                                py-2
-                                text-[#D2232A]
-                                shadow-[3px_3px_0_#D2232A]
-                            "
-                            onPointerDown={(event) => {
-                                event.stopPropagation();
-                            }}
-                            onPointerMove={(event) => {
-                                event.stopPropagation();
-                            }}
-                            onPointerUp={(event) => {
-                                event.stopPropagation();
-                            }}
-                        >
+                        <div className="mt-3 flex items-center justify-end gap-3">
                             <button
                                 type="button"
                                 onClick={toggleMute}
@@ -1496,36 +463,30 @@ export function FileTabs({
                                         ? "Ativar som"
                                         : "Silenciar"
                                 }
+                                className="transition-opacity hover:opacity-50"
                             >
                                 {volume === 0 ? (
-                                    <VolumeX size={18} />
+                                    <VolumeX size={19} />
                                 ) : (
-                                    <Volume2 size={18} />
+                                    <Volume2 size={19} />
                                 )}
                             </button>
 
                             <input
-                                aria-label="Volume"
                                 type="range"
-                                min="0"
-                                max="1"
-                                step="0.01"
+                                min={0}
+                                max={1}
+                                step={0.01}
                                 value={volume}
                                 onChange={(event) => {
-                                    changeVolume(
-                                        Number(
-                                            event.target.value,
-                                        ),
-                                    );
+                                    changeVolume(Number(event.target.value));
                                 }}
-                                className="
-                                    w-24
-                                    accent-[#D2232A]
-                                "
+                                aria-label="Volume"
+                                className="w-24 cursor-pointer accent-black"
                             />
                         </div>
-                    )}
-                </div>
+                    </div>
+                )}
             </div>
         </div>
     );
