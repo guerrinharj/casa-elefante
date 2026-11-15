@@ -212,6 +212,9 @@ export function FileTabs({
                         style={{
                             fontFamily: "var(--font-anton), sans-serif",
                             fontSize: "clamp(16px, 3vw, 22px)",
+                            color: "#FFFDE9",
+                            WebkitTextStroke: "1px #000000",
+                            paintOrder: "stroke fill",
                         }}
                     >
                         CASA ELEFANTE
@@ -238,6 +241,9 @@ export function FileTabs({
                         "
                         style={{
                             fontFamily: "var(--font-anton), sans-serif",
+                            color: "#D2232A",
+                            WebkitTextStroke: "0.2px #000000",
+                            paintOrder: "stroke fill",
                         }}
                     >
                         TODA TERÇA TEM
