@@ -1,3 +1,4 @@
+
 "use client";
 
 import Link from "next/link";
@@ -208,36 +209,48 @@ export default function AdminOrdersPage() {
     ]);
 
     return (
-        <main className="p-6">
+        <main className="min-h-screen p-6 md:p-10">
             <div className="mx-auto flex max-w-5xl flex-col gap-8">
-                <div>
-                    <Link
-                        href="/admin"
-                        className="text-sm underline"
-                    >
-                        ← Admin
-                    </Link>
+                <div className="flex flex-col gap-6 sm:flex-row sm:items-start sm:justify-between">
+                    <div>
+                        <h1 className="font-october text-5xl uppercase leading-none text-black md:text-6xl">
+                            Pedidos
+                        </h1>
 
-                    <h1 className="mt-4 text-3xl font-medium">
-                        Pedidos
-                    </h1>
+                        <p className="mt-3 text-sm text-black/70 md:text-base">
+                            Gerencie os pedidos da loja.
+                        </p>
+                    </div>
 
-                    <Link
-                        href="/admin/pedidos/enviados"
-                        className="text-sm hover:underline"
-                    >
-                        Ver pedidos enviados
-                    </Link>
+                    <div className="flex flex-wrap items-center gap-4">
+                        <Link
+                            href="/admin"
+                            className="inline-flex w-fit shrink-0 items-center justify-center rounded-xl border border-black bg-white px-6 py-3 text-xl  leading-none text-black shadow-[-5px_5px_0_0_#000] transition-all duration-200 hover:-translate-y-1 hover:shadow-[-5px_9px_0_0_#000]"
+                        >
+                            ← Admin
+                        </Link>
+
+                        <Link
+                            href="/admin/pedidos/enviados"
+                            className="inline-flex w-fit shrink-0 items-center justify-center rounded-xl border border-black bg-white px-6 py-3 text-xl  leading-none text-black shadow-[-5px_5px_0_0_#000] transition-all duration-200 hover:-translate-y-1 hover:shadow-[-5px_9px_0_0_#000]"
+                        >
+                            Ver pedidos enviados
+                        </Link>
+                    </div>
                 </div>
+
+                <div className="border-t border-black/20" />
 
                 {orders.length === 0 &&
                     !loading && (
-                        <p className="text-sm">
-                            Nenhum pedido encontrado.
-                        </p>
+                        <div className="rounded-xl border border-black bg-white p-6 shadow-[-5px_5px_0_0_#000]">
+                            <p className="font-october text-2xl uppercase leading-none text-black">
+                                Nenhum pedido encontrado.
+                            </p>
+                        </div>
                     )}
 
-                <div className="grid gap-4">
+                <div className="grid gap-6">
                     {orders.map(
                         (order) => (
                             <OrderCard
@@ -252,7 +265,7 @@ export default function AdminOrdersPage() {
                 </div>
 
                 {loading && (
-                    <div className="py-8 text-center text-sm">
+                    <div className="py-8 text-center font-october text-xl uppercase leading-none text-black/70">
                         Carregando pedidos...
                     </div>
                 )}
@@ -266,7 +279,7 @@ export default function AdminOrdersPage() {
 
                 {!hasMore &&
                     orders.length > 0 && (
-                        <div className="py-8 text-center text-sm">
+                        <div className="py-8 text-center font-october text-xl uppercase leading-none text-black/70">
                             Todos os pedidos foram carregados.
                         </div>
                     )}

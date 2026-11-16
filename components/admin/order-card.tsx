@@ -1,13 +1,9 @@
-
 "use client";
-
 import Link from "next/link";
-
 import {
     useState,
     type FormEvent,
 } from "react";
-
 type ShippingAddress = {
     postalCode?: string;
     street?: string;
@@ -17,12 +13,10 @@ type ShippingAddress = {
     city?: string;
     state?: string;
 };
-
 type OrderItem = {
     id?: string;
     product_id?: string;
     quantity: number;
-
     product?: {
         name?: string | null;
         artist?: string | null;
@@ -30,7 +24,6 @@ type OrderItem = {
         format?: string | null;
     } | null;
 };
-
 export type Order = {
     id: string;
     customer_name?: string | null;
@@ -42,25 +35,20 @@ export type Order = {
     items?: OrderItem[];
     created_at?: string | null;
 };
-
 type OrderCardProps = {
     order: Order;
-
     onShippedChange: (
-        orderId: string,
-        shipped: boolean,
+orderId: string,
+shipped: boolean,
     ) => void;
 };
-
 type RefundType = "total" | "partial";
-
 type RefundReason =
     | "customer_request"
     | "out_of_stock"
     | "damaged"
     | "wrong_item"
     | "other";
-
 const REFUND_REASONS: {
     value: RefundReason;
     label: string;
@@ -86,13 +74,11 @@ const REFUND_REASONS: {
         label: "Outro motivo",
     },
 ];
-
 export function OrderCard({
-    order,
-    onShippedChange,
+order,
+onShippedChange,
 }: OrderCardProps) {
     const isPaid = order.status === "paid";
-
     const [refundOpen, setRefundOpen] = useState(false);
     const [refundType, setRefundType] = useState<RefundType>("total");
     const [refundReason, setRefundReason] = useState<RefundReason>(
@@ -103,18 +89,14 @@ export function OrderCard({
     const [refundConfirmed, setRefundConfirmed] = useState(false);
     const [refundLoading, setRefundLoading] = useState(false);
     const [refundError, setRefundError] = useState<string | null>(null);
-
     const totalCents = Math.round(
         Number(order.total ?? 0) * 100,
     );
-
     const partialAmount = Number(refundAmount);
-
     const refundCents =
         refundType === "total"
             ? totalCents
             : Math.round(partialAmount * 100);
-
     const validRefundAmount =
         Number.isFinite(refundCents) &&
         Number.isSafeInteger(refundCents) &&
@@ -127,9 +109,8 @@ export function OrderCard({
                 refundCents < totalCents
             )
         );
-
     function formatPrice(
-        value?: number | null,
+value?: number | null,
     ) {
         if (
             value === null ||
@@ -137,7 +118,6 @@ export function OrderCard({
         ) {
             return "—";
         }
-
         return Number(
             value,
         ).toLocaleString(
@@ -148,14 +128,12 @@ export function OrderCard({
             },
         );
     }
-
     function formatDate(
-        value?: string | null,
+value?: string | null,
     ) {
         if (!value) {
             return "—";
         }
-
         return new Date(
             value,
         ).toLocaleString(
@@ -169,26 +147,22 @@ export function OrderCard({
             },
         );
     }
-
     function formatPostalCode(
-        value?: string,
+value?: string,
     ) {
         if (!value) {
             return "—";
         }
-
         const numbers =
             value.replace(
                 /\D/g,
                 "",
             );
-
         if (
             numbers.length !== 8
         ) {
             return value;
         }
-
         return `${numbers.slice(
             0,
             5,
@@ -197,12 +171,10 @@ export function OrderCard({
             8,
         )}`;
     }
-
     function openRefund() {
         if (!isPaid || totalCents <= 0) {
             return;
         }
-
         setRefundType("total");
         setRefundReason("customer_request");
         setRefundAmount("");
@@ -211,21 +183,17 @@ export function OrderCard({
         setRefundError(null);
         setRefundOpen(true);
     }
-
     function closeRefund() {
         if (refundLoading) {
             return;
         }
-
         setRefundOpen(false);
         setRefundError(null);
     }
-
     async function handleRefund(
-        event: FormEvent<HTMLFormElement>,
+event: FormEvent<HTMLFormElement>,
     ) {
         event.preventDefault();
-
         if (
             !isPaid ||
             !validRefundAmount ||
@@ -234,10 +202,8 @@ export function OrderCard({
         ) {
             return;
         }
-
         setRefundLoading(true);
         setRefundError(null);
-
         try {
             const response = await fetch(
                 "/api/refunds",
@@ -255,18 +221,14 @@ export function OrderCard({
                     }),
                 },
             );
-
             const data = await response.json();
-
             if (!response.ok || !data.success) {
                 throw new Error(
                     data.error ??
                     "Erro ao solicitar reembolso.",
                 );
             }
-
             setRefundOpen(false);
-
             alert(
                 "Solicitação de reembolso enviada.",
             );
@@ -280,61 +242,53 @@ export function OrderCard({
             setRefundLoading(false);
         }
     }
-
     return (
         <>
-            <div className="border border-black p-5">
+            <div className="rounded-xl border border-black bg-white p-5 text-black shadow-[-5px_5px_0_0_#000] md:p-6">
                 <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
                     <div>
                         <Link
                             href={`/admin/pedidos/${order.id}`}
-                            className="text-lg font-medium hover:underline"
+                            className="font-october text-3xl uppercase leading-none text-black hover:underline md:text-4xl"
                         >
                             {order.customer_name ||
                                 "Cliente"}
                         </Link>
-
-                        <p className="mt-1 text-sm">
+                        <p className="mt-2 text-sm text-black/65">
                             {order.customer_email ||
                                 "Sem e-mail"}
                         </p>
                     </div>
-
                     <div className="flex flex-col gap-1 text-left md:text-right">
-                        <p className="font-medium">
+                        <p className=" text-3xl  leading-none text-black">
                             {formatPrice(
                                 order.total,
                             )}
                         </p>
-
-                        <p className="text-sm">
+                        <p className="text-xl  leading-none text-black/70">
                             {order.status ||
                                 "Pendente"}
                         </p>
                     </div>
                 </div>
-
-                <div className="mt-6 grid gap-6 border-t border-black pt-4 md:grid-cols-2">
+                <div className="mt-6 grid gap-6 border-t border-black/20 pt-5 md:grid-cols-2">
                     <div>
-                        <p className="text-xs uppercase">
+                        <p className=" text-xl  leading-none text-black">
                             Endereço de entrega
                         </p>
-
                         {order.shipping_address ? (
-                            <div className="mt-2 text-sm">
+                            <div className="mt-3 text-sm leading-relaxed text-black/80">
                                 <p>
                                     {order
                                         .shipping_address
                                         .street ||
                                         "—"}
-
                                     {order
                                         .shipping_address
                                         .number
                                         ? `, ${order.shipping_address.number}`
                                         : ""}
                                 </p>
-
                                 {order
                                     .shipping_address
                                     .complement && (
@@ -346,7 +300,6 @@ export function OrderCard({
                                         }
                                     </p>
                                 )}
-
                                 {order
                                     .shipping_address
                                     .neighborhood && (
@@ -358,20 +311,17 @@ export function OrderCard({
                                         }
                                     </p>
                                 )}
-
                                 <p>
                                     {order
                                         .shipping_address
                                         .city ||
                                         "—"}
-
                                     {order
                                         .shipping_address
                                         .state
                                         ? ` - ${order.shipping_address.state}`
                                         : ""}
                                 </p>
-
                                 <p className="mt-1">
                                     CEP:{" "}
                                     {formatPostalCode(
@@ -382,26 +332,24 @@ export function OrderCard({
                                 </p>
                             </div>
                         ) : (
-                            <p className="mt-2 text-sm">
+                            <p className="mt-3 text-sm leading-relaxed text-black/80">
                                 Sem endereço
                             </p>
                         )}
                     </div>
-
                     <div>
-                        <p className="text-xs uppercase">
+                        <p className=" text-xl  leading-none text-black">
                             Produtos
                         </p>
-
                         {order.items?.length ? (
-                            <div className="mt-2 flex flex-col gap-2 text-sm">
+                            <div className="mt-3 flex flex-col gap-3 text-sm">
                                 {order.items.map(
                                     (
                                         item,
                                         index,
                                     ) => (
                                         <div
-                                            key={
+                            key={
                                                 item.id ??
                                                 item.product_id ??
                                                 index
@@ -410,8 +358,8 @@ export function OrderCard({
                                             <div className="flex items-center gap-2">
                                                 {item.product?.slug ? (
                                                     <Link
-                                                        href={`/produtos/${item.product.slug}`}
-                                                        className="font-medium hover:underline"
+                            href={`/produtos/${item.product.slug}`}
+                            className="font-medium text-black hover:underline"
                                                     >
                                                         {item.product.name ||
                                                             "Produto"}
@@ -422,19 +370,16 @@ export function OrderCard({
                                                             "Produto"}
                                                     </p>
                                                 )}
-
-                                                <span className="text-xs">
+                                                <span className="text-xs text-black/60">
                                                     × {item.quantity}
                                                 </span>
                                             </div>
-
-                                            <p className="text-xs opacity-70">
+                                            <p className="text-xs text-black/60">
                                                 {item.product?.artist ||
                                                     "Artista não informado"}
                                             </p>
-
                                             {item.product?.format && (
-                                                <p className="text-xs opacity-70">
+                                                <p className="text-xs text-black/60">
                                                     ({item.product.format})
                                                 </p>
                                             )}
@@ -443,15 +388,14 @@ export function OrderCard({
                                 )}
                             </div>
                         ) : (
-                            <p className="mt-2 text-sm">
+                            <p className="mt-3 text-sm leading-relaxed text-black/80">
                                 Sem produtos
                             </p>
                         )}
                     </div>
                 </div>
-
-                <div className="mt-6 flex flex-col gap-4 border-t border-black pt-4 md:flex-row md:items-center md:justify-between">
-                    <div className="text-xs">
+                <div className="mt-6 flex flex-col gap-5 border-t border-black/20 pt-5">
+                    <div className="text-xs text-black/60">
                         <p>
                             Pedido{" "}
                             {order.id.slice(
@@ -459,15 +403,13 @@ export function OrderCard({
                                 8,
                             )}
                         </p>
-
                         <p className="mt-1">
                             {formatDate(
                                 order.created_at,
                             )}
                         </p>
                     </div>
-
-                    <div className="flex flex-wrap items-center gap-3">
+                    <div className="flex flex-wrap items-center gap-4">
                         <button
                             type="button"
                             disabled={!isPaid}
@@ -477,7 +419,6 @@ export function OrderCard({
                                 )) {
                                     return;
                                 }
-
                                 try {
                                     const response = await fetch(
                                         `/api/admin/orders/${order.id}/nfe`,
@@ -485,16 +426,13 @@ export function OrderCard({
                                             method: "POST",
                                         },
                                     );
-
                                     const data = await response.json();
-
                                     if (!response.ok) {
                                         throw new Error(
                                             data.error ??
                                             "Erro ao gerar NF-e.",
                                         );
                                     }
-
                                     alert(
                                         "Solicitação de emissão de NF-e enviada.",
                                     );
@@ -506,37 +444,34 @@ export function OrderCard({
                                     );
                                 }
                             }}
-                            className={`border border-black px-4 py-2 text-sm transition-opacity ${
+                            className={`rounded-xl border border-black bg-white px-4 py-3  text-xl  leading-none text-black shadow-[-4px_4px_0_0_#000] transition-all duration-200 ${
                                 isPaid
-                                    ? "hover:opacity-60"
-                                    : "cursor-not-allowed opacity-30"
+                                    ? "hover:-translate-y-1 hover:shadow-[-4px_8px_0_0_#000]"
+                                    : "cursor-not-allowed opacity-40"
                             }`}
                         >
                             Gerar NF-e
                         </button>
-
                         <a
                             href={`/api/admin/orders/${order.id}/label`}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="border border-black px-4 py-2 text-sm transition-opacity hover:opacity-60"
+                            className="rounded-xl border border-black bg-white px-4 py-3  text-xl  leading-none text-black shadow-[-4px_4px_0_0_#000] transition-all duration-200 hover:-translate-y-1 hover:shadow-[-4px_8px_0_0_#000]"
                         >
                             Gerar etiqueta
                         </a>
-
                         <button
                             type="button"
                             onClick={openRefund}
                             disabled={!isPaid || totalCents <= 0}
-                            className={`border border-black px-4 py-2 text-sm transition-opacity ${
+                            className={`rounded-xl border border-black bg-white px-4 py-3  text-xl  leading-none text-black shadow-[-4px_4px_0_0_#000] transition-all duration-200 ${
                                 isPaid && totalCents > 0
-                                    ? "hover:opacity-60"
-                                    : "cursor-not-allowed opacity-30"
+                                    ? "hover:-translate-y-1 hover:shadow-[-4px_8px_0_0_#000]"
+                                    : "cursor-not-allowed opacity-40"
                             }`}
                         >
                             Reembolso
                         </button>
-
                         <button
                             type="button"
                             onClick={() =>
@@ -545,9 +480,9 @@ export function OrderCard({
                                     !order.shipped,
                                 )
                             }
-                            className={`border border-black px-4 py-2 text-sm transition-opacity hover:opacity-60 ${
+                            className={`rounded-xl border border-black text-black bg-white px-4 py-3  text-xl  leading-none text-black shadow-[-4px_4px_0_0_#000] transition-all duration-200 hover:-translate-y-1 hover:shadow-[-4px_8px_0_0_#000] ${
                                 order.shipped
-                                    ? "  text-white"
+                                    ? "bg-black"
                                     : ""
                             }`}
                         >
@@ -558,11 +493,10 @@ export function OrderCard({
                     </div>
                 </div>
             </div>
-
             {refundOpen && (
                 <div
-                    className="fixed inset-0 z-50 flex items-center justify-center p-4"
-                    onMouseDown={(event) => {
+                            className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
+                            onMouseDown={(event) => {
                         if (
                             event.target === event.currentTarget
                         ) {
@@ -571,230 +505,208 @@ export function OrderCard({
                     }}
                 >
                     <div
-                        role="dialog"
-                        aria-modal="true"
-                        aria-labelledby="refund-title"
-                        className="max-h-[90vh] w-full max-w-lg overflow-y-auto border border-black bg-[#FFFDE9] p-6 text-black shadow-xl"
+                            role="dialog"
+aria-modal="true"
+aria-labelledby="refund-title"
+                            className="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-xl border border-black bg-[#FFFDE9] p-6 text-black shadow-[-6px_6px_0_0_#000]"
                     >
                         <div className="mb-6 flex items-start justify-between gap-4">
                             <div>
                                 <h2
-                                    id="refund-title"
-                                    className="text-xl font-medium"
+                            id="refund-title"
+                            className="text-4xl  leading-none text-black"
                                 >
                                     Solicitar reembolso
                                 </h2>
-
-                                <p className="mt-1 text-sm opacity-60">
+                                <p className="mt-2 text-sm text-black/60">
                                     Pedido {order.id.slice(0, 8)}
                                 </p>
                             </div>
-
                             <button
-                                type="button"
-                                onClick={closeRefund}
-                                disabled={refundLoading}
-                                className="text-2xl leading-none hover:opacity-60 disabled:opacity-30"
-                                aria-label="Fechar"
+                            type="button"
+                            onClick={closeRefund}
+                            disabled={refundLoading}
+                            className="rounded-lg border border-black bg-white px-3 py-1 text-2xl leading-none transition-opacity hover:opacity-60 disabled:opacity-30"
+aria-label="Fechar"
                             >
                                 ×
                             </button>
                         </div>
-
                         <form
                             onSubmit={handleRefund}
                             className="flex flex-col gap-5"
                         >
-                            <div className="border border-black p-4">
-                                <p className="text-xs uppercase opacity-60">
+                            <div className="rounded-xl border border-black bg-white p-4">
+                                <p className="font-october text-xl uppercase leading-none text-black/70">
                                     Valor do pedido
                                 </p>
-
-                                <p className="mt-2 text-2xl font-medium">
+                                <p className="mt-2 font-october text-3xl uppercase leading-none text-black">
                                     {formatPrice(order.total)}
                                 </p>
                             </div>
-
                             <div>
-                                <p className="mb-3 text-xs uppercase">
+                                <p className="mb-3 font-october text-xl uppercase leading-none text-black">
                                     Tipo de reembolso
                                 </p>
-
                                 <div className="flex flex-col gap-3 text-sm">
                                     <label className="flex cursor-pointer items-center gap-2">
                                         <input
-                                            type="radio"
-                                            name={`refund-type-${order.id}`}
-                                            checked={refundType === "total"}
-                                            onChange={() => {
+                            type="radio"
+                            name={`refund-type-${order.id}`}
+                            checked={refundType === "total"}
+                            onChange={() => {
                                                 setRefundType("total");
                                             }}
                                         />
-
                                         Reembolso total
                                     </label>
-
                                     <label className="flex cursor-pointer items-center gap-2">
                                         <input
-                                            type="radio"
-                                            name={`refund-type-${order.id}`}
-                                            checked={refundType === "partial"}
-                                            onChange={() => {
+                            type="radio"
+                            name={`refund-type-${order.id}`}
+                            checked={refundType === "partial"}
+                            onChange={() => {
                                                 setRefundType("partial");
                                             }}
                                         />
-
                                         Reembolso parcial
                                     </label>
                                 </div>
                             </div>
-
                             {refundType === "partial" && (
                                 <div>
                                     <label
-                                        htmlFor={`refund-amount-${order.id}`}
-                                        className="mb-2 block text-xs uppercase"
+htmlFor={`refund-amount-${order.id}`}
+                            className="mb-2 block font-october text-xl uppercase leading-none text-black"
                                     >
                                         Valor do reembolso (R$)
                                     </label>
-
                                     <input
-                                        id={`refund-amount-${order.id}`}
-                                        type="number"
-                                        min="0.01"
-                                        max={Math.max(
+                            id={`refund-amount-${order.id}`}
+                            type="number"
+                            min="0.01"
+                            max={Math.max(
                                             0,
                                             (totalCents - 1) / 100,
                                         )}
-                                        step="0.01"
-                                        value={refundAmount}
-                                        onChange={(event) => {
+                            step="0.01"
+                            value={refundAmount}
+                            onChange={(event) => {
                                             setRefundAmount(
                                                 event.target.value,
                                             );
                                         }}
-                                        required
-                                        placeholder="0,00"
-                                        className="w-full border border-black bg-[#FFFDE9] px-3 py-2 text-sm outline-none"
+required
+                            placeholder="0,00"
+                            className="w-full rounded-xl border border-black bg-white px-4 py-3 text-sm text-black outline-none focus:ring-2 focus:ring-black/15"
                                     />
                                 </div>
                             )}
-
                             <div>
                                 <label
-                                    htmlFor={`refund-reason-${order.id}`}
-                                    className="mb-2 block text-xs uppercase"
+htmlFor={`refund-reason-${order.id}`}
+                            className="mb-2 block font-october text-xl uppercase leading-none text-black"
                                 >
                                     Motivo do reembolso
                                 </label>
-
                                 <select
-                                    id={`refund-reason-${order.id}`}
-                                    value={refundReason}
-                                    onChange={(event) => {
+                            id={`refund-reason-${order.id}`}
+                            value={refundReason}
+                            onChange={(event) => {
                                         setRefundReason(
-                                            event.target.value as RefundReason,
+event.target.value as RefundReason,
                                         );
                                     }}
-                                    className="w-full border border-black bg-[#FFFDE9] px-3 py-2 text-sm outline-none"
+                            className="w-full rounded-xl border border-black bg-white px-4 py-3 text-sm text-black outline-none focus:ring-2 focus:ring-black/15"
                                 >
                                     {REFUND_REASONS.map((reason) => (
                                         <option
-                                            key={reason.value}
-                                            value={reason.value}
+                            key={reason.value}
+                            value={reason.value}
                                         >
                                             {reason.label}
                                         </option>
                                     ))}
                                 </select>
                             </div>
-
                             <div>
                                 <label
-                                    htmlFor={`refund-notes-${order.id}`}
-                                    className="mb-2 block text-xs uppercase"
+htmlFor={`refund-notes-${order.id}`}
+                            className="mb-2 block font-october text-xl uppercase leading-none text-black"
                                 >
                                     Observações internas
                                 </label>
-
                                 <textarea
-                                    id={`refund-notes-${order.id}`}
-                                    value={refundNotes}
-                                    onChange={(event) => {
+                            id={`refund-notes-${order.id}`}
+                            value={refundNotes}
+                            onChange={(event) => {
                                         setRefundNotes(
-                                            event.target.value,
+event.target.value,
                                         );
                                     }}
-                                    maxLength={2000}
-                                    rows={4}
-                                    placeholder="Descreva os detalhes do reembolso..."
-                                    className="w-full resize-none border border-black bg-[#FFFDE9] px-3 py-2 text-sm outline-none"
+                            maxLength={2000}
+                            rows={4}
+                            placeholder="Descreva os detalhes do reembolso..."
+                            className="w-full resize-none rounded-xl border border-black bg-white px-4 py-3 text-sm text-black outline-none focus:ring-2 focus:ring-black/15"
                                 />
                             </div>
-
-                            <div className="border border-black p-4 text-sm">
+                            <div className="rounded-xl border border-black bg-white p-4 text-sm">
                                 <p className="font-medium">
                                     Atenção
                                 </p>
-
-                                <p className="mt-2 opacity-70">
+                                <p className="mt-2 text-black/70">
                                     O sistema de reembolsos ainda
                                     está em desenvolvimento.
                                     Nenhum valor será estornado
                                     nesta etapa.
                                 </p>
                             </div>
-
                             <label className="flex cursor-pointer items-start gap-3 text-sm">
                                 <input
-                                    type="checkbox"
-                                    checked={refundConfirmed}
-                                    onChange={(event) => {
+                            type="checkbox"
+                            checked={refundConfirmed}
+                            onChange={(event) => {
                                         setRefundConfirmed(
-                                            event.target.checked,
+event.target.checked,
                                         );
                                     }}
-                                    className="mt-1"
+                            className="mt-1"
                                 />
-
                                 <span>
                                     Confirmo que revisei os dados
                                     desta solicitação.
                                 </span>
                             </label>
-
                             {refundError && (
                                 <div
-                                    role="alert"
-                                    className="border border-red-600 p-3 text-sm text-red-600"
+                            role="alert"
+                            className="rounded-xl border border-red-600 bg-red-50 p-3 text-sm text-red-600"
                                 >
                                     {refundError}
                                 </div>
                             )}
-
-                            <div className="flex flex-wrap justify-end gap-3 border-t border-black pt-5">
+                            <div className="flex flex-wrap justify-end gap-4 border-t border-black/20 pt-5">
                                 <button
-                                    type="button"
-                                    onClick={closeRefund}
-                                    disabled={refundLoading}
-                                    className="border border-black px-4 py-2 text-sm transition-opacity hover:opacity-60 disabled:opacity-30"
+                            type="button"
+                            onClick={closeRefund}
+                            disabled={refundLoading}
+                            className="rounded-xl border border-black bg-white px-4 py-3 font-october text-xl uppercase leading-none text-black shadow-[-4px_4px_0_0_#000] transition-all duration-200 hover:-translate-y-1 hover:shadow-[-4px_8px_0_0_#000] disabled:cursor-not-allowed disabled:opacity-40"
                                 >
                                     Cancelar
                                 </button>
-
                                 <button
-                                    type="submit"
-                                    disabled={
+                            type="submit"
+                            disabled={
                                         !validRefundAmount ||
                                         !refundConfirmed ||
                                         refundLoading
                                     }
-                                    className={`border border-black   px-4 py-2 text-sm text-white transition-opacity ${
+                            className={`rounded-xl border border-black bg-white px-4 py-3 font-october text-xl uppercase leading-none text-black shadow-[-4px_4px_0_0_#000] transition-all duration-200 ${
                                         validRefundAmount &&
                                         refundConfirmed &&
                                         !refundLoading
-                                            ? "hover:opacity-60"
-                                            : "cursor-not-allowed opacity-30"
+                                            ? "hover:-translate-y-1 hover:shadow-[-4px_8px_0_0_#000]"
+                                            : "cursor-not-allowed opacity-40"
                                     }`}
                                 >
                                     {refundLoading

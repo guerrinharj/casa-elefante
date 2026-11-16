@@ -48,7 +48,7 @@ const inputClassName =
     "w-full rounded-xl border border-black bg-white px-4 py-3 text-base text-black outline-none transition-colors placeholder:text-black/35 focus:ring-2 focus:ring-black/15";
 
 const buttonClassName =
-    "inline-flex w-full items-center justify-center rounded-xl border border-black bg-white px-6 py-4 font-october text-2xl uppercase leading-none text-black shadow-[-5px_5px_0_0_#000] transition-all duration-200 hover:-translate-y-1 hover:shadow-[-5px_9px_0_0_#000] disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0 disabled:hover:shadow-[-5px_5px_0_0_#000]";
+    "inline-flex w-full items-center justify-center rounded-xl border border-black bg-white px-6 py-4  text-2xl  leading-none text-black shadow-[-5px_5px_0_0_#000] transition-all duration-200 hover:-translate-y-1 hover:shadow-[-5px_9px_0_0_#000] disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0 disabled:hover:shadow-[-5px_5px_0_0_#000]";
 
 export function CadastroForm() {
     const [formData, setFormData] = useState<FormData>(

@@ -1,3 +1,4 @@
+
 "use client";
 
 import Link from "next/link";
@@ -9,7 +10,7 @@ import {
 } from "react";
 
 import {
-    Order,
+    type Order,
     OrderCard,
 } from "@/components/admin/order-card";
 
@@ -78,18 +79,14 @@ export default function AdminShippedOrdersPage() {
                     const existingIds =
                         new Set(
                             currentOrders.map(
-                                (
-                                    order,
-                                ) =>
+                                (order) =>
                                     order.id,
                             ),
                         );
 
                     const uniqueOrders =
                         newOrders.filter(
-                            (
-                                order,
-                            ) =>
+                            (order) =>
                                 !existingIds.has(
                                     order.id,
                                 ),
@@ -115,9 +112,7 @@ export default function AdminShippedOrdersPage() {
 
             setHasMore(false);
         } finally {
-            loadingRef.current =
-                false;
-
+            loadingRef.current = false;
             setLoading(false);
         }
     }
@@ -200,12 +195,10 @@ export default function AdminShippedOrdersPage() {
                     `/api/admin/orders/${orderId}/shipped`,
                     {
                         method: "PATCH",
-
                         headers: {
                             "Content-Type":
                                 "application/json",
                         },
-
                         body: JSON.stringify({
                             shipped,
                         }),
@@ -218,20 +211,11 @@ export default function AdminShippedOrdersPage() {
                 );
             }
 
-            /*
-             * Como esta página mostra somente
-             * pedidos enviados, se shipped
-             * virar false removemos o card.
-             */
             if (!shipped) {
                 setOrders(
-                    (
-                        currentOrders,
-                    ) =>
+                    (currentOrders) =>
                         currentOrders.filter(
-                            (
-                                order,
-                            ) =>
+                            (order) =>
                                 order.id !==
                                 orderId,
                         ),
@@ -241,13 +225,9 @@ export default function AdminShippedOrdersPage() {
             }
 
             setOrders(
-                (
-                    currentOrders,
-                ) =>
+                (currentOrders) =>
                     currentOrders.map(
-                        (
-                            order,
-                        ) =>
+                        (order) =>
                             order.id ===
                             orderId
                                 ? {
@@ -266,43 +246,44 @@ export default function AdminShippedOrdersPage() {
     }
 
     return (
-        <main className="p-6">
+        <main className="min-h-screen p-6 md:p-10">
             <div className="mx-auto flex max-w-5xl flex-col gap-8">
-                {/*
-                 * Cabeçalho.
-                 */}
-                <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+                <div className="flex flex-col gap-6 sm:flex-row sm:items-start sm:justify-between">
                     <div>
-                        <h1 className="text-3xl font-medium">
+                        <h1 className="font-october text-5xl uppercase leading-none text-black md:text-6xl">
                             Pedidos enviados
                         </h1>
 
-                        <p className="mt-1 text-sm">
+                        <p className="mt-3 text-sm text-black/70 md:text-base">
                             Pedidos que já foram enviados.
                         </p>
                     </div>
 
-                    <Link
-                        href="/admin/pedidos"
-                        className="text-sm hover:underline"
-                    >
-                        Ver pedidos pendentes
-                    </Link>
+                    <div className="flex flex-wrap items-center gap-4">
+                        <Link
+                            href="/admin"
+                            className="inline-flex w-fit shrink-0 items-center justify-center rounded-xl border border-black bg-white px-6 py-3 text-xl  leading-none text-black shadow-[-5px_5px_0_0_#000] transition-all duration-200 hover:-translate-y-1 hover:shadow-[-5px_9px_0_0_#000]"
+                        >
+                            ← Admin
+                        </Link>
+
+                        <Link
+                            href="/admin/pedidos"
+                            className="inline-flex w-fit shrink-0 items-center justify-center rounded-xl border border-black bg-white px-6 py-3  text-xl  leading-none text-black shadow-[-5px_5px_0_0_#000] transition-all duration-200 hover:-translate-y-1 hover:shadow-[-5px_9px_0_0_#000]"
+                        >
+                            Ver pedidos pendentes
+                        </Link>
+                    </div>
                 </div>
 
-                {/*
-                 * Lista de pedidos.
-                 */}
-                <div className="flex flex-col gap-4">
+                <div className="border-t border-black/20" />
+
+                <div className="grid gap-6">
                     {orders.map(
                         (order) => (
                             <OrderCard
-                                key={
-                                    order.id
-                                }
-                                order={
-                                    order
-                                }
+                                key={order.id}
+                                order={order}
                                 onShippedChange={
                                     handleShippedChange
                                 }
@@ -311,37 +292,34 @@ export default function AdminShippedOrdersPage() {
                     )}
                 </div>
 
-                {/*
-                 * Estado vazio.
-                 */}
                 {!loading &&
-                    orders.length ===
-                        0 && (
-                        <div className="border border-black p-6">
-                            <p className="text-sm">
+                    orders.length === 0 && (
+                        <div className="rounded-xl border border-black bg-white p-6 shadow-[-5px_5px_0_0_#000]">
+                            <p className="font-october text-2xl uppercase leading-none text-black">
                                 Nenhum pedido enviado.
                             </p>
                         </div>
                     )}
 
-                {/*
-                 * Elemento observado pelo
-                 * IntersectionObserver.
-                 */}
-                {hasMore && (
-                    <div
-                        ref={
-                            loaderRef
-                        }
-                        className="flex min-h-16 items-center justify-center"
-                    >
-                        {loading && (
-                            <p className="text-sm">
-                                Carregando...
-                            </p>
-                        )}
+                {loading && (
+                    <div className="py-8 text-center font-october text-xl uppercase leading-none text-black/70">
+                        Carregando pedidos...
                     </div>
                 )}
+
+                {hasMore && (
+                    <div
+                        ref={loaderRef}
+                        className="h-10"
+                    />
+                )}
+
+                {!hasMore &&
+                    orders.length > 0 && (
+                        <div className="py-8 text-center font-october text-xl uppercase leading-none text-black/70">
+                            Todos os pedidos enviados foram carregados.
+                        </div>
+                    )}
             </div>
         </main>
     );
