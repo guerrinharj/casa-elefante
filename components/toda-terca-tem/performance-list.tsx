@@ -9,12 +9,15 @@ import {
 } from "react";
 
 import {
-    Search,
     Play,
     Pause,
 } from "lucide-react";
 
 import tttPlaceholder from "@/app/images/ttt-3-preto.png";
+
+import {
+    PerformancesSearch,
+} from "@/components/toda-terca-tem/performances-search";
 
 import {
     useAudioPlayer,
@@ -73,6 +76,7 @@ export function PerformanceList({
             const searchableText = [
                 performance.name,
                 performance.location,
+                performance.description,
                 formatDate(
                     performance.performance_date,
                 ),
@@ -92,92 +96,25 @@ export function PerformanceList({
         },
     );
 
-    if (performances.length === 0) {
-        return (
-            <section className="p-4 md:p-6">
-                <p className="text-sm">
-                    Nenhuma apresentação disponível no momento.
-                </p>
-            </section>
-        );
-    }
-
     return (
         <section className="w-full">
-            {/* CABEÇALHO E BUSCA */}
+            {/* SEARCH FIXO */}
 
-            <div
-                className="
-                    mb-6
-                    flex
-                    flex-col
-                    items-start
-                    justify-between
-                    gap-4
-                    md:flex-row
-                    md:items-end
-                "
-            >
-                <h2
-                    className="
-                        font-october
-                        text-4xl
-                        uppercase
-                        leading-none
-                        text-black
-                        md:text-5xl
-                    "
-                >
-                    Apresentações passadas
-                </h2>
+            <PerformancesSearch
+                value={search}
+                onChange={setSearch}
+            />
 
-                <div
-                    className="
-                        flex
-                        w-full
-                        items-center
-                        gap-3
-                        rounded-xl
-                        border
-                        border-black
-                        bg-white
-                        px-4
-                        py-3
-                        text-black
-                        shadow-[-5px_5px_0_0_#000]
-                        md:w-72
-                    "
-                >
-                    <Search
-                        size={20}
-                        strokeWidth={2}
-                        className="shrink-0"
-                    />
-
-                    <input
-                        type="search"
-                        value={search}
-                        onChange={(event) => {
-                            setSearch(event.target.value);
-                        }}
-                        placeholder="Buscar apresentação..."
-                        aria-label="Buscar apresentações"
-                        className="
-                            min-w-0
-                            w-full
-                            bg-transparent
-                            text-sm
-                            text-black
-                            outline-none
-                            placeholder:text-black/50
-                        "
-                    />
-                </div>
-            </div>
 
             {/* LISTAGEM */}
 
-            {filteredPerformances.length === 0 ? (
+            {performances.length === 0 ? (
+                <div className="py-8">
+                    <p className="text-sm text-black">
+                        Nenhuma apresentação disponível no momento.
+                    </p>
+                </div>
+            ) : filteredPerformances.length === 0 ? (
                 <div className="py-8">
                     <p className="text-sm text-black">
                         Nenhuma apresentação encontrada.
@@ -190,7 +127,8 @@ export function PerformanceList({
                         grid-cols-2
                         gap-4
                         px-[5px]
-                        pb-[5px]
+                        pb-[10px]
+                        mb-10
                         md:grid-cols-3
                         md:gap-6
                     "
@@ -325,7 +263,7 @@ export function PerformanceList({
                                         {performance.name}
                                     </Link>
 
-                                    {/* DESCRIÇÃO DA PERFORMANCE */}
+                                    {/* DESCRIÇÃO */}
 
                                     {performance.description && (
                                         <p

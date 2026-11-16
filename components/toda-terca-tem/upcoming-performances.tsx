@@ -36,7 +36,7 @@ export function UpcomingPerformances({
     }
 
     return (
-        <section className="flex flex-col gap-6 px-[5px] pb-[5px]">
+        <section className="mb-4 flex flex-col gap-6 px-[5px] pb-[5px]">
             {performances.map((performance) => (
                 <Link
                     key={performance.id}
@@ -111,19 +111,31 @@ export function UpcomingPerformances({
                                 md:p-6
                             "
                         >
-                            {/* DATA E LOCAL */}
+                            {/* DATA, TÍTULO E LOCAL */}
 
-                            <div className="flex items-start justify-between gap-4">
+                            <div className="grid grid-cols-3 items-start gap-2">
                                 <p className="text-sm leading-tight md:text-base">
                                     {formatDate(
                                         performance.performance_date,
                                     )}
                                 </p>
 
+                                <p
+                                    className="
+                                        text-center
+                                        font-october
+                                        text-lg
+                                        uppercase
+                                        leading-none
+                                        md:text-2xl
+                                    "
+                                >
+                                    Próxima apresentação
+                                </p>
+
                                 {performance.location && (
                                     <p
                                         className="
-                                            max-w-[45%]
                                             text-right
                                             text-sm
                                             leading-tight
