@@ -76,9 +76,7 @@ export function FeaturedProductsCarousel({
                 id: `product-${product.id}`,
                 type: "product",
                 name: product.name,
-                image:
-                    product.images?.[0] ??
-                    null,
+                image: product.images?.[0] ?? null,
                 href: `/produtos/${product.slug}`,
                 eyebrow: "Destaque",
                 secondary: product.artist,
@@ -86,9 +84,7 @@ export function FeaturedProductsCarousel({
         ),
 
         ...performances.map(
-            (
-                performance,
-            ): CarouselSlide => ({
+            (performance): CarouselSlide => ({
                 id: `performance-${performance.id}`,
                 type: "performance",
                 name: performance.name,
@@ -96,12 +92,9 @@ export function FeaturedProductsCarousel({
                     performance.cover_image ||
                     tttFallback.src,
                 href: `/toda-terca-tem/${performance.slug}`,
-                eyebrow:
-                    "Próxima apresentação",
+                eyebrow: "Próxima apresentação",
                 secondary: [
-                    formatDate(
-                        performance.performance_date,
-                    ),
+                    formatDate(performance.performance_date),
                     performance.location,
                 ]
                     .filter(Boolean)
@@ -110,62 +103,30 @@ export function FeaturedProductsCarousel({
         ),
     ];
 
-    const [
-        currentIndex,
-        setCurrentIndex,
-    ] = useState(0);
+    const [currentIndex, setCurrentIndex] = useState(0);
 
-    const nextSlide =
-        useCallback(() => {
-            if (
-                slides.length <= 1
-            ) {
-                return;
-            }
-
-            setCurrentIndex(
-                (current) =>
-                    (current + 1) %
-                    slides.length,
-            );
-        }, [slides.length]);
-
-    const previousSlide =
-        useCallback(() => {
-            if (
-                slides.length <= 1
-            ) {
-                return;
-            }
-
-            setCurrentIndex(
-                (current) =>
-                    (current -
-                        1 +
-                        slides.length) %
-                    slides.length,
-            );
-        }, [slides.length]);
-
-    useEffect(() => {
-        if (
-            slides.length <= 1
-        ) {
+    const nextSlide = useCallback(() => {
+        if (slides.length <= 1) {
             return;
         }
 
-        const interval =
-            window.setInterval(
-                () => {
-                    nextSlide();
-                },
-                6000,
-            );
+        setCurrentIndex(
+            (current) => (current + 1) % slides.length,
+        );
+    }, [slides.length]);
+
+    useEffect(() => {
+        if (slides.length <= 1) {
+            return;
+        }
+
+        const interval = window.setInterval(
+            nextSlide,
+            6000,
+        );
 
         return () => {
-            window.clearInterval(
-                interval,
-            );
+            window.clearInterval(interval);
         };
     }, [
         nextSlide,
@@ -173,10 +134,7 @@ export function FeaturedProductsCarousel({
     ]);
 
     useEffect(() => {
-        if (
-            currentIndex >=
-            slides.length
-        ) {
+        if (currentIndex >= slides.length) {
             setCurrentIndex(0);
         }
     }, [
@@ -184,178 +142,207 @@ export function FeaturedProductsCarousel({
         slides.length,
     ]);
 
-    if (
-        slides.length === 0
-    ) {
+    if (slides.length === 0) {
         return null;
     }
 
-    const slide =
-        slides[currentIndex];
+    const slide = slides[currentIndex];
 
     return (
         <section className="w-full">
-            <div className="relative overflow-hidden rounded-lg">
-                <div className="relative min-h-[420px] overflow-hidden md:min-h-[520px]">
+            <div
+                className="
+                    overflow-hidden
+                    rounded-xl
+                    border
+                    border-black
+                    bg-white
+                    text-black
+                    shadow-[-5px_5px_0_0_#000]
+                "
+            >
+                {/* IMAGEM */}
 
-                    {/* BACKGROUNDS */}
+                <div
+                    className="
+                        relative
+                        h-[300px]
+                        overflow-hidden
+                        bg-[#D2232A]
+                        sm:h-[400px]
+                        md:h-[520px]
+                    "
+                >
+                    {slides.map((item, index) => {
+                        if (!item.image) {
+                            return null;
+                        }
 
-                    <div className="absolute inset-0 bg-[#D2232A]">
-                        {slides.map((item, index) => {
-                            if (!item.image) {
-                                return null;
-                            }
+                        const isFallback =
+                            item.type === "performance" &&
+                            item.image === tttFallback.src;
 
-                            const isFallback =
-                                item.type === "performance" &&
-                                item.image === tttFallback.src;
-
-                            return (
-                                <div
-                                    key={item.id}
-                                    className={`
-                                        absolute
-                                        inset-0
-                                        bg-no-repeat
-                                        bg-center
-                                        transition-all
-                                        duration-[1400ms]
-                                        ease-in-out
-                                        ${
-                                            isFallback
-                                                ? "bg-[length:auto_60%]"
-                                                : "bg-cover"
-                                        }
-                                        ${
-                                            index === currentIndex
-                                                ? "scale-100 opacity-100"
-                                                : "scale-[1.03] opacity-0"
-                                        }
-                                    `}
-                                    style={{
-                                        backgroundColor: isFallback
-                                            ? "#D2232A"
-                                            : undefined,
-                                        backgroundImage: `url("${item.image}")`,
-                                    }}
-                                />
-                            );
-                        })}
-                    </div>
-
-                    <div className="absolute inset-0" />
-
-                    {/* CLICKABLE AREA */}
+                        return (
+                            <div
+                                key={item.id}
+                                className={`
+                                    absolute
+                                    inset-0
+                                    bg-center
+                                    bg-no-repeat
+                                    transition-all
+                                    duration-[1400ms]
+                                    ease-in-out
+                                    ${
+                                        isFallback
+                                            ? "bg-[length:auto_60%]"
+                                            : "bg-cover"
+                                    }
+                                    ${
+                                        index === currentIndex
+                                            ? "scale-100 opacity-100"
+                                            : "scale-[1.03] opacity-0"
+                                    }
+                                `}
+                                style={{
+                                    backgroundColor: isFallback
+                                        ? "#D2232A"
+                                        : undefined,
+                                    backgroundImage: `url("${item.image}")`,
+                                }}
+                            />
+                        );
+                    })}
 
                     <Link
                         href={slide.href}
                         aria-label={`Ver ${slide.name}`}
-                        className="absolute inset-0 z-10 cursor-pointer"
+                        className="
+                            absolute
+                            inset-0
+                            z-10
+                        "
+                    />
+                </div>
+
+                {/* FAIXA COMPACTA DE INFORMAÇÕES */}
+
+                <div
+                    className="
+                        flex
+                        min-h-20
+                        items-center
+                        justify-between
+                        gap-4
+                        border-t
+                        border-black
+                        px-4
+                        py-3
+                        md:px-6
+                    "
+                >
+                    {/* INFORMAÇÕES */}
+
+                    <div
+                        key={slide.id}
+                        className="
+                            min-w-0
+                            flex-1
+                            animate-[fadeIn_700ms_ease-out]
+                        "
                     >
-                        <div className="flex min-h-[420px] items-end p-6 text-white md:min-h-[520px] md:p-8 lg:p-10">
+                        <p
+                            className="
+                                mb-1
+                                text-[10px]
+                                uppercase
+                                tracking-[0.15em]
+                                text-black/60
+                            "
+                        >
+                            {slide.eyebrow}
+                        </p>
 
-                            {/* TEXT OVERLAY — DESKTOP ONLY */}
-
-                            <div
-                                key={slide.id}
-                                className="hidden animate-[fadeIn_700ms_ease-out] md:block"
+                        <Link
+                            href={slide.href}
+                            className="group block w-fit max-w-full"
+                        >
+                            <h2
+                                className="
+                                    font-october
+                                    text-2xl
+                                    uppercase
+                                    leading-none
+                                    transition-opacity
+                                    group-hover:opacity-60
+                                    md:text-3xl
+                                "
                             >
-                                <p className="mb-3 text-xs uppercase tracking-[0.2em]">
-                                    {slide.eyebrow}
-                                </p>
+                                {slide.name}
+                            </h2>
+                        </Link>
 
-                                <div
-                                    className="
-                                        w-fit
-                                        max-w-3xl
-                                        bg-black/35
-                                        p-5
-                                        shadow-[8px_8px_0_rgba(0,0,0,0.55)]
-                                        backdrop-blur-sm
-                                        transition-transform
+                        {slide.secondary && (
+                            <p
+                                className="
+                                    mt-1
+                                    truncate
+                                    text-xs
+                                    text-black/70
+                                    md:text-sm
+                                "
+                            >
+                                {slide.secondary}
+                            </p>
+                        )}
+                    </div>
+
+                    {/* INDICADORES */}
+
+                    {slides.length > 1 && (
+                        <div
+                            className="
+                                flex
+                                max-w-[100px]
+                                shrink-0
+                                items-center
+                                gap-1.5
+                                overflow-x-auto
+                                py-2
+                                [scrollbar-width:none]
+                                [&::-webkit-scrollbar]:hidden
+                            "
+                        >
+                            {slides.map((item, index) => (
+                                <button
+                                    key={item.id}
+                                    type="button"
+                                    onClick={() => {
+                                        setCurrentIndex(index);
+                                    }}
+                                    aria-label={`Ir para destaque ${index + 1}`}
+                                    aria-current={
+                                        index === currentIndex
+                                            ? "true"
+                                            : undefined
+                                    }
+                                    className={`
+                                        h-2
+                                        w-2
+                                        shrink-0
+                                        rounded-full
+                                        border
+                                        border-black
+                                        transition-colors
                                         duration-300
-                                        hover:-translate-y-1
-                                        md:p-6
-                                    "
-                                >
-                                    {slide.secondary && (
-                                        <p className="mb-2 text-lg md:text-xl">
-                                            {slide.secondary}
-                                        </p>
-                                    )}
-
-                                    <h2 className="font-october text-4xl leading-none md:text-6xl lg:text-7xl">
-                                        {slide.name}
-                                    </h2>
-
-                                    {slide.type ===
-                                        "performance" && (
-                                        <p className="mt-4 text-xs uppercase tracking-[0.2em]">
-                                            Toda Terça Tem
-                                        </p>
-                                    )}
-                                </div>
-                            </div>
-                        </div>
-                    </Link>
-
-                    {/* CAROUSEL CONTROLS */}
-
-                    {slides.length >
-                        1 && (
-                        <div className="absolute bottom-6 right-6 z-20 flex items-center gap-3 rounded-full border border-white/50 bg-black/20 px-3 py-2 text-white backdrop-blur-md md:bottom-10 md:right-10 lg:bottom-12 lg:right-12">
-                            <button
-                                type="button"
-                                onClick={
-                                    previousSlide
-                                }
-                                aria-label="Destaque anterior"
-                                className="flex h-8 w-8 items-center justify-center rounded-full transition-colors hover:bg-[#FFFDE9] hover:text-black"
-                            >
-                                ←
-                            </button>
-
-                            <div className="flex items-center gap-2">
-                                {slides.map(
-                                    (
-                                        item,
-                                        index,
-                                    ) => (
-                                        <button
-                                            key={
-                                                item.id
-                                            }
-                                            type="button"
-                                            onClick={() =>
-                                                setCurrentIndex(
-                                                    index,
-                                                )
-                                            }
-                                            aria-label={`Ir para destaque ${
-                                                index +
-                                                1
-                                            }`}
-                                            className={`h-2 w-2 rounded-full border border-white transition-colors duration-300 ${
-                                                index ===
-                                                currentIndex
-                                                    ? "bg-[#FFFDE9]"
-                                                    : "bg-transparent"
-                                            }`}
-                                        />
-                                    ),
-                                )}
-                            </div>
-
-                            <button
-                                type="button"
-                                onClick={
-                                    nextSlide
-                                }
-                                aria-label="Próximo destaque"
-                                className="flex h-8 w-8 items-center justify-center rounded-full transition-colors hover:bg-[#FFFDE9] hover:text-black"
-                            >
-                                →
-                            </button>
+                                        ${
+                                            index === currentIndex
+                                                ? "bg-black"
+                                                : "bg-white hover:bg-black/30"
+                                        }
+                                    `}
+                                />
+                            ))}
                         </div>
                     )}
                 </div>

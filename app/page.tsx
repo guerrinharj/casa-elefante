@@ -12,6 +12,10 @@ import {
 } from "@/components/layout/sidebar";
 
 import {
+    ProductSearch,
+} from "@/components/products/product-search";
+
+import {
     ProductsSection,
 } from "@/components/products/products-section";
 
@@ -34,6 +38,10 @@ import {
 import {
     getUserAccess,
 } from "@/lib/auth";
+
+import {
+    PageHeader,
+} from "@/components/layout/page-header";
 
 type HomePageProps = {
     searchParams: Promise<{
@@ -191,50 +199,71 @@ export default async function HomePage({
 
     return (
         <div className="w-full max-w-full overflow-x-hidden">
-            {/* MOBILE FILTERS */}
+        {/* SEARCH — MOBILE E DESKTOP */}
 
-            <div className="md:hidden">
-                <Suspense
-                    fallback={
-                        <div className="h-12 border-b border-black" />
-                    }
-                >
-                    <MobileFilters>
-                        <Sidebar mobile />
-                    </MobileFilters>
-                </Suspense>
-            </div>
+        <div
+            className="
+                fixed
+                left-4
+                top-4
+                z-[60]
+                md:left-6
+                md:top-6
+            "
+        >
+            <Suspense fallback={null}>
+                <ProductSearch />
+            </Suspense>
+        </div>
 
-            {/* DESKTOP SIDEBAR */}
+        {/* FILTERS — MOBILE */}
 
-            <div
-                className="
-                    group
-                    fixed
-                    left-0
-                    top-0
-                    z-40
-                    hidden
-                    -translate-x-[calc(100%-50px)]
-                    transition-transform
-                    duration-500
-                    ease-out
-                    hover:translate-x-0
-                    md:block
-                "
+        <div className="md:hidden">
+            <Suspense fallback={null}>
+                <MobileFilters>
+                    <Sidebar mobile />
+                </MobileFilters>
+            </Suspense>
+        </div>
+
+        {/* FILTERS — DESKTOP */}
+
+        <div
+            className="
+                fixed
+                left-6
+                top-24
+                z-40
+                hidden
+                md:block
+            "
+        >
+            <Suspense
+                fallback={
+                    <aside
+                        className="
+                            h-14
+                            w-14
+                            rounded-xl
+                            border
+                            border-black
+                            bg-white
+                            shadow-[-5px_5px_0_0_#000]
+                        "
+                    />
+                }
             >
-                <Suspense
-                    fallback={
-                        <aside className="h-dvh w-64" />
-                    }
-                >
-                    <Sidebar />
-                </Suspense>
-            </div>
+                <Sidebar />
+            </Suspense>
+        </div>
 
             {/* CONTENT */}
 
-            <main className="w-full overflow-hidden p-4 md:py-6 md:pr-6 md:pl-24">
+            <main className="w-full overflow-hidden p-4 md:p-6">
+                {/* TÍTULO PRINCIPAL */}
+
+                <PageHeader title="Casa Elefante" />
+
                 {/* FEATURED CAROUSEL */}
 
                 {!hasActiveFilters &&

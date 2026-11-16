@@ -240,32 +240,6 @@ export async function ProductsSection({
 
     return (
         <>
-            <div className="mb-8 flex items-center justify-between gap-8">
-                <div className="flex flex-1 items-center gap-8">
-                    <div className="flex items-center gap-3">
-                        {hasActiveFilters && (
-                            <Link
-                                href="/"
-                                aria-label="Voltar para Loja"
-                                className="text-3xl transition-transform hover:-translate-x-1"
-                            >
-                                ←
-                            </Link>
-                        )}
-
-                        <h1 className="font-october shrink-0 text-4xl font-bold">
-                            {title}
-                        </h1>
-                    </div>
-
-                    <ProductSearch />
-                </div>
-
-                <span className="shrink-0 text-sm">
-                    {count ?? 0} produtos
-                </span>
-            </div>
-
             {products.length === 0 ? (
                 <p>
                     Nenhum produto
