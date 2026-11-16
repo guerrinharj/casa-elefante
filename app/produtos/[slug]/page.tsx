@@ -38,8 +38,7 @@ export default async function ProductPage({
         slug,
     } = await params;
 
-    const supabase =
-        await createClient();
+    const supabase = await createClient();
 
     const {
         canSeeWholesalePrice,
@@ -154,7 +153,7 @@ export default async function ProductPage({
                     )}
                 </div>
 
-                {/* COLUNA DE INFORMAÇÕES */}
+                {/* COLUNA DIREITA */}
 
                 <div className="animate-product-info flex flex-col gap-6">
                     {/* BOX DE INFORMAÇÕES */}
@@ -253,14 +252,10 @@ export default async function ProductPage({
                                             className="flex items-center gap-2"
                                         >
                                             {index > 0 && (
-                                                <span>
-                                                    /
-                                                </span>
+                                                <span>/</span>
                                             )}
 
-                                            <span>
-                                                {detail}
-                                            </span>
+                                            <span>{detail}</span>
                                         </div>
                                     ),
                                 )}
@@ -274,17 +269,7 @@ export default async function ProductPage({
                             product.condition ||
                             hasDimensions ||
                             product.weight) && (
-                            <div
-                                className="
-                                    flex
-                                    flex-col
-                                    gap-4
-                                    border-t
-                                    border-black/20
-                                    pt-5
-                                    text-sm
-                                "
-                            >
+                            <div className="flex flex-col gap-4 border-t border-black/20 pt-5 text-sm">
                                 {product.catalog_number && (
                                     <p>
                                         <span className="font-semibold">
@@ -361,51 +346,19 @@ export default async function ProductPage({
                                 </p>
                             </div>
                         )}
-                    </div>
 
-                    {/* BOX DE COMPRA */}
+                        {/* PREÇO E ESTOQUE */}
 
-                    <div
-                        className="
-                            flex
-                            flex-col
-                            gap-5
-                            rounded-xl
-                            border
-                            border-black
-                            bg-white
-                            p-5
-                            text-black
-                            shadow-[-5px_5px_0_0_#000]
-                            md:p-6
-                        "
-                    >
-                        {/* PREÇO */}
-
-                        <div>
+                        <div className="border-t border-black/20 pt-5">
                             {canSeeWholesalePrice &&
                             product.wholesale_price !== null ? (
                                 <div>
                                     <div className="flex items-baseline gap-3">
                                         <p className="text-lg line-through opacity-50">
-                                            {formatPrice(
-                                                product.price,
-                                            )}
+                                            {formatPrice(product.price)}
                                         </p>
 
-                                        <span
-                                            className="
-                                                rounded-full
-                                                border
-                                                border-black
-                                                bg-black
-                                                px-2
-                                                py-1
-                                                text-xs
-                                                uppercase
-                                                text-white
-                                            "
-                                        >
+                                        <span className="rounded-full border border-black bg-black px-2 py-1 text-xs uppercase text-white">
                                             Atacado
                                         </span>
                                     </div>
@@ -424,13 +377,9 @@ export default async function ProductPage({
                                 </div>
                             ) : (
                                 <p className="text-3xl font-medium">
-                                    {formatPrice(
-                                        product.price,
-                                    )}
+                                    {formatPrice(product.price)}
                                 </p>
                             )}
-
-                            {/* ESTOQUE */}
 
                             {product.pre_order ? (
                                 <p className="mt-2 text-sm">
@@ -444,45 +393,33 @@ export default async function ProductPage({
                                 </p>
                             )}
                         </div>
-
-                        {/* BOTÃO ORIGINAL DE ADICIONAR AO CARRINHO */}
-
-                        {unavailableForUser ? (
-                            <div
-                                className="
-                                    rounded-xl
-                                    border
-                                    border-black
-                                    bg-[#FFFDE9]
-                                    p-4
-                                    text-sm
-                                "
-                            >
-                                Este produto é exclusivo para
-                                clientes atacadistas aprovados.
-                            </div>
-                        ) : (
-                            <AddToCartButton
-                                product={{
-                                    id: product.id,
-                                    name: product.name,
-                                    slug: product.slug,
-                                    artist: product.artist,
-                                    price:
-                                        canSeeWholesalePrice &&
-                                        product.wholesale_price !== null
-                                            ? Number(
-                                                product.wholesale_price,
-                                            )
-                                            : Number(
-                                                product.price,
-                                            ),
-                                    stock: product.stock,
-                                    image: product.images?.[0],
-                                }}
-                            />
-                        )}
                     </div>
+
+                    
+                {/* ADICIONAR AO CARRINHO */}
+
+                {unavailableForUser ? (
+                    <div className="rounded-xl border border-black bg-[#FFFDE9] p-4 text-sm text-black">
+                        Este produto é exclusivo para clientes atacadistas aprovados.
+                    </div>
+                ) : (
+                    <AddToCartButton
+                        product={{
+                            id: product.id,
+                            name: product.name,
+                            slug: product.slug,
+                            artist: product.artist,
+                            price:
+                                canSeeWholesalePrice &&
+                                product.wholesale_price !== null
+                                    ? Number(product.wholesale_price)
+                                    : Number(product.price),
+                            stock: product.stock,
+                            image: product.images?.[0],
+                        }}
+                    />
+                )}
+
                 </div>
             </div>
         </main>
