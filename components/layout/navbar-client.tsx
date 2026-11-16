@@ -1,5 +1,5 @@
 "use client";
-
+import { DraggableComponent } from "@/components/layout/draggable-component";
 import { FileTabs } from "@/components/layout/file-tabs";
 
 type WholesaleStatus =
@@ -32,10 +32,20 @@ export function NavbarClient({
           : "/minha-conta";
 
     return (
-        <FileTabs
-            name={name}
-            isLoggedIn={isLoggedIn}
-            accountHref={accountHref}
-        />
+        <DraggableComponent
+            id="file-tabs"
+            defaultPosition={{
+                bottom: 24,
+                right: 24,
+            }}
+            width="min(560px, calc(100vw - 48px))"
+            zIndex={100}
+        >
+            <FileTabs
+                name={name}
+                isLoggedIn={isLoggedIn}
+                accountHref={accountHref}
+            />
+        </DraggableComponent>
     );
 }

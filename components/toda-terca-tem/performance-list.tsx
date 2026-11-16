@@ -16,6 +16,10 @@ import {
 import tttPlaceholder from "@/app/images/ttt-3-preto.png";
 
 import {
+    DraggableComponent,
+} from "@/components/layout/draggable-component";
+
+import {
     PerformancesSearch,
 } from "@/components/toda-terca-tem/performances-search";
 
@@ -100,10 +104,19 @@ export function PerformanceList({
         <section className="w-full">
             {/* SEARCH FIXO */}
 
-            <PerformancesSearch
-                value={search}
-                onChange={setSearch}
-            />
+            <DraggableComponent
+                id="performances-search"
+                defaultPosition={{
+                    top: 24,
+                    left: 24,
+                }}
+                width="max-content"
+            >
+                <PerformancesSearch
+                    value={search}
+                    onChange={setSearch}
+                />
+            </DraggableComponent>
 
 
             {/* LISTAGEM */}
