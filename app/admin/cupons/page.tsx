@@ -1,3 +1,4 @@
+
 import Link from "next/link";
 
 import {
@@ -65,6 +66,12 @@ function getCouponStatus(
 
     return "Ativo";
 }
+
+const buttonClassName =
+    "inline-flex items-center justify-center rounded-xl border border-black bg-white px-5 py-3 text-sm font-medium text-black shadow-[-5px_5px_0_0_#000] transition-all duration-200 hover:-translate-y-1 hover:shadow-[-5px_9px_0_0_#000]";
+
+const actionClassName =
+    "inline-flex items-center justify-center rounded-lg border border-black bg-white px-4 py-2 text-sm font-medium text-black shadow-[-3px_3px_0_0_#000] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[-3px_5px_0_0_#000]";
 
 export default async function AdminCouponsPage() {
     const supabase =
@@ -146,149 +153,166 @@ export default async function AdminCouponsPage() {
     }
 
     return (
-        <main className="p-6">
+        <main className="min-h-screen p-6 text-black md:p-10">
             <div className="mx-auto flex max-w-5xl flex-col gap-8">
-                <div className="flex items-center justify-between">
-                    <h1 className="text-3xl font-medium">
-                        Cupons
-                    </h1>
+                <div className="flex flex-col gap-6 sm:flex-row sm:items-start sm:justify-between">
+                    <div>
+                        <h1 className="font-october text-5xl uppercase leading-none text-black md:text-6xl">
+                            Cupons
+                        </h1>
 
-                    <Link
-                        href="/admin/cupons/novo"
-                        className="border border-black px-4 py-2 transition-opacity hover:opacity-60"
-                    >
-                        + Adicionar cupom
-                    </Link>
+                        <p className="mt-3 text-sm text-black/70 md:text-base">
+                            Gerencie os cupons de desconto da loja.
+                        </p>
+                    </div>
+
+                    <div className="flex flex-wrap items-center gap-4">
+                        <Link
+                            href="/admin"
+                            className={buttonClassName}
+                        >
+                            ← Admin
+                        </Link>
+
+                        <Link
+                            href="/admin/cupons/novo"
+                            className={buttonClassName}
+                        >
+                            + Adicionar cupom
+                        </Link>
+                    </div>
                 </div>
+
+                <div className="border-t border-black/20" />
 
                 {!coupons ||
                 coupons.length === 0 ? (
-                    <div className="border-t border-black">
-                        <p className="py-6 text-sm">
+                    <div className="rounded-xl border border-black bg-white p-6 shadow-[-5px_5px_0_0_#000]">
+                        <p className="font-october text-2xl uppercase leading-none text-black">
                             Nenhum cupom encontrado.
                         </p>
                     </div>
                 ) : (
-                    <div className="border-t border-black">
-                        <div className="grid grid-cols-[1.5fr_1fr_1fr_1fr_1fr_1fr] gap-4 border-b border-black py-3 text-xs uppercase">
-                            <span>
-                                Código
-                            </span>
+                    <div className="overflow-hidden rounded-xl border border-black bg-white shadow-[-5px_5px_0_0_#000]">
+                        <div className="overflow-x-auto">
+                            <div className="min-w-[850px]">
+                                <div className="grid grid-cols-[1.5fr_1fr_0.8fr_1fr_0.9fr_1.3fr] gap-4 border-b border-black bg-white px-5 py-4">
+                                    <span className="font-october text-lg uppercase leading-none">
+                                        Código
+                                    </span>
 
-                            <span>
-                                Desconto
-                            </span>
+                                    <span className="font-october text-lg uppercase leading-none">
+                                        Desconto
+                                    </span>
 
-                            <span>
-                                Usos
-                            </span>
+                                    <span className="font-october text-lg uppercase leading-none">
+                                        Usos
+                                    </span>
 
-                            <span>
-                                Expiração
-                            </span>
+                                    <span className="font-october text-lg uppercase leading-none">
+                                        Expiração
+                                    </span>
 
-                            <span>
-                                Status
-                            </span>
+                                    <span className="font-october text-lg uppercase leading-none">
+                                        Status
+                                    </span>
 
-                            <span>
-                                Ações
-                            </span>
-                        </div>
+                                    <span className="font-october text-lg uppercase leading-none">
+                                        Ações
+                                    </span>
+                                </div>
 
-                        {coupons.map(
-                            (coupon) => {
-                                const status =
-                                    getCouponStatus(
-                                        coupon.active,
-                                        coupon.starts_at,
-                                        coupon.expires_at,
-                                    );
-
-                                return (
-                                    <div
-                                        key={
-                                            coupon.id
-                                        }
-                                        className="grid grid-cols-[1.5fr_1fr_1fr_1fr_1fr_1fr] items-center gap-4 border-b border-black py-4 text-sm"
-                                    >
-                                        <div className="flex items-center gap-2">
-                                            <span className="font-medium">
-                                                {
-                                                    coupon.code
-                                                }
-                                            </span>
-
-                                            {coupon.wholesale_only && (
-                                                <span className="border border-black px-1.5 py-0.5 text-[10px] uppercase">
-                                                    Atacado
-                                                </span>
-                                            )}
-                                        </div>
-
-                                        <span>
-                                            {formatDiscount(
-                                                coupon.discount_type,
-                                                Number(
-                                                    coupon.discount_value,
-                                                ),
-                                            )}
-                                        </span>
-
-                                        <span>
-                                            {
-                                                coupon.usage_count
-                                            }
-                                            {" / "}
-                                            {coupon.max_uses ??
-                                                "∞"}
-                                        </span>
-
-                                        <span>
-                                            {formatDate(
+                                {coupons.map(
+                                    (coupon) => {
+                                        const status =
+                                            getCouponStatus(
+                                                coupon.active,
+                                                coupon.starts_at,
                                                 coupon.expires_at,
-                                            )}
-                                        </span>
+                                            );
 
-                                        <span>
-                                            {
-                                                status
-                                            }
-                                        </span>
-
-                                        <div className="flex items-center gap-4">
-                                            <Link
-                                                href={`/admin/cupons/${coupon.id}/editar`}
-                                                className="underline transition-opacity hover:opacity-50"
+                                        return (
+                                            <div
+                                                key={coupon.id}
+                                                className="grid grid-cols-[1.5fr_1fr_0.8fr_1fr_0.9fr_1.3fr] items-center gap-4 border-b border-black/15 px-5 py-5 text-sm last:border-b-0"
                                             >
-                                                Editar
-                                            </Link>
+                                                <div className="flex flex-wrap items-center gap-2">
+                                                    <span className="font-semibold break-all">
+                                                        {coupon.code}
+                                                    </span>
 
-                                            <form
-                                                action={
-                                                    deleteCoupon
-                                                }
-                                            >
-                                                <input
-                                                    type="hidden"
-                                                    name="couponId"
-                                                    value={
-                                                        coupon.id
-                                                    }
-                                                />
+                                                    {coupon.wholesale_only && (
+                                                        <span className="rounded-md border border-black bg-[#FFFDE9] px-2 py-1 text-[10px] font-medium">
+                                                            Atacado
+                                                        </span>
+                                                    )}
+                                                </div>
 
-                                                <button
-                                                    type="submit"
-                                                    className="underline transition-opacity hover:opacity-50"
-                                                >
-                                                    Excluir
-                                                </button>
-                                            </form>
-                                        </div>
-                                    </div>
-                                );
-                            },
-                        )}
+                                                <span className="font-medium">
+                                                    {formatDiscount(
+                                                        coupon.discount_type,
+                                                        Number(
+                                                            coupon.discount_value,
+                                                        ),
+                                                    )}
+                                                </span>
+
+                                                <span>
+                                                    {coupon.usage_count}
+                                                    {" / "}
+                                                    {coupon.max_uses ??
+                                                        "∞"}
+                                                </span>
+
+                                                <span>
+                                                    {formatDate(
+                                                        coupon.expires_at,
+                                                    )}
+                                                </span>
+
+                                                <span>
+                                                    <span
+                                                        className={`inline-flex rounded-md border border-black px-3 py-1 text-xs font-medium ${
+                                                            status === "Ativo"
+                                                                ? "bg-[#FFFDE9]"
+                                                                : "bg-white"
+                                                        }`}
+                                                    >
+                                                        {status}
+                                                    </span>
+                                                </span>
+
+                                                <div className="flex flex-wrap items-center gap-3">
+                                                    <Link
+                                                        href={`/admin/cupons/${coupon.id}/editar`}
+                                                        className={actionClassName}
+                                                    >
+                                                        Editar
+                                                    </Link>
+
+                                                    <form
+                                                        action={deleteCoupon}
+                                                    >
+                                                        <input
+                                                            type="hidden"
+                                                            name="couponId"
+                                                            value={coupon.id}
+                                                        />
+
+                                                        <button
+                                                            type="submit"
+                                                            className={actionClassName}
+                                                        >
+                                                            Excluir
+                                                        </button>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        );
+                                    },
+                                )}
+                            </div>
+                        </div>
                     </div>
                 )}
             </div>

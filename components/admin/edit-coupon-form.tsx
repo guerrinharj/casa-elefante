@@ -1,7 +1,8 @@
+
 "use client";
 
 import {
-    FormEvent,
+    type FormEvent,
     useState,
 } from "react";
 
@@ -31,6 +32,15 @@ type EditCouponFormProps = {
     coupon: Coupon;
 };
 
+const labelClassName =
+    "font-october text-xl uppercase leading-none text-black";
+
+const inputClassName =
+    "w-full min-w-0 rounded-xl border border-black bg-white px-4 py-3 text-base text-black outline-none transition-colors placeholder:text-black/35 focus:ring-2 focus:ring-black/15";
+
+const buttonClassName =
+    "inline-flex items-center justify-center rounded-xl border border-black bg-white px-6 py-3 text-base font-medium text-black shadow-[-5px_5px_0_0_#000] transition-all duration-200 hover:-translate-y-1 hover:shadow-[-5px_9px_0_0_#000] disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:translate-y-0 disabled:hover:shadow-[-5px_5px_0_0_#000]";
+
 function toDateTimeLocal(
     value: string | null,
 ) {
@@ -57,93 +67,62 @@ export function EditCouponForm({
     coupon,
 }: EditCouponFormProps) {
     const router = useRouter();
+
     const supabase = createClient();
 
     const [code, setCode] =
         useState(coupon.code);
 
-    const [
-        discountType,
-        setDiscountType,
-    ] = useState<"percentage" | "fixed">(
-        coupon.discount_type,
-    );
+    const [discountType, setDiscountType] =
+        useState<"percentage" | "fixed">(
+            coupon.discount_type,
+        );
 
-    const [
-        discountValue,
-        setDiscountValue,
-    ] = useState(
-        String(coupon.discount_value),
-    );
+    const [discountValue, setDiscountValue] =
+        useState(
+            String(coupon.discount_value),
+        );
 
     const [
         minimumOrderValue,
         setMinimumOrderValue,
     ] = useState(
         coupon.minimum_order_value !== null
-            ? String(
-                  coupon.minimum_order_value,
-              )
+            ? String(coupon.minimum_order_value)
             : "",
     );
 
-    const [
-        startsAt,
-        setStartsAt,
-    ] = useState(
-        toDateTimeLocal(
-            coupon.starts_at,
-        ),
-    );
+    const [startsAt, setStartsAt] =
+        useState(
+            toDateTimeLocal(coupon.starts_at),
+        );
 
-    const [
-        expiresAt,
-        setExpiresAt,
-    ] = useState(
-        toDateTimeLocal(
-            coupon.expires_at,
-        ),
-    );
+    const [expiresAt, setExpiresAt] =
+        useState(
+            toDateTimeLocal(coupon.expires_at),
+        );
 
-    const [
-        maxUses,
-        setMaxUses,
-    ] = useState(
-        coupon.max_uses !== null
-            ? String(coupon.max_uses)
-            : "",
-    );
+    const [maxUses, setMaxUses] =
+        useState(
+            coupon.max_uses !== null
+                ? String(coupon.max_uses)
+                : "",
+        );
 
-    const [
-        wholesaleOnly,
-        setWholesaleOnly,
-    ] = useState(
-        coupon.wholesale_only,
-    );
+    const [wholesaleOnly, setWholesaleOnly] =
+        useState(coupon.wholesale_only);
 
-    const [
-        active,
-        setActive,
-    ] = useState(
-        coupon.active,
-    );
+    const [active, setActive] =
+        useState(coupon.active);
 
-    const [
-        loading,
-        setLoading,
-    ] = useState(false);
+    const [loading, setLoading] =
+        useState(false);
 
-    const [
-        deleting,
-        setDeleting,
-    ] = useState(false);
+    const [deleting, setDeleting] =
+        useState(false);
 
-    const [
-        error,
-        setError,
-    ] = useState<string | null>(
-        null,
-    );
+    const [error, setError] =
+        useState<string | null>(null);
 
     async function handleSubmit(
         event: FormEvent<HTMLFormElement>,
@@ -176,8 +155,7 @@ export function EditCouponForm({
         }
 
         if (
-            discountType ===
-                "percentage" &&
+            discountType === "percentage" &&
             parsedDiscountValue > 100
         ) {
             setError(
@@ -188,14 +166,10 @@ export function EditCouponForm({
 
         const parsedMinimumOrderValue =
             minimumOrderValue
-                ? Number(
-                      minimumOrderValue,
-                  )
+                ? Number(minimumOrderValue)
                 : 0;
 
-        if (
-            parsedMinimumOrderValue < 0
-        ) {
+        if (parsedMinimumOrderValue < 0) {
             setError(
                 "O valor mínimo do pedido não pode ser negativo.",
             );
@@ -222,9 +196,7 @@ export function EditCouponForm({
         if (
             parsedMaxUses !== null &&
             (
-                !Number.isInteger(
-                    parsedMaxUses,
-                ) ||
+                !Number.isInteger(parsedMaxUses) ||
                 parsedMaxUses <= 0
             )
         ) {
@@ -236,8 +208,7 @@ export function EditCouponForm({
 
         if (
             parsedMaxUses !== null &&
-            parsedMaxUses <
-                coupon.usage_count
+            parsedMaxUses < coupon.usage_count
         ) {
             setError(
                 `Este cupom já foi usado ${coupon.usage_count} vez(es). O limite não pode ser menor que isso.`,
@@ -286,8 +257,7 @@ export function EditCouponForm({
             );
 
             if (
-                updateError.code ===
-                "23505"
+                updateError.code === "23505"
             ) {
                 setError(
                     "Já existe um cupom com esse código.",
@@ -302,18 +272,14 @@ export function EditCouponForm({
             return;
         }
 
-        router.push(
-            "/admin/cupons",
-        );
-
+        router.push("/admin/cupons");
         router.refresh();
     }
 
     async function handleDelete() {
-        const confirmed =
-            window.confirm(
-                `Tem certeza que deseja excluir o cupom "${coupon.code}"?`,
-            );
+        const confirmed = window.confirm(
+            `Tem certeza que deseja excluir o cupom "${coupon.code}"?`,
+        );
 
         if (!confirmed) {
             return;
@@ -343,22 +309,19 @@ export function EditCouponForm({
             return;
         }
 
-        router.push(
-            "/admin/cupons",
-        );
-
+        router.push("/admin/cupons");
         router.refresh();
     }
 
     return (
         <form
             onSubmit={handleSubmit}
-            className="flex flex-col gap-8"
+            className="flex w-full flex-col gap-8 text-black"
         >
-            <div className="flex flex-col gap-2">
+            <div className="flex flex-col gap-3">
                 <label
                     htmlFor="code"
-                    className="text-sm"
+                    className={labelClassName}
                 >
                     Código
                 </label>
@@ -373,15 +336,15 @@ export function EditCouponForm({
                         )
                     }
                     required
-                    className="border border-black bg-transparent px-3 py-2 uppercase outline-none"
+                    className={`${inputClassName} uppercase`}
                 />
             </div>
 
             <div className="grid gap-6 md:grid-cols-2">
-                <div className="flex flex-col gap-2">
+                <div className="flex min-w-0 flex-col gap-3">
                     <label
                         htmlFor="discountType"
-                        className="text-sm"
+                        className={labelClassName}
                     >
                         Tipo de desconto
                     </label>
@@ -396,7 +359,7 @@ export function EditCouponForm({
                                     | "fixed",
                             )
                         }
-                        className="border border-black bg-transparent px-3 py-2 outline-none"
+                        className={inputClassName}
                     >
                         <option value="percentage">
                             Porcentagem (%)
@@ -408,13 +371,12 @@ export function EditCouponForm({
                     </select>
                 </div>
 
-                <div className="flex flex-col gap-2">
+                <div className="flex min-w-0 flex-col gap-3">
                     <label
                         htmlFor="discountValue"
-                        className="text-sm"
+                        className={labelClassName}
                     >
-                        {discountType ===
-                        "percentage"
+                        {discountType === "percentage"
                             ? "Porcentagem"
                             : "Valor do desconto"}
                     </label>
@@ -424,8 +386,7 @@ export function EditCouponForm({
                         type="number"
                         min="0.01"
                         max={
-                            discountType ===
-                            "percentage"
+                            discountType === "percentage"
                                 ? "100"
                                 : undefined
                         }
@@ -437,15 +398,15 @@ export function EditCouponForm({
                             )
                         }
                         required
-                        className="border border-black bg-transparent px-3 py-2 outline-none"
+                        className={inputClassName}
                     />
                 </div>
             </div>
 
-            <div className="flex flex-col gap-2">
+            <div className="flex flex-col gap-3">
                 <label
                     htmlFor="minimumOrderValue"
-                    className="text-sm"
+                    className={labelClassName}
                 >
                     Valor mínimo do pedido
                 </label>
@@ -462,15 +423,15 @@ export function EditCouponForm({
                         )
                     }
                     placeholder="0.00"
-                    className="border border-black bg-transparent px-3 py-2 outline-none"
+                    className={inputClassName}
                 />
             </div>
 
             <div className="grid gap-6 md:grid-cols-2">
-                <div className="flex flex-col gap-2">
+                <div className="flex min-w-0 flex-col gap-3">
                     <label
                         htmlFor="startsAt"
-                        className="text-sm"
+                        className={labelClassName}
                     >
                         Início
                     </label>
@@ -484,14 +445,14 @@ export function EditCouponForm({
                                 event.target.value,
                             )
                         }
-                        className="border border-black bg-transparent px-3 py-2 outline-none"
+                        className={inputClassName}
                     />
                 </div>
 
-                <div className="flex flex-col gap-2">
+                <div className="flex min-w-0 flex-col gap-3">
                     <label
                         htmlFor="expiresAt"
-                        className="text-sm"
+                        className={labelClassName}
                     >
                         Expiração
                     </label>
@@ -505,15 +466,15 @@ export function EditCouponForm({
                                 event.target.value,
                             )
                         }
-                        className="border border-black bg-transparent px-3 py-2 outline-none"
+                        className={inputClassName}
                     />
                 </div>
             </div>
 
-            <div className="flex flex-col gap-2">
+            <div className="flex flex-col gap-3">
                 <label
                     htmlFor="maxUses"
-                    className="text-sm"
+                    className={labelClassName}
                 >
                     Limite de usos
                 </label>
@@ -530,16 +491,15 @@ export function EditCouponForm({
                         )
                     }
                     placeholder="Sem limite"
-                    className="border border-black bg-transparent px-3 py-2 outline-none"
+                    className={inputClassName}
                 />
 
-                <p className="text-xs opacity-60">
-                    Usos atuais:{" "}
-                    {coupon.usage_count}
+                <p className="text-sm text-black/60">
+                    Usos atuais: {coupon.usage_count}
                 </p>
             </div>
 
-            <div className="border-t border-black pt-6">
+            <div className="flex flex-col gap-5 border-t border-black/20 pt-6">
                 <label className="flex cursor-pointer items-center gap-3">
                     <input
                         type="checkbox"
@@ -549,15 +509,14 @@ export function EditCouponForm({
                                 event.target.checked,
                             )
                         }
+                        className="h-5 w-5 shrink-0 accent-black"
                     />
 
-                    <span className="text-sm">
+                    <span className="text-base text-black">
                         Exclusivo para atacadistas
                     </span>
                 </label>
-            </div>
 
-            <div>
                 <label className="flex cursor-pointer items-center gap-3">
                     <input
                         type="checkbox"
@@ -567,29 +526,30 @@ export function EditCouponForm({
                                 event.target.checked,
                             )
                         }
+                        className="h-5 w-5 shrink-0 accent-black"
                     />
 
-                    <span className="text-sm">
+                    <span className="text-base text-black">
                         Cupom ativo
                     </span>
                 </label>
             </div>
 
             {error && (
-                <div className="border border-black p-4 text-sm">
+                <div
+                    role="alert"
+                    className="rounded-xl border border-black bg-white p-4 text-sm text-[#D2232A] shadow-[-3px_3px_0_0_#000]"
+                >
                     {error}
                 </div>
             )}
 
-            <div className="flex items-center justify-between border-t border-black pt-6">
+            <div className="flex flex-wrap items-center justify-between gap-5 border-t border-black/20 pt-6">
                 <button
                     type="button"
                     onClick={handleDelete}
-                    disabled={
-                        loading ||
-                        deleting
-                    }
-                    className="text-sm underline transition-opacity hover:opacity-60 disabled:opacity-40"
+                    disabled={loading || deleting}
+                    className={buttonClassName}
                 >
                     {deleting
                         ? "Excluindo..."
@@ -598,11 +558,8 @@ export function EditCouponForm({
 
                 <button
                     type="submit"
-                    disabled={
-                        loading ||
-                        deleting
-                    }
-                    className="border border-black px-6 py-3 transition-opacity hover:opacity-60 disabled:cursor-not-allowed disabled:opacity-40"
+                    disabled={loading || deleting}
+                    className={buttonClassName}
                 >
                     {loading
                         ? "Salvando..."
