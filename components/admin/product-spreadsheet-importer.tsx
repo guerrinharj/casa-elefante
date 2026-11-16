@@ -1,27 +1,21 @@
 "use client";
-
 import Link from "next/link";
-
 import {
     ChangeEvent,
     useMemo,
     useState,
 } from "react";
-
 import {
     read,
     utils,
 } from "xlsx";
-
 import {
     createClient,
 } from "@/lib/supabase/client";
-
 import {
     PRODUCT_FORMATS,
     PRODUCT_GENRES,
 } from "@/lib/products";
-
 type SpreadsheetRow = {
     name?: unknown;
     artist?: unknown;
@@ -42,7 +36,6 @@ type SpreadsheetRow = {
     pre_order?: unknown;
     images?: unknown;
 };
-
 type ParsedProduct = {
     row: number;
     name: string;
@@ -64,14 +57,12 @@ type ParsedProduct = {
     pre_order: boolean;
     imageNames: string[];
 };
-
 type ImportError = {
     row: number;
     message: string;
 };
-
 function normalizeString(
-    value: unknown,
+value: unknown,
 ) {
     if (
         value === null ||
@@ -79,12 +70,10 @@ function normalizeString(
     ) {
         return "";
     }
-
     return String(value).trim();
 }
-
 function normalizeNumber(
-    value: unknown,
+value: unknown,
 ) {
     if (
         value === null ||
@@ -93,46 +82,38 @@ function normalizeNumber(
     ) {
         return null;
     }
-
     if (
         typeof value === "number"
     ) {
         return value;
     }
-
     const normalized =
         String(value)
             .trim()
             .replace(/\s/g, "")
             .replace(",", ".");
-
     const parsed =
         Number(normalized);
-
     if (
         Number.isNaN(parsed)
     ) {
         return null;
     }
-
     return parsed;
 }
-
 function normalizeBoolean(
-    value: unknown,
+value: unknown,
 ) {
     if (
         typeof value === "boolean"
     ) {
         return value;
     }
-
     if (
         typeof value === "number"
     ) {
         return value === 1;
     }
-
     const normalized =
         normalizeString(value)
             .toLowerCase()
@@ -141,7 +122,6 @@ function normalizeBoolean(
                 /[\u0300-\u036f]/g,
                 "",
             );
-
     return [
         "sim",
         "s",
@@ -153,9 +133,8 @@ function normalizeBoolean(
         normalized,
     );
 }
-
 function slugify(
-    value: string,
+value: string,
 ) {
     return value
         .normalize("NFD")
@@ -174,13 +153,11 @@ function slugify(
             "",
         );
 }
-
 function sanitizeStorageFilename(
-    filename: string,
+filename: string,
 ) {
     const lastDot =
         filename.lastIndexOf(".");
-
     const name =
         lastDot >= 0
             ? filename.slice(
@@ -188,7 +165,6 @@ function sanitizeStorageFilename(
                 lastDot,
             )
             : filename;
-
     const extension =
         lastDot >= 0
             ? filename
@@ -197,26 +173,21 @@ function sanitizeStorageFilename(
                 )
                 .toLowerCase()
             : "";
-
     const cleanName =
         slugify(name) ||
         crypto.randomUUID();
-
     return extension
         ? `${cleanName}.${extension}`
         : cleanName;
 }
-
 function parseImageNames(
-    value: unknown,
+value: unknown,
 ) {
     const string =
         normalizeString(value);
-
     if (!string) {
         return [];
     }
-
     return string
         .split(/[;,|]/)
         .map(
@@ -225,86 +196,71 @@ function parseImageNames(
         )
         .filter(Boolean);
 }
-
 export function ProductSpreadsheetImporter() {
     const supabase =
         useMemo(
             () => createClient(),
             [],
         );
-
     const [
         spreadsheetFile,
         setSpreadsheetFile,
     ] = useState<File | null>(
         null,
     );
-
     const [
         images,
         setImages,
     ] = useState<File[]>(
         [],
     );
-
     const [
         products,
         setProducts,
     ] = useState<
         ParsedProduct[]
     >([]);
-
     const [
         errors,
         setErrors,
     ] = useState<
         ImportError[]
     >([]);
-
     const [
         isReading,
         setIsReading,
     ] = useState(false);
-
     const [
         isImporting,
         setIsImporting,
     ] = useState(false);
-
     const [
         importedCount,
         setImportedCount,
     ] = useState(0);
-
     const [
         progress,
         setProgress,
     ] = useState("");
-
     const [
         finished,
         setFinished,
     ] = useState(false);
-
     async function downloadTemplate() {
         const ExcelJS =
             await import(
                 "exceljs"
             );
-
         const workbook =
-            new ExcelJS.Workbook();
-
+new ExcelJS.Workbook();
         const worksheet =
             workbook.addWorksheet(
                 "Produtos",
             );
-
         const listsWorksheet =
             workbook.addWorksheet(
                 "Listas",
             );
-
         worksheet.columns = [
             {
                 header: "name",
@@ -403,7 +359,6 @@ export function ProductSpreadsheetImporter() {
                 width: 50,
             },
         ];
-
         PRODUCT_GENRES.forEach(
             (
                 genre,
@@ -416,7 +371,6 @@ export function ProductSpreadsheetImporter() {
                     genre;
             },
         );
-
         PRODUCT_FORMATS.forEach(
             (
                 format,
@@ -429,15 +383,12 @@ export function ProductSpreadsheetImporter() {
                     format;
             },
         );
-
         listsWorksheet.getCell(
             "C1",
         ).value = "SIM";
-
         listsWorksheet.getCell(
             "C2",
         ).value = "NÃO";
-
         for (
             let row = 2;
             row <= 501;
@@ -458,7 +409,6 @@ export function ProductSpreadsheetImporter() {
                 error:
                     "Selecione um gênero da lista.",
             };
-
             worksheet.getCell(
                 `H${row}`,
             ).dataValidation = {
@@ -474,7 +424,6 @@ export function ProductSpreadsheetImporter() {
                 error:
                     "Selecione um formato da lista.",
             };
-
             worksheet.getCell(
                 `Q${row}`,
             ).dataValidation = {
@@ -491,10 +440,8 @@ export function ProductSpreadsheetImporter() {
                     "Selecione SIM ou NÃO.",
             };
         }
-
         listsWorksheet.state =
             "hidden";
-
         worksheet.addRow({
             name:
                 "África Brasil",
@@ -526,80 +473,62 @@ export function ProductSpreadsheetImporter() {
             images:
                 "africa-brasil-1.jpg;africa-brasil-2.jpg",
         });
-
         const headerRow =
             worksheet.getRow(1);
-
         headerRow.font = {
             bold: true,
         };
-
         headerRow.alignment = {
             vertical:
                 "middle",
         };
-
         const buffer =
             await workbook.xlsx.writeBuffer();
-
         const blob =
-            new Blob(
+new Blob(
                 [buffer],
                 {
                     type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
                 },
             );
-
         const url =
             URL.createObjectURL(
                 blob,
             );
-
         const link =
             document.createElement(
                 "a",
             );
-
         link.href = url;
-
         link.download =
             "modelo-produtos-casa-elefante.xlsx";
-
         document.body.appendChild(
             link,
         );
-
         link.click();
-
         document.body.removeChild(
             link,
         );
-
         URL.revokeObjectURL(
             url,
         );
     }
-
     async function parseSpreadsheet(
-        file: File,
+file: File,
     ) {
         setIsReading(true);
         setErrors([]);
         setProducts([]);
         setFinished(false);
         setImportedCount(0);
-
         try {
             const buffer =
                 await file.arrayBuffer();
-
             const workbook =
                 read(buffer);
-
             const firstSheetName =
                 workbook
                     .SheetNames[0];
-
             if (
                 !firstSheetName
             ) {
@@ -607,12 +536,10 @@ export function ProductSpreadsheetImporter() {
                     "A planilha não possui nenhuma aba.",
                 );
             }
-
             const worksheet =
                 workbook.Sheets[
                     firstSheetName
                 ];
-
             const rows =
                 utils.sheet_to_json<
                     SpreadsheetRow
@@ -623,15 +550,12 @@ export function ProductSpreadsheetImporter() {
                             "",
                     },
                 );
-
             const parsedProducts:
-                ParsedProduct[] =
+ParsedProduct[] =
                 [];
-
             const validationErrors:
-                ImportError[] =
+ImportError[] =
                 [];
-
             rows.forEach(
                 (
                     row,
@@ -639,97 +563,78 @@ export function ProductSpreadsheetImporter() {
                 ) => {
                     const spreadsheetRow =
                         index + 2;
-
                     const name =
                         normalizeString(
                             row.name,
                         );
-
                     const artist =
                         normalizeString(
                             row.artist,
                         );
-
                     const label =
                         normalizeString(
                             row.label,
                         );
-
                     const country =
                         normalizeString(
                             row.country,
                         );
-
                     const genre =
                         normalizeString(
                             row.genre,
                         );
-
                     const format =
                         normalizeString(
                             row.format,
                         );
-
                     const condition =
                         normalizeString(
                             row.condition,
                         );
-
                     const catalogNumber =
                         normalizeString(
                             row.catalog_number,
                         );
-
                     const description =
                         normalizeString(
                             row.description,
                         );
-
                     const year =
                         normalizeNumber(
                             row.year,
                         );
-
                     const price =
                         normalizeNumber(
                             row.price,
                         );
-
                     const stock =
                         normalizeNumber(
                             row.stock,
                         );
-
                     const width =
                         normalizeNumber(
                             row.width,
                         );
-
                     const height =
                         normalizeNumber(
                             row.height,
                         );
-
                     const length =
                         normalizeNumber(
                             row.length,
                         );
-
                     const weight =
                         normalizeNumber(
                             row.weight,
                         );
-
                     const preOrder =
                         normalizeBoolean(
                             row.pre_order,
                         );
-
                     const imageNames =
                         parseImageNames(
                             row.images,
                         );
-
                     if (!name) {
                         validationErrors.push({
                             row:
@@ -737,10 +642,8 @@ export function ProductSpreadsheetImporter() {
                             message:
                                 "Nome do produto é obrigatório.",
                         });
-
                         return;
                     }
-
                     if (!artist) {
                         validationErrors.push({
                             row:
@@ -748,10 +651,8 @@ export function ProductSpreadsheetImporter() {
                             message:
                                 "Artista é obrigatório.",
                         });
-
                         return;
                     }
-
                     if (
                         price === null ||
                         price < 0
@@ -762,10 +663,8 @@ export function ProductSpreadsheetImporter() {
                             message:
                                 "Preço inválido.",
                         });
-
                         return;
                     }
-
                     if (
                         stock !== null &&
                         stock < 0
@@ -776,10 +675,8 @@ export function ProductSpreadsheetImporter() {
                             message:
                                 "Estoque inválido.",
                         });
-
                         return;
                     }
-
                     if (
                         width !== null &&
                         width < 0
@@ -790,10 +687,8 @@ export function ProductSpreadsheetImporter() {
                             message:
                                 "Largura inválida.",
                         });
-
                         return;
                     }
-
                     if (
                         height !== null &&
                         height < 0
@@ -804,10 +699,8 @@ export function ProductSpreadsheetImporter() {
                             message:
                                 "Altura inválida.",
                         });
-
                         return;
                     }
-
                     if (
                         length !== null &&
                         length < 0
@@ -818,10 +711,8 @@ export function ProductSpreadsheetImporter() {
                             message:
                                 "Comprimento inválido.",
                         });
-
                         return;
                     }
-
                     if (
                         weight !== null &&
                         weight < 0
@@ -832,26 +723,19 @@ export function ProductSpreadsheetImporter() {
                             message:
                                 "Peso inválido.",
                         });
-
                         return;
                     }
-
                     parsedProducts.push({
                         row:
                             spreadsheetRow,
-
                         name,
-
                         artist,
-
                         label:
                             label ||
                             null,
-
                         country:
                             country ||
                             null,
-
                         year:
                             year !==
                             null
@@ -859,21 +743,16 @@ export function ProductSpreadsheetImporter() {
                                     year,
                                 )
                                 : null,
-
                         price,
-
                         genre:
                             genre ||
                             null,
-
                         format:
                             format ||
                             null,
-
                         condition:
                             condition ||
                             null,
-
                         stock:
                             stock !==
                             null
@@ -881,21 +760,15 @@ export function ProductSpreadsheetImporter() {
                                     stock,
                                 )
                                 : 0,
-
                         catalog_number:
                             catalogNumber ||
                             null,
-
                         description:
                             description ||
                             null,
-
                         width,
-
                         height,
-
                         length,
-
                         weight:
                             weight !==
                             null
@@ -903,19 +776,15 @@ export function ProductSpreadsheetImporter() {
                                     weight,
                                 )
                                 : null,
-
                         pre_order:
                             preOrder,
-
                         imageNames,
                     });
                 },
             );
-
             setProducts(
                 parsedProducts,
             );
-
             setErrors(
                 validationErrors,
             );
@@ -923,7 +792,6 @@ export function ProductSpreadsheetImporter() {
             console.error(
                 error,
             );
-
             setErrors([
                 {
                     row: 0,
@@ -939,54 +807,45 @@ export function ProductSpreadsheetImporter() {
             );
         }
     }
-
     async function handleSpreadsheetChange(
-        event:
-            ChangeEvent<HTMLInputElement>,
+event:
+ChangeEvent<HTMLInputElement>,
     ) {
         const file =
             event.target
                 .files?.[0];
-
         if (!file) {
             return;
         }
-
         setSpreadsheetFile(
             file,
         );
-
         await parseSpreadsheet(
             file,
         );
     }
-
     function handleImagesChange(
-        event:
-            ChangeEvent<HTMLInputElement>,
+event:
+ChangeEvent<HTMLInputElement>,
     ) {
         const selected =
             Array.from(
                 event.target.files ??
                     [],
             );
-
         setImages(
             selected,
         );
-
         setFinished(
             false,
         );
     }
-
     function validateImages() {
         const fileMap =
-            new Map<
+new Map<
                 string,
                 File
             >();
-
         images.forEach(
             (file) => {
                 fileMap.set(
@@ -997,11 +856,9 @@ export function ProductSpreadsheetImporter() {
                 );
             },
         );
-
         const imageErrors:
-            ImportError[] =
+ImportError[] =
             [];
-
         products.forEach(
             (product) => {
                 product.imageNames.forEach(
@@ -1026,18 +883,16 @@ export function ProductSpreadsheetImporter() {
                 );
             },
         );
-
         return {
             fileMap,
             imageErrors,
         };
     }
-
     async function uploadProductImages(
-        product: ParsedProduct,
-        fileMap: Map<
-            string,
-            File
+product: ParsedProduct,
+fileMap: Map<
+string,
+File
         >,
     ) {
         if (
@@ -1047,14 +902,11 @@ export function ProductSpreadsheetImporter() {
         ) {
             return [];
         }
-
         const uploadedUrls:
-            string[] =
+string[] =
             [];
-
         const folder =
             crypto.randomUUID();
-
         for (
             const imageName of
                 product.imageNames
@@ -1065,21 +917,17 @@ export function ProductSpreadsheetImporter() {
                         .trim()
                         .toLowerCase(),
                 );
-
             if (!file) {
                 throw new Error(
                     `Imagem ${imageName} não encontrada.`,
                 );
             }
-
             const safeFilename =
                 sanitizeStorageFilename(
                     file.name,
                 );
-
             const storagePath =
                 `imports/${folder}/${safeFilename}`;
-
             const {
                 error:
                     uploadError,
@@ -1101,7 +949,6 @@ export function ProductSpreadsheetImporter() {
                                 undefined,
                         },
                     );
-
             if (
                 uploadError
             ) {
@@ -1109,7 +956,6 @@ export function ProductSpreadsheetImporter() {
                     `Erro ao enviar ${file.name}: ${uploadError.message}`,
                 );
             }
-
             const {
                 data,
             } =
@@ -1120,15 +966,12 @@ export function ProductSpreadsheetImporter() {
                     .getPublicUrl(
                         storagePath,
                     );
-
             uploadedUrls.push(
                 data.publicUrl,
             );
         }
-
         return uploadedUrls;
     }
-
     async function handleImport() {
         if (
             products.length ===
@@ -1141,15 +984,12 @@ export function ProductSpreadsheetImporter() {
                         "Nenhum produto válido para importar.",
                 },
             ]);
-
             return;
         }
-
         const {
             fileMap,
             imageErrors,
         } = validateImages();
-
         if (
             imageErrors.length >
             0
@@ -1157,22 +997,17 @@ export function ProductSpreadsheetImporter() {
             setErrors(
                 imageErrors,
             );
-
             return;
         }
-
         setErrors([]);
         setIsImporting(true);
         setFinished(false);
         setImportedCount(0);
-
         const importErrors:
-            ImportError[] =
+ImportError[] =
             [];
-
         let successCount =
             0;
-
         try {
             for (
                 let index = 0;
@@ -1182,18 +1017,15 @@ export function ProductSpreadsheetImporter() {
             ) {
                 const product =
                     products[index];
-
                 setProgress(
                     `Importando ${index + 1} de ${products.length}: ${product.name}`,
                 );
-
                 try {
                     const imageUrls =
                         await uploadProductImages(
                             product,
                             fileMap,
                         );
-
                     const baseSlug =
                         slugify(
                             [
@@ -1208,7 +1040,6 @@ export function ProductSpreadsheetImporter() {
                                     "-",
                                 ),
                         );
-
                     const slug =
                         `${baseSlug}-${crypto
                             .randomUUID()
@@ -1216,7 +1047,6 @@ export function ProductSpreadsheetImporter() {
                                 0,
                                 8,
                             )}`;
-
                     const {
                         error:
                             insertError,
@@ -1228,61 +1058,42 @@ export function ProductSpreadsheetImporter() {
                             .insert({
                                 name:
                                     product.name,
-
                                 slug,
-
                                 artist:
                                     product.artist,
-
                                 label:
                                     product.label,
-
                                 country:
                                     product.country,
-
                                 year:
                                     product.year,
-
                                 price:
                                     product.price,
-
                                 genre:
                                     product.genre,
-
                                 format:
                                     product.format,
-
                                 description:
                                     product.description,
-
                                 stock:
                                     product.stock,
-
                                 condition:
                                     product.condition,
-
                                 catalog_number:
                                     product.catalog_number,
-
                                 width:
                                     product.width,
-
                                 height:
                                     product.height,
-
                                 length:
                                     product.length,
-
                                 weight:
                                     product.weight,
-
                                 pre_order:
                                     product.pre_order,
-
                                 images:
                                     imageUrls,
                             });
-
                     if (
                         insertError
                     ) {
@@ -1290,10 +1101,8 @@ export function ProductSpreadsheetImporter() {
                             insertError.message,
                         );
                     }
-
                     successCount +=
                         1;
-
                     setImportedCount(
                         successCount,
                     );
@@ -1302,7 +1111,6 @@ export function ProductSpreadsheetImporter() {
                         `Erro na linha ${product.row}:`,
                         error,
                     );
-
                     importErrors.push({
                         row:
                             product.row,
@@ -1313,11 +1121,9 @@ export function ProductSpreadsheetImporter() {
                     });
                 }
             }
-
             setErrors(
                 importErrors,
             );
-
             setFinished(
                 true,
             );
@@ -1325,383 +1131,179 @@ export function ProductSpreadsheetImporter() {
             setProgress(
                 "",
             );
-
             setIsImporting(
                 false,
             );
         }
     }
-
     return (
-        <div className="flex flex-col gap-10">
-            <div className="flex flex-wrap items-center justify-between gap-4">
+        <div className="flex flex-col gap-8 text-black">
+            <div className="flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between">
                 <div>
-                    <h1 className="text-3xl font-medium">
+                    <h1 className="font-october text-5xl uppercase leading-none text-black md:text-6xl">
                         Importar produtos
                     </h1>
-
-                    <p className="mt-2 max-w-2xl text-sm opacity-60">
-                        Importe vários
-                        produtos através de
-                        uma planilha e
-                        associe as imagens
-                        pelos nomes dos
-                        arquivos.
+                    <p className="mt-3 max-w-2xl text-sm text-black/70">
+                        Importe vários produtos através de uma planilha e associe as imagens pelos nomes dos arquivos.
                     </p>
                 </div>
-
                 <Link
                     href="/admin/produtos"
-                    className="rounded-lg border border-black bg-[#FFFDE9] px-4 py-2 shadow-[3px_3px_0_#000] transition-transform hover:-translate-x-0.5 hover:-translate-y-0.5"
+                    className="inline-flex shrink-0 items-center justify-center rounded-xl border border-black bg-white px-4 py-3 text-sm font-medium text-black shadow-[-5px_5px_0_0_#000] transition-all duration-200 hover:-translate-y-1 hover:shadow-[-5px_9px_0_0_#000]"
                 >
-                    Voltar
+                    ← Voltar aos produtos
                 </Link>
             </div>
-
-            <section className="rounded-xl border border-black bg-[#FFFDE9] p-6 shadow-[5px_5px_0_#000]">
+            <section className="rounded-xl border border-black bg-white p-6 text-black shadow-[-5px_5px_0_0_#000]">
                 <div className="flex flex-col gap-4">
                     <div>
-                        <h2 className="text-xl font-medium">
-                            1. Baixe o
-                            modelo
+                        <h2 className="font-october text-3xl uppercase leading-none md:text-4xl">
+                            1. Baixe o modelo
                         </h2>
-
-                        <p className="mt-1 text-sm opacity-60">
-                            Use as colunas
-                            do modelo para
-                            garantir que os
-                            produtos sejam
-                            reconhecidos.
+                        <p className="mt-2 text-sm text-black/70">
+                            Use as colunas do modelo para garantir que os produtos sejam reconhecidos.
                         </p>
                     </div>
-
                     <div>
                         <button
                             type="button"
-                            onClick={
-                                downloadTemplate
-                            }
-                            className="rounded-lg border border-black bg-[#FFFDE9] px-4 py-2 shadow-[3px_3px_0_#000] transition-transform hover:-translate-x-0.5 hover:-translate-y-0.5"
+                            onClick={downloadTemplate}
+                            className="rounded-xl border border-black bg-white px-4 py-3 text-sm font-medium text-black shadow-[-5px_5px_0_0_#000] transition-all duration-200 hover:-translate-y-1 hover:shadow-[-5px_9px_0_0_#000]"
                         >
-                            Baixar modelo
-                            .xlsx
+                            Baixar modelo .xlsx
                         </button>
                     </div>
                 </div>
             </section>
-
-            <section className="rounded-xl border border-black bg-[#FFFDE9] p-6 shadow-[5px_5px_0_#000]">
+            <section className="rounded-xl border border-black bg-white p-6 text-black shadow-[-5px_5px_0_0_#000]">
                 <div className="flex flex-col gap-5">
                     <div>
-                        <h2 className="text-xl font-medium">
-                            2. Selecione a
-                            planilha
+                        <h2 className="font-october text-3xl uppercase leading-none md:text-4xl">
+                            2. Selecione a planilha
                         </h2>
-
-                        <p className="mt-1 text-sm opacity-60">
-                            Formatos
-                            aceitos: .xlsx,
-                            .xls e .csv.
+                        <p className="mt-2 text-sm text-black/70">
+                            Formatos aceitos: .xlsx, .xls e .csv.
                         </p>
                     </div>
-
                     <input
                         type="file"
                         accept=".xlsx,.xls,.csv"
-                        disabled={
-                            isImporting
-                        }
-                        onChange={
-                            handleSpreadsheetChange
-                        }
-                        className="block w-full rounded-lg border border-black p-3"
+                        disabled={isImporting}
+                        onChange={handleSpreadsheetChange}
+                        className="block w-full min-w-0 rounded-xl border border-black bg-white p-3 text-sm text-black file:mr-4 file:rounded-lg file:border file:border-black file:bg-white file:px-3 file:py-2 file:text-black disabled:opacity-40"
                     />
-
                     {spreadsheetFile && (
-                        <p className="text-sm">
-                            Arquivo:{" "}
-                            <strong>
-                                {
-                                    spreadsheetFile.name
-                                }
-                            </strong>
+                        <p className="break-all text-sm text-black/70">
+                            Arquivo: <strong className="text-black">{spreadsheetFile.name}</strong>
                         </p>
                     )}
-
                     {isReading && (
-                        <p className="text-sm">
-                            Lendo
-                            planilha...
-                        </p>
+                        <p className="text-sm text-black/70">Lendo planilha...</p>
                     )}
-
-                    {!isReading &&
-                        products.length >
-                            0 && (
-                            <div className="rounded-lg border border-black p-4">
-                                <strong>
-                                    {
-                                        products.length
-                                    }{" "}
-                                    produtos
-                                </strong>{" "}
-                                encontrados
-                                na planilha.
-                            </div>
-                        )}
+                    {!isReading && products.length > 0 && (
+                        <div className="rounded-xl border border-black bg-white p-4 text-sm text-black">
+                            <strong>{products.length} produtos</strong> encontrados na planilha.
+                        </div>
+                    )}
                 </div>
             </section>
-
-            <section className="rounded-xl border border-black bg-[#FFFDE9] p-6 shadow-[5px_5px_0_#000]">
+            <section className="rounded-xl border border-black bg-white p-6 text-black shadow-[-5px_5px_0_0_#000]">
                 <div className="flex flex-col gap-5">
                     <div>
-                        <h2 className="text-xl font-medium">
-                            3. Selecione as
-                            imagens
+                        <h2 className="font-october text-3xl uppercase leading-none md:text-4xl">
+                            3. Selecione as imagens
                         </h2>
-
-                        <p className="mt-1 max-w-2xl text-sm opacity-60">
-                            Você pode
-                            selecionar todas
-                            as imagens de
-                            todos os produtos
-                            de uma vez. O
-                            sistema usa os
-                            nomes informados
-                            na coluna images
-                            para descobrir
-                            quais imagens
-                            pertencem a cada
-                            produto.
+                        <p className="mt-2 max-w-2xl text-sm text-black/70">
+                            Você pode selecionar todas as imagens de todos os produtos de uma vez.
+                            O sistema usa os nomes informados na coluna images para descobrir
+                            quais imagens pertencem a cada produto.
                         </p>
                     </div>
-
                     <input
                         type="file"
                         accept="image/*"
                         multiple
-                        disabled={
-                            isImporting
-                        }
-                        onChange={
-                            handleImagesChange
-                        }
-                        className="block w-full rounded-lg border border-black p-3"
+                        disabled={isImporting}
+                        onChange={handleImagesChange}
+                        className="block w-full min-w-0 rounded-xl border border-black bg-white p-3 text-sm text-black file:mr-4 file:rounded-lg file:border file:border-black file:bg-white file:px-3 file:py-2 file:text-black disabled:opacity-40"
                     />
-
-                    {images.length >
-                        0 && (
-                        <p className="text-sm">
-                            <strong>
-                                {
-                                    images.length
-                                }
-                            </strong>{" "}
-                            imagens
-                            selecionadas.
+                    {images.length > 0 && (
+                        <p className="text-sm text-black/70">
+                            <strong className="text-black">{images.length}</strong> imagens selecionadas.
                         </p>
                     )}
                 </div>
             </section>
-
-            {products.length >
-                0 && (
-                <section className="rounded-xl border border-black bg-[#FFFDE9] p-6 shadow-[5px_5px_0_#000]">
-                    <h2 className="text-xl font-medium">
+            {products.length > 0 && (
+                <section className="min-w-0 rounded-xl border border-black bg-white p-6 text-black shadow-[-5px_5px_0_0_#000]">
+                    <h2 className="font-october text-3xl uppercase leading-none md:text-4xl">
                         Prévia
                     </h2>
-
-                    <div className="mt-5 overflow-x-auto">
+                    <div className="mt-5 max-w-full overflow-x-auto rounded-lg border border-black">
                         <table className="w-full min-w-[1100px] border-collapse text-left text-sm">
-                            <thead>
+                            <thead className="bg-black/5">
                                 <tr className="border-b border-black">
-                                    <th className="p-3">
-                                        Linha
-                                    </th>
-
-                                    <th className="p-3">
-                                        Produto
-                                    </th>
-
-                                    <th className="p-3">
-                                        Artista
-                                    </th>
-
-                                    <th className="p-3">
-                                        País
-                                    </th>
-
-                                    <th className="p-3">
-                                        Preço
-                                    </th>
-
-                                    <th className="p-3">
-                                        Estoque
-                                    </th>
-
-                                    <th className="p-3">
-                                        Peso
-                                    </th>
-
-                                    <th className="p-3">
-                                        Pré-venda
-                                    </th>
-
-                                    <th className="p-3">
-                                        Imagens
-                                    </th>
+                                    <th className="p-3">Linha</th>
+                                    <th className="p-3">Produto</th>
+                                    <th className="p-3">Artista</th>
+                                    <th className="p-3">País</th>
+                                    <th className="p-3">Preço</th>
+                                    <th className="p-3">Estoque</th>
+                                    <th className="p-3">Peso</th>
+                                    <th className="p-3">Pré-venda</th>
+                                    <th className="p-3">Imagens</th>
                                 </tr>
                             </thead>
-
                             <tbody>
-                                {products.map(
-                                    (
-                                        product,
-                                    ) => (
-                                        <tr
-                                            key={
-                                                product.row
-                                            }
-                                            className="border-b border-black/10"
-                                        >
-                                            <td className="p-3">
-                                                {
-                                                    product.row
-                                                }
-                                            </td>
-
-                                            <td className="p-3">
-                                                {
-                                                    product.name
-                                                }
-                                            </td>
-
-                                            <td className="p-3">
-                                                {
-                                                    product.artist
-                                                }
-                                            </td>
-
-                                            <td className="p-3">
-                                                {product.country ??
-                                                    "—"}
-                                            </td>
-
-                                            <td className="p-3">
-                                                R${" "}
-                                                {product.price.toFixed(
-                                                    2,
-                                                )}
-                                            </td>
-
-                                            <td className="p-3">
-                                                {
-                                                    product.stock
-                                                }
-                                            </td>
-
-                                            <td className="p-3">
-                                                {product.weight !==
-                                                null
-                                                    ? `${product.weight} g`
-                                                    : "—"}
-                                            </td>
-
-                                            <td className="p-3">
-                                                {product.pre_order
-                                                    ? "Sim"
-                                                    : "Não"}
-                                            </td>
-
-                                            <td className="p-3">
-                                                {
-                                                    product
-                                                        .imageNames
-                                                        .length
-                                                }
-                                            </td>
-                                        </tr>
-                                    ),
-                                )}
+                                {products.map((product) => (
+                                    <tr key={product.row} className="border-b border-black/10 last:border-b-0">
+                                        <td className="p-3">{product.row}</td>
+                                        <td className="p-3 font-medium">{product.name}</td>
+                                        <td className="p-3">{product.artist}</td>
+                                        <td className="p-3">{product.country ?? "—"}</td>
+                                        <td className="p-3">R$ {product.price.toFixed(2)}</td>
+                                        <td className="p-3">{product.stock}</td>
+                                        <td className="p-3">{product.weight !== null ? `${product.weight} g` : "—"}</td>
+                                        <td className="p-3">{product.pre_order ? "Sim" : "Não"}</td>
+                                        <td className="p-3">{product.imageNames.length}</td>
+                                    </tr>
+                                ))}
                             </tbody>
                         </table>
                     </div>
                 </section>
             )}
-
-            {errors.length >
-                0 && (
-                <section className="rounded-xl border border-red-600 bg-red-50 p-6">
-                    <h2 className="font-medium text-red-700">
-                        Foram
-                        encontrados alguns
-                        problemas
-                    </h2>
-
-                    <div className="mt-4 flex flex-col gap-2 text-sm text-red-700">
-                        {errors.map(
-                            (
-                                error,
-                                index,
-                            ) => (
-                                <p
-                                    key={`${error.row}-${index}`}
-                                >
-                                    {error.row >
-                                    0
-                                        ? `Linha ${error.row}: `
-                                        : ""}
-                                    {
-                                        error.message
-                                    }
-                                </p>
-                            ),
-                        )}
+            {errors.length > 0 && (
+                <section className="rounded-xl border border-black bg-white p-6 text-black shadow-[-5px_5px_0_0_#000]">
+                    <h2 className="text-lg font-semibold">Foram encontrados alguns problemas</h2>
+                    <div className="mt-4 flex flex-col gap-2 text-sm text-black/80">
+                        {errors.map((error, index) => (
+                            <p key={`${error.row}-${index}`}>
+                                {error.row > 0 ? `Linha ${error.row}: ` : ""}
+                                {error.message}
+                            </p>
+                        ))}
                     </div>
                 </section>
             )}
-
             {finished && (
-                <section className="rounded-xl border border-green-700 bg-green-50 p-6 text-green-800">
-                    <strong>
-                        Importação
-                        concluída.
-                    </strong>
-
-                    <p className="mt-1 text-sm">
-                        {
-                            importedCount
-                        }{" "}
-                        de{" "}
-                        {
-                            products.length
-                        }{" "}
-                        produtos foram
-                        importados com
-                        sucesso.
+                <section className="rounded-xl border border-black bg-white p-6 text-black shadow-[-5px_5px_0_0_#000]">
+                    <strong>Importação concluída.</strong>
+                    <p className="mt-1 text-sm text-black/70">
+                        {importedCount} de {products.length} produtos foram importados com sucesso.
                     </p>
                 </section>
             )}
-
-            {products.length >
-                0 && (
+            {products.length > 0 && (
                 <div className="flex flex-col gap-3">
                     {isImporting && (
-                        <p className="text-sm">
-                            {progress}
-                        </p>
+                        <p className="text-sm text-black" role="status">{progress}</p>
                     )}
-
                     <button
                         type="button"
-                        disabled={
-                            isImporting ||
-                            isReading
-                        }
-                        onClick={
-                            handleImport
-                        }
-                        className="w-full rounded-lg border border-black bg-[#FFFDE9] px-5 py-4 text-lg font-medium shadow-[4px_4px_0_#000] transition-transform hover:-translate-x-0.5 hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-40"
+                        disabled={isImporting || isReading}
+                        onClick={handleImport}
+                        className="w-full rounded-xl border border-black bg-white px-5 py-4 text-lg font-medium text-black shadow-[-5px_5px_0_0_#000] transition-all duration-200 hover:-translate-y-1 hover:shadow-[-5px_9px_0_0_#000] disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:translate-y-0 disabled:hover:shadow-[-5px_5px_0_0_#000]"
                     >
                         {isImporting
                             ? `Importando... ${importedCount}/${products.length}`

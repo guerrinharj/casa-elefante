@@ -1,3 +1,4 @@
+
 "use client";
 
 import {
@@ -326,42 +327,100 @@ export function AdminInfiniteProductList({
 
     return (
         <>
-            <div className="border-t border-black">
+            <div className="flex flex-col gap-5">
                 {products.map(
                     (product) => (
                         <div
-                            key={
-                                product.id
-                            }
-                            className="grid grid-cols-[80px_1fr_auto] items-center gap-4 border-b border-black py-4"
+                            key={product.id}
+                            className="
+                                grid
+                                grid-cols-[80px_minmax(0,1fr)]
+                                items-center
+                                gap-4
+                                rounded-xl
+                                border
+                                border-black
+                                bg-white
+                                p-4
+                                text-black
+                                shadow-[-5px_5px_0_0_#000]
+                                transition-all
+                                duration-200
+                                hover:-translate-y-1
+                                hover:shadow-[-5px_9px_0_0_#000]
+                                sm:grid-cols-[80px_minmax(0,1fr)_auto]
+                                md:p-5
+                            "
                         >
                             <Link
                                 href={`/admin/produtos/${product.id}/editar`}
-                                className="contents"
+                                className="
+                                    contents
+                                "
                             >
-                                <div className="aspect-square overflow-hidden bg-neutral-100 transition-opacity hover:opacity-60">
-                                    {product
-                                        .images?.[0] ? (
+                                <div
+                                    className="
+                                        aspect-square
+                                        overflow-hidden
+                                        rounded-lg
+                                        border
+                                        border-black
+                                        bg-neutral-100
+                                        transition-opacity
+                                        hover:opacity-60
+                                    "
+                                >
+                                    {product.images?.[0] ? (
                                         <img
-                                            src={
-                                                product
-                                                    .images[0]
-                                            }
-                                            alt={
-                                                product.name
-                                            }
-                                            className="h-full w-full object-cover"
+                                            src={product.images[0]}
+                                            alt={product.name}
+                                            className="
+                                                h-full
+                                                w-full
+                                                object-cover
+                                            "
                                         />
                                     ) : (
-                                        <div className="flex h-full w-full items-center justify-center text-xs">
+                                        <div
+                                            className="
+                                                flex
+                                                h-full
+                                                w-full
+                                                items-center
+                                                justify-center
+                                                text-center
+                                                text-xs
+                                                text-black/50
+                                            "
+                                        >
                                             Sem imagem
                                         </div>
                                     )}
                                 </div>
 
-                                <div className="min-w-0 transition-opacity hover:opacity-60">
-                                    <div className="flex items-center gap-2">
-                                        <h2 className="truncate font-medium">
+                                <div
+                                    className="
+                                        min-w-0
+                                        transition-opacity
+                                        hover:opacity-60
+                                    "
+                                >
+                                    <div
+                                        className="
+                                            flex
+                                            flex-wrap
+                                            items-center
+                                            gap-2
+                                        "
+                                    >
+                                        <h2
+                                            className="
+                                                truncate
+                                                text-base
+                                                font-semibold
+                                                text-black
+                                            "
+                                        >
                                             {product.name}
                                         </h2>
 
@@ -372,6 +431,7 @@ export function AdminInfiniteProductList({
                                                     rounded-full
                                                     border
                                                     border-black
+                                                    bg-black
                                                     px-2
                                                     py-0.5
                                                     text-[9px]
@@ -386,11 +446,27 @@ export function AdminInfiniteProductList({
                                         )}
                                     </div>
 
-                                    <p className="truncate text-sm">
+                                    <p
+                                        className="
+                                            truncate
+                                            text-sm
+                                            text-black/70
+                                        "
+                                    >
                                         {product.artist}
                                     </p>
 
-                                    <div className="mt-1 flex flex-wrap gap-x-3 text-xs">
+                                    <div
+                                        className="
+                                            mt-2
+                                            flex
+                                            flex-wrap
+                                            gap-x-3
+                                            gap-y-1
+                                            text-xs
+                                            text-black/60
+                                        "
+                                    >
                                         {product.format && (
                                             <span>
                                                 {product.format}
@@ -411,8 +487,32 @@ export function AdminInfiniteProductList({
                                 </div>
                             </Link>
 
-                            <div className="flex flex-col items-end gap-2 text-right">
-                                <p>
+                            <div
+                                className="
+                                    col-span-2
+                                    flex
+                                    items-center
+                                    justify-between
+                                    gap-4
+                                    border-t
+                                    border-black/10
+                                    pt-3
+                                    sm:col-span-1
+                                    sm:flex-col
+                                    sm:items-end
+                                    sm:justify-center
+                                    sm:border-0
+                                    sm:pt-0
+                                    sm:text-right
+                                "
+                            >
+                                <p
+                                    className="
+                                        text-base
+                                        font-semibold
+                                        text-black
+                                    "
+                                >
                                     {Number(
                                         product.price,
                                     ).toLocaleString(
@@ -425,10 +525,24 @@ export function AdminInfiniteProductList({
                                     )}
                                 </p>
 
-                                <div className="flex items-center gap-3 text-xs">
+                                <div
+                                    className="
+                                        flex
+                                        items-center
+                                        gap-3
+                                        text-xs
+                                    "
+                                >
                                     <Link
                                         href={`/admin/produtos/${product.id}/editar`}
-                                        className="underline"
+                                        className="
+                                            font-medium
+                                            text-black
+                                            underline
+                                            underline-offset-2
+                                            transition-opacity
+                                            hover:opacity-60
+                                        "
                                     >
                                         Editar
                                     </Link>
@@ -444,7 +558,16 @@ export function AdminInfiniteProductList({
                                             deletingId ===
                                             product.id
                                         }
-                                        className="underline disabled:opacity-40"
+                                        className="
+                                            font-medium
+                                            text-black
+                                            underline
+                                            underline-offset-2
+                                            transition-opacity
+                                            hover:opacity-60
+                                            disabled:cursor-not-allowed
+                                            disabled:opacity-40
+                                        "
                                     >
                                         {deletingId ===
                                         product.id
@@ -460,15 +583,20 @@ export function AdminInfiniteProductList({
 
             {hasMore && (
                 <div
-                    ref={
-                        sentinelRef
-                    }
+                    ref={sentinelRef}
                     className="h-1"
                 />
             )}
 
             {loading && (
-                <p className="py-8 text-center text-sm">
+                <p
+                    className="
+                        py-8
+                        text-center
+                        text-sm
+                        text-black
+                    "
+                >
                     Carregando...
                 </p>
             )}
