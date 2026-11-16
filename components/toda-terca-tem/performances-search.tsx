@@ -35,17 +35,7 @@ export function PerformancesSearch({
     }, [expanded]);
 
     return (
-        <div
-            className="
-                pointer-events-none
-                fixed
-                left-4
-                top-4
-                z-[60]
-                md:left-6
-                md:top-6
-            "
-        >
+        <div className="pointer-events-none w-full">
             <div
                 className={`
                     pointer-events-auto
