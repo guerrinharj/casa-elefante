@@ -167,6 +167,8 @@ export function UpcomingPerformances({
                                         text-5xl
                                         uppercase
                                         leading-[0.85]
+                                        text-[#D2232A]
+                                        [-webkit-text-stroke:1px_#000]
                                         sm:text-6xl
                                         md:text-8xl
                                         lg:text-9xl
