@@ -1,3 +1,4 @@
+
 "use client";
 
 import Link from "next/link";
@@ -18,61 +19,27 @@ import {
     createClient,
 } from "@/lib/supabase/client";
 
-import {
-    Button,
-} from "@/components/ui/button";
-
-import {
-    Card,
-    CardContent,
-    CardHeader,
-    CardTitle,
-} from "@/components/ui/card";
-
-import {
-    Input,
-} from "@/components/ui/input";
-
-import {
-    Label,
-} from "@/components/ui/label";
-
 export function LoginForm({
     className,
     ...props
 }: React.ComponentPropsWithoutRef<"div">) {
-    const [
-        email,
-        setEmail,
-    ] = useState("");
+    const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
 
-    const [
-        password,
-        setPassword,
-    ] = useState("");
-
-    const [
-        error,
-        setError,
-    ] = useState<string | null>(
+    const [error, setError] = useState<string | null>(
         null,
     );
 
-    const [
-        isLoading,
-        setIsLoading,
-    ] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
 
-    const router =
-        useRouter();
+    const router = useRouter();
 
     const handleLogin = async (
-        e: React.FormEvent,
+        e: React.FormEvent<HTMLFormElement>,
     ) => {
         e.preventDefault();
 
-        const supabase =
-            createClient();
+        const supabase = createClient();
 
         setIsLoading(true);
         setError(null);
@@ -81,13 +48,10 @@ export function LoginForm({
             const {
                 data,
                 error: loginError,
-            } =
-                await supabase.auth.signInWithPassword(
-                    {
-                        email,
-                        password,
-                    },
-                );
+            } = await supabase.auth.signInWithPassword({
+                email,
+                password,
+            });
 
             if (loginError) {
                 throw loginError;
@@ -105,31 +69,21 @@ export function LoginForm({
             } = await supabase
                 .from("profiles")
                 .select("role")
-                .eq(
-                    "id",
-                    data.user.id,
-                )
+                .eq("id", data.user.id)
                 .single();
 
             if (profileError) {
                 throw profileError;
             }
 
-            if (
-                profile?.role ===
-                "admin"
-            ) {
-                router.push(
-                    "/admin",
-                );
+            if (profile?.role === "admin") {
+                router.push("/admin");
             } else {
                 router.push("/");
             }
 
             router.refresh();
-        } catch (
-            error: unknown
-        ) {
+        } catch (error: unknown) {
             setError(
                 error instanceof Error
                     ? error.message
@@ -143,109 +97,99 @@ export function LoginForm({
     return (
         <div
             className={cn(
-                "flex flex-col gap-6",
+                "mx-auto flex w-full flex-col gap-6 text-black md:max-w-[50vw]",
                 className,
             )}
             {...props}
         >
-            <Card>
-                <CardHeader>
-                    <CardTitle className="text-2xl">
-                        Entrar
-                    </CardTitle>
-                </CardHeader>
+            <div className="mb-2">
+                <h1 className="font-october text-5xl uppercase leading-none text-black md:text-6xl">
+                    Entrar
+                </h1>
 
-                <CardContent>
-                    <form
-                        onSubmit={
-                            handleLogin
-                        }
+                <p className="mt-3 text-sm text-black/70 md:text-base">
+                    Acesse sua conta na Casa Elefante.
+                </p>
+            </div>
+
+            <form onSubmit={handleLogin}>
+                <div className="flex flex-col gap-6">
+                    <div className="flex flex-col gap-2">
+                        <label
+                            htmlFor="email"
+                            className="font-october text-xl uppercase leading-none text-black"
+                        >
+                            Email
+                        </label>
+
+                        <input
+                            id="email"
+                            type="email"
+                            placeholder="email@exemplo.com"
+                            autoComplete="email"
+                            required
+                            value={email}
+                            onChange={(e) =>
+                                setEmail(e.target.value)
+                            }
+                            className="w-full rounded-xl border border-black bg-white px-4 py-3 text-base text-black outline-none transition-colors placeholder:text-black/35 focus:ring-2 focus:ring-black/15"
+                        />
+                    </div>
+
+                    <div className="flex flex-col gap-2">
+                        <label
+                            htmlFor="password"
+                            className="font-october text-xl uppercase leading-none text-black"
+                        >
+                            Senha
+                        </label>
+
+                        <input
+                            id="password"
+                            type="password"
+                            autoComplete="current-password"
+                            required
+                            value={password}
+                            onChange={(e) =>
+                                setPassword(e.target.value)
+                            }
+                            className="w-full rounded-xl border border-black bg-white px-4 py-3 text-base text-black outline-none transition-colors focus:ring-2 focus:ring-black/15"
+                        />
+                    </div>
+
+                    {error && (
+                        <p
+                            role="alert"
+                            className="rounded-xl border border-[#D2232A] bg-[#D2232A]/5 p-3 text-sm text-[#D2232A]"
+                        >
+                            {error}
+                        </p>
+                    )}
+
+                    <button
+                        type="submit"
+                        disabled={isLoading}
+                        className="mt-2 inline-flex w-full items-center justify-center rounded-xl border border-black bg-white px-6 py-4 font-october text-2xl uppercase leading-none text-black shadow-[-5px_5px_0_0_#000] transition-all duration-200 hover:-translate-y-1 hover:shadow-[-5px_9px_0_0_#000] disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0 disabled:hover:shadow-[-5px_5px_0_0_#000]"
                     >
-                        <div className="flex flex-col gap-6">
-                            <div className="grid gap-2">
-                                <Label htmlFor="email">
-                                    Email
-                                </Label>
+                        {isLoading
+                            ? "Entrando..."
+                            : "Entrar"}
+                    </button>
 
-                                <Input
-                                    id="email"
-                                    type="email"
-                                    placeholder="email@exemplo.com"
-                                    autoComplete="email"
-                                    required
-                                    value={
-                                        email
-                                    }
-                                    onChange={(
-                                        e,
-                                    ) =>
-                                        setEmail(
-                                            e
-                                                .target
-                                                .value,
-                                        )
-                                    }
-                                />
-                            </div>
+                    <div className="mt-2 border-t border-black/20 pt-6">
+                        <p className="text-center text-sm text-black/70">
+                            Quer comprar no atacado?
+                        </p>
 
-                            <div className="grid gap-2">
-                                <Label htmlFor="password">
-                                    Senha
-                                </Label>
-
-                                <Input
-                                    id="password"
-                                    type="password"
-                                    autoComplete="current-password"
-                                    required
-                                    value={
-                                        password
-                                    }
-                                    onChange={(
-                                        e,
-                                    ) =>
-                                        setPassword(
-                                            e
-                                                .target
-                                                .value,
-                                        )
-                                    }
-                                />
-                            </div>
-
-                            {error && (
-                                <p className="text-sm text-red-500">
-                                    {
-                                        error
-                                    }
-                                </p>
-                            )}
-
-                            <Button
-                                type="submit"
-                                className="w-full"
-                                disabled={
-                                    isLoading
-                                }
-                            >
-                                {isLoading
-                                    ? "Entrando..."
-                                    : "Entrar"}
-                            </Button>
-
-                            <p className="text-center text-sm">
-                                Quer comprar no atacado?{" "}
-                                <Link
-                                    href="/cadastro"
-                                    className="underline underline-offset-4"
-                                >
-                                    Cadastre-se como atacadista
-                                </Link>
-                            </p>
-                        </div>
-                    </form>
-                </CardContent>
-            </Card>
+                        <Link
+                            href="/cadastro"
+                            className="mt-4 inline-flex w-full items-center justify-center rounded-xl border border-black bg-white px-4 py-3 text-center font-october text-xl uppercase leading-none text-black shadow-[-5px_5px_0_0_#000] transition-all duration-200 hover:-translate-y-1 hover:shadow-[-5px_9px_0_0_#000]"
+                        >
+                            Cadastre-se como atacadista
+                        </Link>
+                    </div>
+                </div>
+            </form>
         </div>
     );
 }
