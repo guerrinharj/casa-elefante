@@ -102,7 +102,8 @@ export function AddToCartButton({
                 rounded-xl
                 border
                 border-black
-                bg-[#FFFDE9]
+                text-black
+                bg-white
                 px-6
                 py-4
                 uppercase
