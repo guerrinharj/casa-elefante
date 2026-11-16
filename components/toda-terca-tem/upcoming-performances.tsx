@@ -2,7 +2,7 @@
 import Image from "next/image";
 import Link from "next/link";
 
-import tttLogo from "@/app/images/ttt-3.png";
+import tttLogo from "@/app/images/ttt-3-preto.png";
 
 import type {
     Performance,
@@ -36,7 +36,7 @@ export function UpcomingPerformances({
     }
 
     return (
-        <section>
+        <section className="flex flex-col gap-6 px-[5px] pb-[5px]">
             {performances.map((performance) => (
                 <Link
                     key={performance.id}
@@ -45,131 +45,159 @@ export function UpcomingPerformances({
                         group
                         relative
                         block
-                        overflow-hidden
-                        bg-[#D2232A]
-                        text-[#FFFDE9]
+                        rounded-xl
+                        border
+                        border-black
+                        bg-white
+                        text-black
+                        shadow-[-5px_5px_0_0_#000]
+                        transition-transform
+                        duration-300
+                        hover:-translate-y-1
                     "
                 >
-                    {performance.cover_image && (
-                        <div
-                            className="
-                                absolute
-                                inset-0
-                                scale-100
-                                bg-cover
-                                bg-center
-                                grayscale
-                                opacity-0
-                                transition-all
-                                duration-500
-                                ease-out
-                                group-hover:scale-[1.02]
-                                group-hover:opacity-100
-                            "
-                            style={{
-                                backgroundImage:
-                                    `url("${performance.cover_image}")`,
-                            }}
-                        />
-                    )}
+                    <div className="relative overflow-hidden rounded-[11px]">
+                        {/* IMAGEM NO HOVER */}
 
-                    <div
-                        className="
-                            absolute
-                            inset-0
-                            opacity-0
-                            transition-opacity
-                            duration-500
-                            group-hover:opacity-100
-                        "
-                    />
-
-                    <div
-                        className="
-                            relative
-                            z-10
-                            grid
-                            min-h-[55vh]
-                            grid-rows-[auto_1fr_auto]
-                            p-4
-                            md:min-h-[10vh]
-                            md:p-6
-                        "
-                    >
-                        <div className="flex flex-col gap-2">
-                            <p
+                        {performance.cover_image && (
+                            <div
                                 className="
-                                    font-october
-                                    text-3xl
-                                    leading-none
-                                    md:text-5xl
-                                    lg:text-6xl
+                                    absolute
+                                    inset-0
+                                    scale-100
+                                    bg-cover
+                                    bg-center
+                                    grayscale
+                                    opacity-0
+                                    transition-all
+                                    duration-500
+                                    ease-out
+                                    group-hover:scale-[1.02]
+                                    group-hover:opacity-100
                                 "
-                            >
-                                {formatDate(
-                                    performance.performance_date,
-                                )}
-                            </p>
+                                style={{
+                                    backgroundImage: `url("${performance.cover_image}")`,
+                                }}
+                            />
+                        )}
 
-                            {performance.location && (
-                                <p
-                                    className="
-                                        font-october
-                                        text-xl
-                                        leading-none
-                                        md:text-2xl
-                                        lg:text-3xl
-                                    "
-                                >
-                                    {performance.location}
-                                </p>
-                            )}
-                        </div>
+                        {/* CAMADA BRANCA PARA LEGIBILIDADE */}
 
-                        <div
-                            className="
-                                flex
-                                items-center
-                                justify-end
-                            "
-                        >
-                            <h2
+                        {performance.cover_image && (
+                            <div
                                 className="
-                                    max-w-6xl
-                                    text-right
-                                    font-october
-                                    text-6xl
-                                    leading-[0.85]
-                                    md:text-8xl
-                                    lg:text-9xl
-                                    xl:text-[10rem]
-                                "
-                            >
-                                {performance.name}
-                            </h2>
-                        </div>
-
-                        <div
-                            className="
-                                flex
-                                items-end
-                                justify-start
-                                gap-6
-                            "
-                        >
-                            <Image
-                                src={tttLogo}
-                                alt="Toda Terça Tem"
-                                width={180}
-                                height={180}
-                                className="
-                                    h-auto
-                                    w-28
-                                    object-contain
-                                    md:w-36
-                                    lg:w-44
+                                    absolute
+                                    inset-0
+                                    bg-white/60
+                                    opacity-0
+                                    transition-opacity
+                                    duration-500
+                                    group-hover:opacity-100
                                 "
                             />
+                        )}
+
+                        {/* CONTEÚDO */}
+
+                        <div
+                            className="
+                                relative
+                                z-10
+                                grid
+                                min-h-[230px]
+                                grid-rows-[auto_1fr_auto]
+                                p-4
+                                md:min-h-[270px]
+                                md:p-6
+                            "
+                        >
+                            {/* DATA E LOCAL */}
+
+                            <div className="flex items-start justify-between gap-4">
+                                <p className="text-sm leading-tight md:text-base">
+                                    {formatDate(
+                                        performance.performance_date,
+                                    )}
+                                </p>
+
+                                {performance.location && (
+                                    <p
+                                        className="
+                                            max-w-[45%]
+                                            text-right
+                                            text-sm
+                                            leading-tight
+                                            md:text-base
+                                        "
+                                    >
+                                        {performance.location}
+                                    </p>
+                                )}
+                            </div>
+
+                            {/* NOME DO ARTISTA */}
+
+                            <div
+                                className="
+                                    flex
+                                    min-h-0
+                                    items-center
+                                    justify-center
+                                    py-6
+                                "
+                            >
+                                <h2
+                                    className="
+                                        max-w-full
+                                        break-words
+                                        text-center
+                                        font-october
+                                        text-5xl
+                                        uppercase
+                                        leading-[0.85]
+                                        sm:text-6xl
+                                        md:text-8xl
+                                        lg:text-9xl
+                                        xl:text-[10rem]
+                                    "
+                                >
+                                    {performance.name}
+                                </h2>
+                            </div>
+
+                            {/* RODAPÉ */}
+
+                            <div className="flex items-end justify-between gap-4">
+                                <Image
+                                    src={tttLogo}
+                                    alt="Toda Terça Tem"
+                                    width={80}
+                                    height={80}
+                                    className="
+                                        h-auto
+                                        w-12
+                                        shrink-0
+                                        object-contain
+                                        brightness-0
+                                        md:w-16
+                                    "
+                                />
+
+                                <span
+                                    aria-hidden="true"
+                                    className="
+                                        text-3xl
+                                        leading-none
+                                        transition-transform
+                                        duration-300
+                                        group-hover:translate-x-1
+                                        group-hover:-translate-y-1
+                                        md:text-4xl
+                                    "
+                                >
+                                    ↗
+                                </span>
+                            </div>
                         </div>
                     </div>
                 </Link>
