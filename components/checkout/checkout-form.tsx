@@ -1,35 +1,28 @@
 "use client";
-
 import {
     type FormEvent,
     useEffect,
     useRef,
     useState,
 } from "react";
-
 import Script from "next/script";
 import Link from "next/link";
-
 import type {
     CheckoutPayment,
 } from "@/lib/payment-types";
-
 import {
     useCart,
 } from "@/components/cart/cart-provider";
-
 import {
     createOrder,
     getPaymentConfig,
     checkPayment,
     retryPayment,
 } from "@/app/checkout/actions";
-
 import {
     calculateShipping,
     type ShippingOption,
 } from "@/app/checkout/shipping-actions";
-
 const buttonClassName = `
     rounded-xl border border-black bg-[#FFFDE9] px-6 py-4 uppercase
     shadow-[6px_6px_0_0_#000] transition-all duration-200 ease-out
@@ -40,20 +33,16 @@ const buttonClassName = `
     disabled:hover:shadow-[6px_6px_0_0_#000]
     bg-white text-black
 `;
-
 const inputClassName = `
-    bg-white text-black rounded-lg border border-black bg-[#FFFDE9] px-4 py-3
+    bg-white text-black rounded-lg border border-black px-4 py-3
     outline-none transition-shadow duration-200
     focus:shadow-[3px_3px_0_0_#000]
 `;
-
 export function CheckoutForm() {
     const attemptRef =
         useRef<string | null>(null);
-
     const clearedRef =
         useRef(false);
-
     const {
         items,
         subtotal,
@@ -62,101 +51,69 @@ export function CheckoutForm() {
         discountedSubtotal,
         clearCart,
     } = useCart();
-
     const [customerName, setCustomerName] =
         useState("");
-
     const [customerEmail, setCustomerEmail] =
         useState("");
-
     const [customerTaxId, setCustomerTaxId] =
         useState("");
-
     const [holderTaxId, setHolderTaxId] =
         useState("");
-
     const [publicKey, setPublicKey] =
         useState("");
-
     const [environment, setEnvironment] =
         useState("");
-
     const [recoveringPayment, setRecoveringPayment] = 
         useState(false);
-
     const [sdkReady, setSdkReady] =
         useState(false);
-
     const [payment, setPayment] =
         useState<CheckoutPayment | null>(null);
-
     const [checking, setChecking] =
         useState(false);
-
     const [copied, setCopied] =
         useState(false);
-
     const [paymentMethod, setPaymentMethod] =
         useState<"pix" | "card" | null>(null);
-
     const [cardNumber, setCardNumber] =
         useState("");
-
     const [cardName, setCardName] =
         useState("");
-
     const [cardExpiry, setCardExpiry] =
         useState("");
-
     const [cardCvv, setCardCvv] =
         useState("");
-
     const [postalCode, setPostalCode] =
         useState("");
-
     const [street, setStreet] =
         useState("");
-
     const [number, setNumber] =
         useState("");
-
     const [complement, setComplement] =
         useState("");
-
     const [neighborhood, setNeighborhood] =
         useState("");
-
     const [city, setCity] =
         useState("");
-
     const [state, setState] =
         useState("");
-
     const [shippingOptions, setShippingOptions] =
         useState<ShippingOption[]>([]);
-
     const [selectedShipping, setSelectedShipping] =
         useState<ShippingOption | null>(null);
-
     const [calculatingShipping, setCalculatingShipping] =
         useState(false);
-
     const [submitting, setSubmitting] =
         useState(false);
-
     const [shippingError, setShippingError] =
         useState<string | null>(null);
-
     const [error, setError] =
         useState<string | null>(null);
-
     useEffect(() => {
         let active = true;
-
         getPaymentConfig()
             .then((config) => {
                 if (!active) return;
-
                 setPublicKey(config.publicKey);
                 setEnvironment(config.environment);
             })
@@ -167,20 +124,15 @@ export function CheckoutForm() {
                     );
                 }
             });
-
         const attempt = sessionStorage.getItem(
             "casa-elefante-payment-attempt",
         );
-
         if (attempt) {
             attemptRef.current = attempt;
-
             setChecking(true);
-
             checkPayment(attempt)
                 .then((result) => {
                     if (!active) return;
-
                     if (result.success) {
                         setPayment(result.payment);
                     } else if (
@@ -203,49 +155,36 @@ export function CheckoutForm() {
                     }
                 });
         }
-
         return () => {
             active = false;
         };
     }, []);
-
     useEffect(() => {
         if (
             payment?.status === "paid" &&
             !clearedRef.current
         ) {
             clearedRef.current = true;
-
             clearCart();
-
             sessionStorage.removeItem(
                 "casa-elefante-payment-attempt",
             );
         }
     }, [payment?.status, clearCart]);
-
     useEffect(() => {
         const shouldPollPending =
             payment && ["pending", "unknown"].includes(payment.status);
-
         if (!recoveringPayment && !shouldPollPending) return;
-
         let active = true;
         let timeout: ReturnType<typeof setTimeout>;
-
         const interval = recoveringPayment ? 1_000 : 3_000;
-
         const poll = async () => {
             const attempt = attemptRef.current;
-
             if (!attempt) return;
-
             try {
                 const result = await checkPayment(attempt);
-
                 if (active && result.success) {
                     setPayment(result.payment);
-
                     if (recoveringPayment) {
                         setRecoveringPayment(false);
                     }
@@ -253,44 +192,36 @@ export function CheckoutForm() {
             } catch {
                 // Continua consultando automaticamente.
             }
-
             if (active) {
                 timeout = setTimeout(poll, interval);
             }
         };
-
         if (recoveringPayment) {
             void poll();
         } else {
             timeout = setTimeout(poll, interval);
         }
-
         return () => {
             active = false;
             clearTimeout(timeout);
         };
     }, [payment?.status, recoveringPayment]);
-
     async function handleCheckPayment(
-        recover = false,
+recover = false,
     ) {
         const attempt =
             attemptRef.current;
-
         if (!attempt || checking) {
             return;
         }
-
         setChecking(true);
         setError(null);
-
         try {
             const result = await (
                 recover
                     ? retryPayment(attempt)
                     : checkPayment(attempt)
             );
-
             if (result.success) {
                 setPayment(result.payment);
             } else {
@@ -304,9 +235,8 @@ export function CheckoutForm() {
             setChecking(false);
         }
     }
-
     function formatCardNumber(
-        value: string,
+value: string,
     ) {
         return value
             .replace(/\D/g, "")
@@ -316,61 +246,47 @@ export function CheckoutForm() {
                 "$1 ",
             );
     }
-
     function formatCardExpiry(
-        value: string,
+value: string,
     ) {
         const numbers = value
             .replace(/\D/g, "")
             .slice(0, 4);
-
         if (numbers.length <= 2) {
             return numbers;
         }
-
         return `${numbers.slice(0, 2)}/${numbers.slice(2)}`;
     }
-
     function formatPostalCode(
-        value: string,
+value: string,
     ) {
         const numbers =
             value.replace(/\D/g, "");
-
         if (numbers.length <= 5) {
             return numbers;
         }
-
         return `${numbers.slice(0, 5)}-${numbers.slice(5, 8)}`;
     }
-
     async function fetchAddressByPostalCode(
-        value: string,
+value: string,
     ) {
         try {
             const response = await fetch(
-                `https://viacep.com.br/ws/${value}/json/`,
+                `https\://viacep.com.br/ws/${value}/json/`,
             );
-
             if (!response.ok) return;
-
             const data =
                 await response.json();
-
             if (data.erro) return;
-
             setStreet(
                 data.logradouro ?? "",
             );
-
             setNeighborhood(
                 data.bairro ?? "",
             );
-
             setCity(
                 data.localidade ?? "",
             );
-
             setState(
                 data.uf ?? "",
             );
@@ -381,64 +297,50 @@ export function CheckoutForm() {
             );
         }
     }
-
     function handlePostalCodeChange(
-        value: string,
+value: string,
     ) {
         const formatted =
             formatPostalCode(value);
-
         setPostalCode(formatted);
         setShippingOptions([]);
         setSelectedShipping(null);
         setShippingError(null);
-
         const normalized =
             formatted.replace(/\D/g, "");
-
         if (normalized.length === 8) {
             void fetchAddressByPostalCode(
                 normalized,
             );
         }
     }
-
     async function handleCalculateShipping() {
         setShippingError(null);
         setSelectedShipping(null);
-
         const normalized =
             postalCode.replace(/\D/g, "");
-
         if (normalized.length !== 8) {
             setShippingError(
                 "Informe um CEP válido.",
             );
-
             return;
         }
-
         if (!items.length) {
             setShippingError(
                 "Seu carrinho está vazio.",
             );
-
             return;
         }
-
         setCalculatingShipping(true);
-
         try {
             const result =
                 await calculateShipping({
                     postalCode: normalized,
-
                     items: items.map((item) => ({
                         productId: item.id,
                         quantity: item.quantity,
                     })),
                 });
-
             if (!result.success) {
                 if (
                     result.error
@@ -449,15 +351,12 @@ export function CheckoutForm() {
                     setRecoveringPayment(true);
                     return;
                 }
-
                 setError(result.error);
                 return;
             }
-
             setShippingOptions(
                 result.options,
             );
-
             if (
                 result.options.length === 1
             ) {
@@ -469,48 +368,36 @@ export function CheckoutForm() {
             setCalculatingShipping(false);
         }
     }
-
     async function handleSubmit(
-        event: FormEvent<HTMLFormElement>,
+event: FormEvent<HTMLFormElement>,
     ) {
         event.preventDefault();
-
         setError(null);
-
         if (submitting || checking) {
             return;
         }
-
         if (!paymentMethod) {
             setError(
                 "Escolha Pix ou cartão de crédito.",
             );
-
             return;
         }
-
         if (!items.length) {
             setError(
                 "Seu carrinho está vazio.",
             );
-
             return;
         }
-
         if (!selectedShipping) {
             setError(
                 "Escolha uma opção de frete.",
             );
-
             return;
         }
-
         setSubmitting(true);
-
         try {
             let encryptedCard:
-                string | undefined;
-
+string | undefined;
             if (
                 paymentMethod === "card"
             ) {
@@ -527,7 +414,6 @@ export function CheckoutForm() {
                             }): {
                                 encryptedCard?: string;
                                 hasErrors: boolean;
-
                                 errors?: {
                                     message: string;
                                 }[];
@@ -535,7 +421,6 @@ export function CheckoutForm() {
                         };
                     }
                 ).PagSeguro;
-
                 if (
                     !sdkReady ||
                     !sdk ||
@@ -544,13 +429,10 @@ export function CheckoutForm() {
                     setError(
                         "Aguarde o carregamento do pagamento por cartão.",
                     );
-
                     return;
                 }
-
                 const [month, year] =
                     cardExpiry.split("/");
-
                 if (
                     !/^\d{2}$/.test(month ?? "") ||
                     !/^\d{2}$/.test(year ?? "")
@@ -558,33 +440,25 @@ export function CheckoutForm() {
                     setError(
                         "Informe a validade no formato MM/AA.",
                     );
-
                     return;
                 }
-
                 const encrypted =
                     sdk.encryptCard({
                         publicKey,
-
                         holder:
                             cardName.trim(),
-
                         number:
                             cardNumber.replace(
                                 /\D/g,
                                 "",
                             ),
-
                         expMonth:
                             month,
-
                         expYear:
                             `20${year}`,
-
                         securityCode:
                             cardCvv,
                     });
-
                 if (
                     encrypted.hasErrors ||
                     !encrypted.encryptedCard
@@ -592,59 +466,46 @@ export function CheckoutForm() {
                     setError(
                         "Confira número, nome, validade e CVV do cartão.",
                     );
-
                     return;
                 }
-
                 encryptedCard =
                     encrypted.encryptedCard;
             }
-
             const attemptId =
                 attemptRef.current ??
                 crypto.randomUUID();
-
             attemptRef.current =
                 attemptId;
-
             sessionStorage.setItem(
                 "casa-elefante-payment-attempt",
                 attemptId,
             );
-
             const result =
                 await createOrder({
                     attemptId,
                     customerTaxId,
                     paymentMethod,
-
                     card: encryptedCard
                         ? {
                                 encrypted:
                                     encryptedCard,
-
                                 holderName:
                                     cardName,
-
                                 holderTaxId:
                                     holderTaxId ||
                                     customerTaxId,
                             }
                         : undefined,
-
                     customerName,
                     customerEmail,
-
                     couponCode:
                         coupon?.code ?? null,
-
                     shippingAddress: {
                         postalCode:
                             postalCode.replace(
                                 /\D/g,
                                 "",
                             ),
-
                         street,
                         number,
                         complement,
@@ -652,39 +513,30 @@ export function CheckoutForm() {
                         city,
                         state,
                     },
-
                     shipping: {
                         id:
                             selectedShipping.id,
-
                         company:
                             selectedShipping.company,
-
                         name:
                             selectedShipping.name,
-
                         price:
                             selectedShipping.price,
-
                         deliveryTime:
                             selectedShipping.deliveryTime,
                     },
-
                     items: items.map((item) => ({
                         productId: item.id,
                         quantity: item.quantity,
                     })),
                 });
-
             if (!result.success) {
                 setError(result.error);
                 return;
             }
-
             setPayment(
                 result.payment,
             );
-
             setCardNumber("");
             setCardCvv("");
             setCardExpiry("");
@@ -696,22 +548,17 @@ export function CheckoutForm() {
             setSubmitting(false);
         }
     }
-
     const shipping =
         selectedShipping?.price ?? 0;
-
     const total =
         discountedSubtotal + shipping;
-
     if (payment) {
         const paid =
             payment.status === "paid";
-
         const closed =
             ["declined", "expired"].includes(
                 payment.status,
             );
-
         return (
             <section className="mx-auto flex max-w-xl flex-col gap-5 rounded-xl border border-black bg-[#FFFDE9] p-6">
                 <h2 className="font-october text-2xl font-bold">
@@ -725,11 +572,9 @@ export function CheckoutForm() {
                                     ? "Verificando pagamento"
                                     : "Aguardando pagamento"}
                 </h2>
-
                 <p className="break-all text-sm">
                     Pedido: {payment.orderId}
                 </p>
-
                 <p>
                     Total:{" "}
                     {payment.total.toLocaleString(
@@ -740,14 +585,12 @@ export function CheckoutForm() {
                         },
                     )}
                 </p>
-
                 {paid && (
                     <p>
                         Recebemos seu pagamento.
                         Você receberá a confirmação por e-mail.
                     </p>
                 )}
-
                 {!paid && !closed && payment.pix && (
                     <>
                         {payment.pix.imageUrl && (
@@ -759,10 +602,8 @@ export function CheckoutForm() {
                                 className="self-center"
                             />
                         )}
-
                         <label className="flex flex-col gap-2">
                             Pix copia e cola
-
                             <textarea
                                 readOnly
                                 value={payment.pix.text}
@@ -770,7 +611,6 @@ export function CheckoutForm() {
                                 className={`${inputClassName} break-all text-sm`}
                             />
                         </label>
-
                         <button
                             type="button"
                             className={buttonClassName}
@@ -779,7 +619,6 @@ export function CheckoutForm() {
                                     await navigator.clipboard.writeText(
                                         payment.pix!.text,
                                     );
-
                                     setCopied(true);
                                 } catch {
                                     setError(
@@ -792,7 +631,6 @@ export function CheckoutForm() {
                                 ? "Código copiado"
                                 : "Copiar código Pix"}
                         </button>
-
                         {payment.pix.expiresAt && (
                             <p className="text-sm">
                                 Validade:{" "}
@@ -801,7 +639,6 @@ export function CheckoutForm() {
                                 ).toLocaleString("pt-BR")}
                             </p>
                         )}
-
                         <p className="text-sm">
                             {environment === "sandbox"
                                 ? "Pix de teste: o resultado é simulado pelo PagBank conforme o valor do pedido."
@@ -809,7 +646,6 @@ export function CheckoutForm() {
                         </p>
                     </>
                 )}
-
                 {!paid && !closed && (
                     <>
                         <p className="text-sm">
@@ -817,7 +653,6 @@ export function CheckoutForm() {
                             automaticamente. Mantenha esta aba
                             aberta para acompanhar.
                         </p>
-
                         <button
                             type="button"
                             disabled={checking}
@@ -834,18 +669,15 @@ export function CheckoutForm() {
                         </button>
                     </>
                 )}
-
                 {closed && (
                     <button
                         type="button"
                         className={buttonClassName}
                         onClick={() => {
                             attemptRef.current = null;
-
                             setPayment(null);
                             setError(null);
                             setPaymentMethod(null);
-
                             sessionStorage.removeItem(
                                 "casa-elefante-payment-attempt",
                             );
@@ -854,7 +686,6 @@ export function CheckoutForm() {
                         Tentar outro pagamento
                     </button>
                 )}
-
                 {error && (
                     <p
                         role="alert"
@@ -863,14 +694,12 @@ export function CheckoutForm() {
                         {error}
                     </p>
                 )}
-
                 <Link href="/" className="underline">
                     Voltar à loja
                 </Link>
             </section>
         );
     }
-
         if (recoveringPayment && !payment) {
         return (
             <section
@@ -880,7 +709,6 @@ export function CheckoutForm() {
                 <h2 className="font-october text-2xl font-bold">
                     Verificando pagamento
                 </h2>
-
                 <p>
                     Estamos consultando o PagBank. O status será atualizado
                     automaticamente.
@@ -888,12 +716,11 @@ export function CheckoutForm() {
             </section>
         );
     }
-
     return (
         <>
             <Script
-                src="https://assets.pagseguro.com.br/checkout-sdk-js/rc/dist/browser/pagseguro.min.js"
-                strategy="afterInteractive"
+                src="https\://assets.pagseguro.com.br/checkout-sdk-js/rc/dist/browser/pagseguro.min.js"
+strategy="afterInteractive"
                 onReady={() => setSdkReady(true)}
                 onError={() =>
                     setError(
@@ -901,28 +728,23 @@ export function CheckoutForm() {
                     )
                 }
             />
-
             <form
                 onSubmit={handleSubmit}
                 className="grid gap-10 md:grid-cols-[1fr_400px]"
             >
                 <div className="flex flex-col gap-8">
-                    <section className="flex flex-col gap-4">
+                    <section style={{ animationDelay: "0ms" }} className="animate-checkout-field flex flex-col gap-4 opacity-0 rounded-xl border border-black bg-white p-5 text-black shadow-[-5px_5px_0_0_#000] md:p-6">
                         <h2
-                            className="animate-checkout-field font-october text-2xl font-bold opacity-0"
-                            style={{ animationDelay: "0ms" }}
+                            className="font-october text-2xl font-bold"
                         >
                             Seus dados
                         </h2>
-
                         <label
-                            className="animate-checkout-field flex flex-col gap-2 opacity-0"
-                            style={{ animationDelay: "60ms" }}
+                            className="flex flex-col gap-2"
                         >
                             <span className="text-sm">
                                 Nome
                             </span>
-
                             <input
                                 type="text"
                                 value={customerName}
@@ -935,15 +757,12 @@ export function CheckoutForm() {
                                 className={inputClassName}
                             />
                         </label>
-
                         <label
-                            className="animate-checkout-field flex flex-col gap-2 opacity-0"
-                            style={{ animationDelay: "120ms" }}
+                            className="flex flex-col gap-2"
                         >
                             <span className="text-sm">
                                 E-mail
                             </span>
-
                             <input
                                 type="email"
                                 value={customerEmail}
@@ -956,12 +775,10 @@ export function CheckoutForm() {
                                 className={inputClassName}
                             />
                         </label>
-
                         <label className="flex flex-col gap-2">
                             <span className="text-sm">
                                 CPF
                             </span>
-
                             <input
                                 type="text"
                                 inputMode="numeric"
@@ -981,23 +798,18 @@ export function CheckoutForm() {
                             />
                         </label>
                     </section>
-
-                    <section className="flex flex-col gap-4">
+                    <section style={{ animationDelay: "140ms" }} className="animate-checkout-field flex flex-col gap-4 opacity-0 rounded-xl border border-black bg-white p-5 text-black shadow-[-5px_5px_0_0_#000] md:p-6">
                         <h2
-                            className="animate-checkout-field font-october text-2xl font-bold opacity-0"
-                            style={{ animationDelay: "180ms" }}
+                            className="font-october text-2xl font-bold"
                         >
                             Entrega
                         </h2>
-
                         <label
-                            className="animate-checkout-field flex flex-col gap-2 opacity-0"
-                            style={{ animationDelay: "240ms" }}
+                            className="flex flex-col gap-2"
                         >
                             <span className="text-sm">
                                 CEP
                             </span>
-
                             <div className="flex items-stretch gap-3">
                                 <input
                                     type="text"
@@ -1013,7 +825,6 @@ export function CheckoutForm() {
                                     required
                                     className={`${inputClassName} min-w-0 flex-1`}
                                 />
-
                                 <button
                                     type="button"
                                     onClick={handleCalculateShipping}
@@ -1026,15 +837,12 @@ export function CheckoutForm() {
                                 </button>
                             </div>
                         </label>
-
                         <label
-                            className="animate-checkout-field flex flex-col gap-2 opacity-0"
-                            style={{ animationDelay: "300ms" }}
+                            className="flex flex-col gap-2"
                         >
                             <span className="text-sm">
                                 Rua
                             </span>
-
                             <input
                                 type="text"
                                 value={street}
@@ -1045,16 +853,13 @@ export function CheckoutForm() {
                                 className={inputClassName}
                             />
                         </label>
-
                         <div
-                            className="animate-checkout-field grid gap-4 opacity-0 md:grid-cols-[160px_1fr]"
-                            style={{ animationDelay: "360ms" }}
+                            className="grid gap-4 md:grid-cols-[160px_1fr]"
                         >
                             <label className="flex flex-col gap-2">
                                 <span className="text-sm">
                                     Número
                                 </span>
-
                                 <input
                                     type="text"
                                     value={number}
@@ -1065,12 +870,10 @@ export function CheckoutForm() {
                                     className={inputClassName}
                                 />
                             </label>
-
                             <label className="flex flex-col gap-2">
                                 <span className="text-sm">
                                     Complemento
                                 </span>
-
                                 <input
                                     type="text"
                                     value={complement}
@@ -1084,15 +887,12 @@ export function CheckoutForm() {
                                 />
                             </label>
                         </div>
-
                         <label
-                            className="animate-checkout-field flex flex-col gap-2 opacity-0"
-                            style={{ animationDelay: "420ms" }}
+                            className="flex flex-col gap-2"
                         >
                             <span className="text-sm">
                                 Bairro
                             </span>
-
                             <input
                                 type="text"
                                 value={neighborhood}
@@ -1105,16 +905,13 @@ export function CheckoutForm() {
                                 className={inputClassName}
                             />
                         </label>
-
                         <div
-                            className="animate-checkout-field grid gap-4 opacity-0 md:grid-cols-[1fr_120px]"
-                            style={{ animationDelay: "480ms" }}
+                            className="grid gap-4 md:grid-cols-[1fr_120px]"
                         >
                             <label className="flex flex-col gap-2">
                                 <span className="text-sm">
                                     Cidade
                                 </span>
-
                                 <input
                                     type="text"
                                     value={city}
@@ -1125,12 +922,10 @@ export function CheckoutForm() {
                                     className={inputClassName}
                                 />
                             </label>
-
                             <label className="flex flex-col gap-2">
                                 <span className="text-sm">
                                     Estado
                                 </span>
-
                                 <input
                                     type="text"
                                     value={state}
@@ -1145,13 +940,11 @@ export function CheckoutForm() {
                                 />
                             </label>
                         </div>
-
                         {shippingError && (
-                            <p className="animate-checkout-field text-sm text-red-600">
+                            <p className="text-sm text-red-600">
                                 {shippingError}
                             </p>
                         )}
-
                         {shippingOptions.length > 0 && (
                             <div className="flex flex-col gap-3">
                                 {shippingOptions.map(
@@ -1159,11 +952,10 @@ export function CheckoutForm() {
                                         const checked =
                                             selectedShipping?.id ===
                                             option.id;
-
                                         return (
                                             <label
                                                 key={option.id}
-                                                className="animate-checkout-field flex cursor-pointer items-center gap-4 rounded-xl border border-black bg-[#FFFDE9] p-4 opacity-0 shadow-[4px_4px_0_0_#000] transition-all duration-200 hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[6px_6px_0_0_#000]"
+                                                className="flex cursor-pointer items-center gap-4 rounded-xl border border-black bg-white p-4 opacity-0 shadow-[4px_4px_0_0_#000] transition-all duration-200 hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[6px_6px_0_0_#000]"
                                                 style={{
                                                     animationDelay:
                                                         `${index * 60}ms`,
@@ -1179,21 +971,18 @@ export function CheckoutForm() {
                                                         )
                                                     }
                                                 />
-
                                                 <div className="flex flex-1 items-center justify-between gap-4">
                                                     <div>
                                                         <p className="font-medium">
                                                             {option.company}{" "}
                                                             {option.name}
                                                         </p>
-
                                                         <p className="text-sm opacity-60">
                                                             {option.deliveryTime > 0
                                                                 ? `${option.deliveryTime} dia${option.deliveryTime === 1 ? "" : "s"} úteis`
                                                                 : "Prazo não informado"}
                                                         </p>
                                                     </div>
-
                                                     <span>
                                                         {option.price.toLocaleString(
                                                             "pt-BR",
@@ -1211,19 +1000,15 @@ export function CheckoutForm() {
                             </div>
                         )}
                     </section>
-
-                    <section className="flex flex-col gap-4">
+                    <section style={{ animationDelay: "280ms" }} className="animate-checkout-field flex flex-col gap-4 opacity-0 rounded-xl border border-black bg-white p-5 text-black shadow-[-5px_5px_0_0_#000] md:p-6">
                         <h2
-                            className="animate-checkout-field font-october text-2xl font-bold opacity-0"
-                            style={{ animationDelay: "540ms" }}
+                            className="font-october text-2xl font-bold"
                         >
                             Pagamento
                         </h2>
-
                         <div className="flex flex-col gap-3">
                             <label
-                                className="bg-white text-black animate-checkout-field flex cursor-pointer items-center gap-4 rounded-xl border border-black bg-[#FFFDE9] p-4 opacity-0 shadow-[4px_4px_0_0_#000] transition-all duration-200 hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[6px_6px_0_0_#000]"
-                                style={{ animationDelay: "600ms" }}
+                                className="flex cursor-pointer items-center gap-4 rounded-xl border border-black bg-white p-4 shadow-[4px_4px_0_0_#000] transition-all duration-200 hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[6px_6px_0_0_#000]"
                             >
                                 <input
                                     type="radio"
@@ -1234,21 +1019,17 @@ export function CheckoutForm() {
                                         setPaymentMethod("pix")
                                     }
                                 />
-
                                 <div>
                                     <p className="font-medium">
                                         PIX
                                     </p>
-
                                     <p className="text-sm opacity-60">
                                         Pagamento instantâneo
                                     </p>
                                 </div>
                             </label>
-
                             <label
-                                className="bg-white text-black animate-checkout-field flex cursor-pointer items-center gap-4 rounded-xl border border-black bg-[#FFFDE9] p-4 opacity-0 shadow-[4px_4px_0_0_#000] transition-all duration-200 hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[6px_6px_0_0_#000]"
-                                style={{ animationDelay: "660ms" }}
+                                className="flex cursor-pointer items-center gap-4 rounded-xl border border-black bg-white p-4 shadow-[4px_4px_0_0_#000] transition-all duration-200 hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[6px_6px_0_0_#000]"
                             >
                                 <input
                                     type="radio"
@@ -1259,25 +1040,21 @@ export function CheckoutForm() {
                                         setPaymentMethod("card")
                                     }
                                 />
-
                                 <div>
                                     <p className="font-medium">
                                         Cartão de crédito
                                     </p>
-
                                     <p className="text-sm opacity-60">
                                         Crédito
                                     </p>
                                 </div>
                             </label>
-
                             {paymentMethod === "card" && (
-                                <div className="grid gap-4 rounded-xl border border-black bg-[#FFFDE9] p-5 shadow-[4px_4px_0_0_#000]">
+                                <div className="grid gap-4 rounded-xl border border-black bg-white p-5 shadow-[4px_4px_0_0_#000]">
                                     <label className="flex flex-col gap-2">
                                         <span className="text-sm">
                                             Número do cartão
                                         </span>
-
                                         <input
                                             type="text"
                                             inputMode="numeric"
@@ -1296,12 +1073,10 @@ export function CheckoutForm() {
                                             className={inputClassName}
                                         />
                                     </label>
-
                                     <label className="flex flex-col gap-2">
                                         <span className="text-sm">
                                             Nome no cartão
                                         </span>
-
                                         <input
                                             type="text"
                                             autoComplete="cc-name"
@@ -1316,12 +1091,10 @@ export function CheckoutForm() {
                                             className={inputClassName}
                                         />
                                     </label>
-
                                     <label className="flex flex-col gap-2">
                                         <span className="text-sm">
                                             CPF do titular do cartão
                                         </span>
-
                                         <input
                                             type="text"
                                             inputMode="numeric"
@@ -1338,13 +1111,11 @@ export function CheckoutForm() {
                                             className={inputClassName}
                                         />
                                     </label>
-
                                     <div className="grid grid-cols-2 gap-4">
                                         <label className="flex flex-col gap-2">
                                             <span className="text-sm">
                                                 Validade
                                             </span>
-
                                             <input
                                                 type="text"
                                                 inputMode="numeric"
@@ -1363,12 +1134,10 @@ export function CheckoutForm() {
                                                 className={inputClassName}
                                             />
                                         </label>
-
                                         <label className="flex flex-col gap-2">
                                             <span className="text-sm">
                                                 CVV
                                             </span>
-
                                             <input
                                                 type="password"
                                                 inputMode="numeric"
@@ -1393,12 +1162,10 @@ export function CheckoutForm() {
                         </div>
                     </section>
                 </div>
-
-                <aside className="animate-checkout-summary flex flex-col gap-6 opacity-0">
+                <aside className="animate-checkout-summary flex flex-col gap-6 rounded-xl border border-black bg-white p-5 text-black opacity-0 shadow-[-5px_5px_0_0_#000] md:p-6">
                     <h2 className="font-october text-2xl font-bold">
                         Seu pedido
                     </h2>
-
                     <div className="flex flex-col">
                         {items.map((item, index) => (
                             <div
@@ -1411,12 +1178,10 @@ export function CheckoutForm() {
                             >
                                 <div>
                                     <p>{item.name}</p>
-
                                     <p className="text-sm opacity-60">
                                         {item.artist} × {item.quantity}
                                     </p>
                                 </div>
-
                                 <span>
                                     {(
                                         item.price *
@@ -1432,11 +1197,9 @@ export function CheckoutForm() {
                             </div>
                         ))}
                     </div>
-
                     <div className="flex flex-col gap-3">
                         <div className="flex justify-between">
                             <span>Subtotal</span>
-
                             <span>
                                 {subtotal.toLocaleString(
                                     "pt-BR",
@@ -1447,13 +1210,11 @@ export function CheckoutForm() {
                                 )}
                             </span>
                         </div>
-
                         {coupon && (
                             <div className="flex justify-between">
                                 <span>
                                     Cupom {coupon.code}
                                 </span>
-
                                 <span>
                                     -{" "}
                                     {discountAmount.toLocaleString(
@@ -1466,13 +1227,11 @@ export function CheckoutForm() {
                                 </span>
                             </div>
                         )}
-
                         {coupon && (
                             <div className="flex justify-between">
                                 <span>
                                     Subtotal com desconto
                                 </span>
-
                                 <span>
                                     {discountedSubtotal.toLocaleString(
                                         "pt-BR",
@@ -1484,10 +1243,8 @@ export function CheckoutForm() {
                                 </span>
                             </div>
                         )}
-
                         <div className="flex justify-between">
                             <span>Frete</span>
-
                             <span>
                                 {selectedShipping
                                     ? shipping.toLocaleString(
@@ -1500,10 +1257,8 @@ export function CheckoutForm() {
                                     : "—"}
                             </span>
                         </div>
-
                         <div className="flex justify-between border-t border-black pt-4 text-xl">
                             <strong>Total</strong>
-
                             <strong>
                                 {total.toLocaleString(
                                     "pt-BR",
@@ -1515,13 +1270,11 @@ export function CheckoutForm() {
                             </strong>
                         </div>
                     </div>
-
                     {error && (
                         <p className="text-sm text-red-600">
                             {error}
                         </p>
                     )}
-
                     <button
                         type="submit"
                         disabled={
@@ -1541,7 +1294,6 @@ export function CheckoutForm() {
                             ? "Criando pedido..."
                             : "Finalizar pedido"}
                     </button>
-
                     <p className="text-xs opacity-60">
                         {environment === "sandbox"
                             ? "Pagamento em ambiente de teste (Sandbox)."
