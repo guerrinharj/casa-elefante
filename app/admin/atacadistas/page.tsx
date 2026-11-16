@@ -1,3 +1,6 @@
+
+import Link from "next/link";
+
 import {
     revalidatePath,
 } from "next/cache";
@@ -30,6 +33,12 @@ type WholesaleApplication = {
     reviewed_at: string | null;
 };
 
+const buttonClassName =
+    "inline-flex items-center justify-center rounded-xl border border-black bg-white px-5 py-3 text-sm font-medium text-black shadow-[-5px_5px_0_0_#000] transition-all duration-200 hover:-translate-y-1 hover:shadow-[-5px_9px_0_0_#000]";
+
+const actionButtonClassName =
+    "inline-flex items-center justify-center rounded-xl border border-black bg-white px-5 py-2.5 text-sm font-medium text-black shadow-[-4px_4px_0_0_#000] transition-all duration-200 hover:-translate-y-1 hover:shadow-[-4px_7px_0_0_#000]";
+
 async function updateApplicationStatus(
     formData: FormData,
 ) {
@@ -38,18 +47,13 @@ async function updateApplicationStatus(
     await requireAdmin();
 
     const applicationId =
-        formData.get(
-            "applicationId",
-        );
+        formData.get("applicationId");
 
     const status =
-        formData.get(
-            "status",
-        );
+        formData.get("status");
 
     if (
-        typeof applicationId !==
-        "string"
+        typeof applicationId !== "string"
     ) {
         return;
     }
@@ -68,9 +72,7 @@ async function updateApplicationStatus(
     const {
         error,
     } = await supabase
-        .from(
-            "wholesale_applications",
-        )
+        .from("wholesale_applications")
         .update({
             status,
             reviewed_at:
@@ -105,8 +107,7 @@ async function updateApplicationStatus(
 function StatusBadge({
     status,
 }: {
-    status:
-        WholesaleApplication["status"];
+    status: WholesaleApplication["status"];
 }) {
     const labels = {
         pending: "Pendente",
@@ -114,8 +115,16 @@ function StatusBadge({
         rejected: "Recusado",
     };
 
+    const statusClassName = {
+        pending: "bg-[#FFFDE9] text-black",
+        approved: "bg-white text-black",
+        rejected: "bg-[#D2232A] text-white",
+    };
+
     return (
-        <span className="inline-flex rounded-full border border-black px-3 py-1 text-xs uppercase">
+        <span
+            className={`inline-flex w-fit items-center rounded-lg border border-black px-3 py-1.5 text-xs font-medium ${statusClassName[status]}`}
+        >
             {labels[status]}
         </span>
     );
@@ -137,9 +146,7 @@ function StatusForm({
 }) {
     return (
         <form
-            action={
-                updateApplicationStatus
-            }
+            action={updateApplicationStatus}
         >
             <input
                 type="hidden"
@@ -155,11 +162,11 @@ function StatusForm({
 
             <button
                 type="submit"
-                className={
+                className={`${actionButtonClassName} ${
                     primary
-                        ? "rounded-md border border-black   px-5 py-2 text-sm uppercase text-white transition-opacity hover:opacity-70"
-                        : "rounded-md border border-black px-5 py-2 text-sm uppercase transition-colors hover:  hover:text-white"
-                }
+                        ? "bg-[#FFFDE9]"
+                        : "bg-white"
+                }`}
             >
                 {label}
             </button>
@@ -170,26 +177,22 @@ function StatusForm({
 function ApplicationCard({
     application,
 }: {
-    application:
-        WholesaleApplication;
+    application: WholesaleApplication;
 }) {
     return (
-        <article className="rounded-lg border border-black bg-[#FFFDE9] p-6 shadow">
+        <article className="rounded-xl border border-black bg-white p-6 shadow-[-5px_5px_0_0_#000] md:p-8">
             <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-                <div>
-                    <h2 className="text-2xl font-medium">
-                        {
-                            application.company_name
-                        }
-                    </h2>
+                <div className="min-w-0">
+                    <h3 className="font-october text-3xl uppercase leading-none text-black md:text-4xl">
+                        {application.company_name}
+                    </h3>
 
-                    <p className="mt-1 text-sm opacity-60">
+                    <p className="mt-3 text-sm text-black/60">
                         Solicitação enviada em{" "}
                         {new Intl.DateTimeFormat(
                             "pt-BR",
                             {
-                                dateStyle:
-                                    "long",
+                                dateStyle: "long",
                             },
                         ).format(
                             new Date(
@@ -200,155 +203,123 @@ function ApplicationCard({
                 </div>
 
                 <StatusBadge
-                    status={
-                        application.status
-                    }
+                    status={application.status}
                 />
             </div>
 
-            <div className="grid gap-5 md:grid-cols-2">
+            <div className="grid gap-x-8 gap-y-6 border-t border-black/15 pt-6 md:grid-cols-2">
                 <div>
-                    <p className="text-xs uppercase opacity-50">
+                    <p className="mb-2 font-october text-lg uppercase leading-none text-black/60">
                         CPF / CNPJ
                     </p>
 
-                    <p>
-                        {
-                            application.document
-                        }
+                    <p className="text-sm font-medium text-black md:text-base">
+                        {application.document}
                     </p>
                 </div>
 
                 <div>
-                    <p className="text-xs uppercase opacity-50">
+                    <p className="mb-2 font-october text-lg uppercase leading-none text-black/60">
                         Telefone / WhatsApp
                     </p>
 
-                    <p>
-                        {
-                            application.phone
-                        }
+                    <p className="text-sm font-medium text-black md:text-base">
+                        {application.phone}
                     </p>
                 </div>
 
                 <div>
-                    <p className="text-xs uppercase opacity-50">
+                    <p className="mb-2 font-october text-lg uppercase leading-none text-black/60">
                         Localização
                     </p>
 
-                    <p>
-                        {
-                            application.city
-                        }
+                    <p className="text-sm font-medium text-black md:text-base">
+                        {application.city}
                         {" — "}
-                        {
-                            application.state
-                        }
+                        {application.state}
                     </p>
                 </div>
 
                 {application.instagram && (
                     <div>
-                        <p className="text-xs uppercase opacity-50">
+                        <p className="mb-2 font-october text-lg uppercase leading-none text-black/60">
                             Instagram
                         </p>
 
-                        <p>
-                            {
-                                application.instagram
-                            }
+                        <p className="break-words text-sm font-medium text-black md:text-base">
+                            {application.instagram}
                         </p>
                     </div>
                 )}
 
                 {application.website && (
                     <div>
-                        <p className="text-xs uppercase opacity-50">
+                        <p className="mb-2 font-october text-lg uppercase leading-none text-black/60">
                             Site
                         </p>
 
                         <a
-                            href={
-                                application.website
-                            }
+                            href={application.website}
                             target="_blank"
                             rel="noreferrer"
-                            className="underline underline-offset-4"
+                            className="break-all text-sm font-medium text-black underline underline-offset-4 transition-opacity hover:opacity-60 md:text-base"
                         >
-                            {
-                                application.website
-                            }
+                            {application.website}
                         </a>
                     </div>
                 )}
             </div>
 
             {application.business_description && (
-                <div className="mt-6 border-t border-black/20 pt-6">
-                    <p className="mb-2 text-xs uppercase opacity-50">
-                        Sobre a loja /
-                        atividade
+                <div className="mt-6 border-t border-black/15 pt-6">
+                    <p className="mb-3 font-october text-lg uppercase leading-none text-black/60">
+                        Sobre a loja / atividade
                     </p>
 
-                    <p className="max-w-3xl whitespace-pre-line">
-                        {
-                            application.business_description
-                        }
+                    <p className="max-w-3xl whitespace-pre-line text-sm leading-relaxed text-black md:text-base">
+                        {application.business_description}
                     </p>
                 </div>
             )}
 
-            {application.status ===
-                "pending" && (
-                <div className="mt-6 flex flex-wrap gap-3 border-t border-black/20 pt-6">
+            {application.status === "pending" && (
+                <div className="mt-6 flex flex-wrap gap-4 border-t border-black/15 pt-6">
                     <StatusForm
-                        applicationId={
-                            application.id
-                        }
+                        applicationId={application.id}
                         status="approved"
                         label="Aprovar"
                         primary
                     />
 
                     <StatusForm
-                        applicationId={
-                            application.id
-                        }
+                        applicationId={application.id}
                         status="rejected"
                         label="Recusar"
                     />
                 </div>
             )}
 
-            {application.status ===
-                "approved" && (
-                <div className="mt-6 flex flex-wrap gap-3 border-t border-black/20 pt-6">
+            {application.status === "approved" && (
+                <div className="mt-6 flex flex-wrap gap-4 border-t border-black/15 pt-6">
                     <StatusForm
-                        applicationId={
-                            application.id
-                        }
+                        applicationId={application.id}
                         status="pending"
                         label="Remover acesso ao atacado"
                     />
                 </div>
             )}
 
-            {application.status ===
-                "rejected" && (
-                <div className="mt-6 flex flex-wrap gap-3 border-t border-black/20 pt-6">
+            {application.status === "rejected" && (
+                <div className="mt-6 flex flex-wrap gap-4 border-t border-black/15 pt-6">
                     <StatusForm
-                        applicationId={
-                            application.id
-                        }
+                        applicationId={application.id}
                         status="approved"
                         label="Aprovar"
                         primary
                     />
 
                     <StatusForm
-                        applicationId={
-                            application.id
-                        }
+                        applicationId={application.id}
                         status="pending"
                         label="Voltar para pendente"
                     />
@@ -368,9 +339,7 @@ export default async function AdminAtacadistasPage() {
         data,
         error,
     } = await supabase
-        .from(
-            "wholesale_applications",
-        )
+        .from("wholesale_applications")
         .select(`
             id,
             user_id,
@@ -401,78 +370,74 @@ export default async function AdminAtacadistasPage() {
     }
 
     const applications =
-        (data ??
-            []) as WholesaleApplication[];
+        (data ?? []) as WholesaleApplication[];
 
     const pending =
         applications.filter(
             (application) =>
-                application.status ===
-                "pending",
+                application.status === "pending",
         );
 
     const approved =
         applications.filter(
             (application) =>
-                application.status ===
-                "approved",
+                application.status === "approved",
         );
 
     const rejected =
         applications.filter(
             (application) =>
-                application.status ===
-                "rejected",
+                application.status === "rejected",
         );
 
     return (
-        <main className="px-4 py-10 md:px-6">
-            <div className="mx-auto max-w-6xl">
-                <div className="mb-10">
-                    <h1 className="text-4xl font-medium">
-                        Atacadistas
-                    </h1>
+        <main className="min-h-screen p-6 text-black md:p-10">
+            <div className="mx-auto flex max-w-6xl flex-col gap-10">
+                <div className="flex flex-col gap-6 sm:flex-row sm:items-start sm:justify-between">
+                    <div>
+                        <h1 className="font-october text-5xl uppercase leading-none text-black md:text-6xl">
+                            Atacadistas
+                        </h1>
 
-                    <p className="mt-2 opacity-60">
-                        Gerencie as
-                        solicitações de
-                        acesso ao atacado.
-                    </p>
+                        <p className="mt-3 text-sm text-black/70 md:text-base">
+                            Gerencie as solicitações de acesso ao atacado.
+                        </p>
+                    </div>
+
+                    <Link
+                        href="/admin"
+                        className={buttonClassName}
+                    >
+                        ← Admin
+                    </Link>
                 </div>
 
+                <div className="border-t border-black/20" />
+
                 <section>
-                    <div className="mb-5 flex items-center gap-3">
-                        <h2 className="text-2xl font-medium">
+                    <div className="mb-6 flex items-center gap-4">
+                        <h2 className="font-october text-3xl uppercase leading-none text-black md:text-4xl">
                             Pendentes
                         </h2>
 
-                        <span className="rounded-full border border-black px-2 py-0.5 text-xs">
-                            {
-                                pending.length
-                            }
+                        <span className="inline-flex min-w-9 items-center justify-center rounded-lg border border-black bg-white px-3 py-1 text-sm font-medium">
+                            {pending.length}
                         </span>
                     </div>
 
-                    {pending.length ===
-                    0 ? (
-                        <p className="opacity-50">
-                            Nenhuma
-                            solicitação
-                            pendente.
-                        </p>
+                    {pending.length === 0 ? (
+                        <div className="rounded-xl border border-black bg-white p-6 shadow-[-5px_5px_0_0_#000]">
+                            <p className="text-sm text-black/60">
+                                Nenhuma solicitação pendente.
+                            </p>
+                        </div>
                     ) : (
-                        <div className="grid gap-5">
+                        <div className="grid gap-8">
                             {pending.map(
-                                (
-                                    application,
-                                ) => (
+                                (application) => (
                                     <ApplicationCard
-                                        key={
-                                            application.id
-                                        }
-                                        application={
-                                            application
-                                        }
+                                        key={application.id}
+                                        application={application}
                                     />
                                 ),
                             )}
@@ -481,31 +446,23 @@ export default async function AdminAtacadistasPage() {
                 </section>
 
                 {approved.length > 0 && (
-                    <section className="mt-14">
-                        <div className="mb-5 flex items-center gap-3">
-                            <h2 className="text-2xl font-medium">
+                    <section>
+                        <div className="mb-6 flex items-center gap-4">
+                            <h2 className="font-october text-3xl uppercase leading-none text-black md:text-4xl">
                                 Aprovados
                             </h2>
 
-                            <span className="rounded-full border border-black px-2 py-0.5 text-xs">
-                                {
-                                    approved.length
-                                }
+                            <span className="inline-flex min-w-9 items-center justify-center rounded-lg border border-black bg-white px-3 py-1 text-sm font-medium">
+                                {approved.length}
                             </span>
                         </div>
 
-                        <div className="grid gap-5">
+                        <div className="grid gap-8">
                             {approved.map(
-                                (
-                                    application,
-                                ) => (
+                                (application) => (
                                     <ApplicationCard
-                                        key={
-                                            application.id
-                                        }
-                                        application={
-                                            application
-                                        }
+                                        key={application.id}
+                                        application={application}
                                     />
                                 ),
                             )}
@@ -514,31 +471,23 @@ export default async function AdminAtacadistasPage() {
                 )}
 
                 {rejected.length > 0 && (
-                    <section className="mt-14">
-                        <div className="mb-5 flex items-center gap-3">
-                            <h2 className="text-2xl font-medium">
+                    <section>
+                        <div className="mb-6 flex items-center gap-4">
+                            <h2 className="font-october text-3xl uppercase leading-none text-black md:text-4xl">
                                 Recusados
                             </h2>
 
-                            <span className="rounded-full border border-black px-2 py-0.5 text-xs">
-                                {
-                                    rejected.length
-                                }
+                            <span className="inline-flex min-w-9 items-center justify-center rounded-lg border border-black bg-white px-3 py-1 text-sm font-medium">
+                                {rejected.length}
                             </span>
                         </div>
 
-                        <div className="grid gap-5">
+                        <div className="grid gap-8">
                             {rejected.map(
-                                (
-                                    application,
-                                ) => (
+                                (application) => (
                                     <ApplicationCard
-                                        key={
-                                            application.id
-                                        }
-                                        application={
-                                            application
-                                        }
+                                        key={application.id}
+                                        application={application}
                                     />
                                 ),
                             )}
