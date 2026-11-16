@@ -43,6 +43,10 @@ import {
     PageHeader,
 } from "@/components/layout/page-header";
 
+import {
+    DraggableComponent,
+} from "@/components/layout/draggable-component";
+
 type HomePageProps = {
     searchParams: Promise<{
         genre?: string;
@@ -199,63 +203,49 @@ export default async function HomePage({
 
     return (
         <div className="w-full max-w-full overflow-x-hidden">
-        {/* SEARCH — MOBILE E DESKTOP */}
+            {/* SEARCH — MOBILE E DESKTOP */}
 
-        <div
-            className="
-                fixed
-                left-4
-                top-4
-                z-[60]
-                md:left-6
-                md:top-6
-            "
-        >
-            <Suspense fallback={null}>
-                <ProductSearch />
-            </Suspense>
-        </div>
-
-        {/* FILTERS — MOBILE */}
-
-        <div className="md:hidden">
-            <Suspense fallback={null}>
-                <MobileFilters>
-                    <Sidebar mobile />
-                </MobileFilters>
-            </Suspense>
-        </div>
-
-        {/* FILTERS — DESKTOP */}
-
-        <div
-            className="
-                fixed
-                left-6
-                top-24
-                z-40
-                hidden
-                md:block
-            "
-        >
-            <Suspense
-                fallback={
-                    <aside
-                        className="
-                            h-14
-                            w-14
-                            rounded-xl
-                            border
-                            border-black
-                            bg-white
-                            shadow-[-5px_5px_0_0_#000]
-                        "
-                    />
-                }
+            <DraggableComponent
+                id="product-search"
+                defaultPosition={{
+                    top: 24,
+                    left: 24,
+                }}
+                width="max-content"
+                zIndex={60}
             >
-                <Sidebar />
-            </Suspense>
-        </div>
+                <Suspense fallback={null}>
+                    <ProductSearch />
+                </Suspense>
+            </DraggableComponent>
+
+            {/* FILTERS — MOBILE */}
+
+            <div className="md:hidden">
+                <Suspense fallback={null}>
+                    <MobileFilters>
+                        <Sidebar mobile />
+                    </MobileFilters>
+                </Suspense>
+            </div>
+
+            {/* FILTERS — DESKTOP */}
+
+            <DraggableComponent
+                id="sidebar"
+                defaultPosition={{
+                    top: 24,
+                    left: 96,
+                }}
+                width="max-content"
+                zIndex={40}
+                className="hidden md:block"
+            >
+                <Suspense fallback={null}>
+                    <Sidebar />
+                </Suspense>
+            </DraggableComponent>
+
 
             {/* CONTENT */}
 

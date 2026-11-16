@@ -162,14 +162,7 @@ export function FileTabs({
         <div
             className="
                 pointer-events-none
-                fixed
-                bottom-4
-                right-4
-                z-[100]
-                w-[calc(100%-2rem)]
-                max-w-[560px]
-                md:bottom-6
-                md:right-6
+                w-full
             "
         >
             <div
