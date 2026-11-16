@@ -267,19 +267,29 @@ export function FeaturedProductsCarousel({
                             href={slide.href}
                             className="group block w-fit max-w-full"
                         >
+                            
                             <h2
                                 className="
                                     font-october
-                                    text-2xl
+                                    text-4xl
                                     uppercase
-                                    leading-none
+                                    leading-[0.85]
+                                    tracking-tight
+                                    text-[#FFFDE9]
                                     transition-opacity
                                     group-hover:opacity-60
-                                    md:text-3xl
+                                    sm:text-5xl
+                                    md:text-6xl
+                                    lg:text-7xl
                                 "
+                                style={{
+                                    WebkitTextStroke: "4px #000000",
+                                    paintOrder: "stroke fill",
+                                }}
                             >
                                 {slide.name}
                             </h2>
+
                         </Link>
 
                         {slide.secondary && (

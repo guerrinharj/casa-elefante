@@ -220,18 +220,27 @@ export default async function ProductPage({
                                 </div>
                             )}
 
+
                             <h1
                                 className="
                                     font-october
-                                    text-5xl
+                                    text-6xl
                                     font-bold
                                     uppercase
-                                    leading-[0.9]
-                                    md:text-6xl
+                                    leading-[0.85]
+                                    tracking-tight
+                                    text-[#FFFDE9]
+                                    md:text-5xl
+                                    lg:text-6xl
                                 "
+                                style={{
+                                    WebkitTextStroke: "3px #000000",
+                                    paintOrder: "stroke fill",
+                                }}
                             >
                                 {product.name}
                             </h1>
+
 
                             <p className="mt-3 text-xl">
                                 {product.artist}
