@@ -13,7 +13,7 @@ import {
     useState,
 } from "react";
 
-import tttFallback from "@/app/images/ttt-1.png";
+import tttFallback from "@/app/images/ttt-3-preto.png";
 
 import {
     useAudioPlayer,
@@ -43,6 +43,30 @@ function formatDate(date: string | null) {
     ).format(new Date(date));
 }
 
+const boxStyle = `
+    rounded-xl
+    border
+    border-black
+    bg-white
+    text-black
+    shadow-[-5px_5px_0_0_#000]
+`;
+
+const buttonStyle = `
+    rounded-xl
+    border
+    border-black
+    bg-white
+    text-black
+    shadow-[-4px_4px_0_0_#000]
+    transition-all
+    duration-200
+    ease-out
+    hover:-translate-x-1
+    hover:-translate-y-1
+    hover:shadow-[-7px_7px_0_0_#000]
+`;
+
 export default function PerformancePage() {
     const params = useParams<{
         slug: string;
@@ -60,6 +84,8 @@ export default function PerformancePage() {
 
     useEffect(() => {
         async function loadPerformance() {
+            setLoading(true);
+
             const supabase = createClient();
 
             const {
@@ -102,21 +128,47 @@ export default function PerformancePage() {
             setLoading(false);
         }
 
-        loadPerformance();
+        void loadPerformance();
     }, [params.slug]);
 
     if (loading) {
         return (
-            <main className="min-h-screen bg-[#D2232A] text-[#FFFDE9]" />
+            <main className="min-h-screen bg-[#D2232A]" />
         );
     }
 
     if (!performance) {
         return (
-            <main className="flex min-h-screen items-center justify-center bg-[#D2232A] text-[#FFFDE9]">
-                <p>
-                    Apresentação não encontrada.
-                </p>
+            <main className="flex min-h-screen items-center justify-center bg-[#D2232A] p-4 md:p-6">
+                <div
+                    className={`
+                        w-full
+                        max-w-xl
+                        p-6
+                        text-center
+                        md:p-8
+                        ${boxStyle}
+                    `}
+                >
+                    <h1 className="font-october text-4xl uppercase">
+                        Apresentação não encontrada
+                    </h1>
+
+                    <Link
+                        href="/toda-terca-tem"
+                        className={`
+                            mt-6
+                            inline-block
+                            px-5
+                            py-3
+                            text-sm
+                            uppercase
+                            ${buttonStyle}
+                        `}
+                    >
+                        ← Todas as apresentações
+                    </Link>
+                </div>
             </main>
         );
     }
@@ -125,222 +177,217 @@ export default function PerformancePage() {
         currentPerformance?.id === performance.id;
 
     return (
-        <main className="min-h-screen bg-[#D2232A] text-[#FFFDE9]">
-            <section className="border-b border-[#FFFDE9] bg-[#D2232A]">
-                <div className="bg-[#D2232A] p-4 md:p-6">
+        <main className="min-h-screen bg-[#D2232A] p-4 md:p-6">
+            <div className="mx-auto flex max-w-6xl flex-col gap-6">
+                {/* VOLTAR */}
+
+                <div>
                     <Link
                         href="/toda-terca-tem"
-                        className="
+                        className={`
                             inline-block
-                            text-sm
-                            transition-opacity
-                            duration-200
-                            hover:opacity-50
-                        "
+                            px-4
+                            py-3
+                            text-xs
+                            uppercase
+                            ${buttonStyle}
+                        `}
                     >
                         ← Todas as apresentações
                     </Link>
                 </div>
-            </section>
 
-            <section
-                className="
-                    grid
-                    border-b
-                    border-[#FFFDE9]
-                    bg-[#D2232A]
-                    md:grid-cols-[30%_1fr]
-                "
-            >
-                <div
-                    className="
+                {/* BOX 1 — INFORMAÇÕES */}
+
+                <section
+                    className={`
                         flex
                         flex-col
-                        justify-between
                         gap-4
-                        border-b
-                        border-[#FFFDE9]
-                        bg-[#D2232A]
-                        p-4
-                        md:border-b-0
-                        md:border-r
+                        p-5
                         md:p-6
-                    "
+                        ${boxStyle}
+                    `}
                 >
-                    {performance.performance_date && (
-                        <p className="text-sm uppercase">
-                            {formatDate(
-                                performance.performance_date,
-                            )}
-                        </p>
-                    )}
+                    {/* DATA E IDENTIFICAÇÃO */}
 
-                    {performance.location && (
-                        <p className="text-sm uppercase">
-                            {performance.location}
-                        </p>
-                    )}
-                </div>
+                    <div className="flex flex-wrap items-center justify-between gap-3">
+                        <span className="text-xs font-medium uppercase tracking-wide">
+                            Toda Terça Tem
+                        </span>
 
-                <div
-                    className="
-                        flex
-                        items-center
-                        gap-5
-                        bg-[#D2232A]
-                        p-4
-                        md:p-6
-                    "
-                >
+                        {performance.performance_date && (
+                            <span className="text-xs font-medium uppercase">
+                                {formatDate(
+                                    performance.performance_date,
+                                )}
+                            </span>
+                        )}
+                    </div>
+
+                    {/* ARTISTA — VERMELHO COM OUTLINE PRETO */}
+
                     <h1
                         className="
                             font-october
                             text-5xl
+                            uppercase
                             leading-[0.9]
-                            md:text-7xl
-                            lg:text-8xl
-                            xl:text-9xl
+                            text-[#D2232A]
+                            [-webkit-text-stroke:1px_#000]
+                            md:text-6xl
+                            lg:text-7xl
                         "
                     >
                         {performance.name}
                     </h1>
 
-                    {performance.audio_url && (
-                        <button
-                            type="button"
-                            onClick={() =>
-                                playPerformance(performance)
-                            }
-                            aria-label={`Reproduzir ${performance.name}`}
-                            className="
-                                flex
-                                h-12
-                                w-12
-                                shrink-0
-                                items-center
-                                justify-center
-                                rounded-full
-                                border
-                                border-[#FFFDE9]
-                                bg-[#D2232A]
-                                text-base
-                                text-[#FFFDE9]
-                                transition-colors
-                                duration-300
-                                hover:bg-[#FFFDE9]
-                                hover:text-[#D2232A]
-                                md:h-14
-                                md:w-14
-                            "
-                        >
-                            ▶
-                        </button>
-                    )}
-                </div>
-            </section>
+                    {/* LOCAL */}
 
-            <section className="border-b border-[#FFFDE9] bg-[#D2232A]">
-                {performance.video_url ? (
-                    <div
-                        className="
-                            aspect-video
-                            w-full
-                            overflow-hidden
-                            bg-[#D2232A]
-                        "
-                    >
-                        <iframe
-                            src={performance.video_url}
-                            title={performance.name}
-                            className="h-full w-full"
-                            allow="
-                                accelerometer;
-                                autoplay;
-                                clipboard-write;
-                                encrypted-media;
-                                gyroscope;
-                                picture-in-picture
-                            "
-                            allowFullScreen
-                        />
-                    </div>
-                ) : performance.cover_image ? (
-                    <img
-                        src={performance.cover_image}
-                        alt={performance.name}
-                        className="
-                            aspect-video
-                            w-full
-                            object-cover
-                        "
-                    />
-                ) : (
-                    <div
-                        className="
-                            flex
-                            aspect-video
-                            w-full
-                            items-center
-                            justify-center
-                            bg-[#D2232A]
-                            p-8
-                            md:p-16
-                        "
-                    >
-                        <Image
-                            src={tttFallback}
-                            alt="Toda Terça Tem"
-                            className="
-                                h-auto
-                                w-full
-                                max-w-md
-                                object-contain
-                            "
-                        />
-                    </div>
-                )}
-            </section>
-
-            {performance.description && (
-                <section
-                    className="
-                        grid
-                        border-b
-                        border-[#FFFDE9]
-                        bg-[#D2232A]
-                        md:grid-cols-[30%_1fr]
-                    "
-                >
-                    <div
-                        className="
-                            border-b
-                            border-[#FFFDE9]
-                            bg-[#D2232A]
-                            p-4
-                            md:border-b-0
-                            md:border-r
-                            md:p-6
-                        "
-                    >
-                        <p className="text-sm uppercase">
-                            Sobre
+                    {performance.location && (
+                        <p className="text-sm font-medium uppercase">
+                            {performance.location}
                         </p>
-                    </div>
+                    )}
 
-                    <div className="bg-[#D2232A] p-4 md:p-6">
+                    {/* DESCRIÇÃO */}
+
+                    {performance.description && (
                         <p
                             className="
-                                max-w-3xl
-                                text-xl
+                                max-w-4xl
+                                whitespace-pre-line
+                                text-sm
                                 leading-relaxed
-                                md:text-2xl
+                                md:text-base
                             "
                         >
                             {performance.description}
                         </p>
-                    </div>
+                    )}
+
+                    {/* BOTÃO DE PLAY */}
+
+                    {performance.audio_url && (
+                        <div className="pt-1">
+                            <button
+                                type="button"
+                                onClick={() =>
+                                    playPerformance(performance)
+                                }
+                                aria-label={`Reproduzir ${performance.name}`}
+                                className={`
+                                    flex
+                                    items-center
+                                    justify-center
+                                    gap-3
+                                    px-5
+                                    py-3
+                                    text-xs
+                                    font-semibold
+                                    uppercase
+                                    ${buttonStyle}
+                                `}
+                            >
+                                <span className="text-base leading-none">
+                                    ▶
+                                </span>
+
+                                <span>
+                                    {isCurrentPerformance
+                                        ? "Reproduzindo no player"
+                                        : "Reproduzir áudio"}
+                                </span>
+                            </button>
+                        </div>
+                    )}
                 </section>
-            )}
+
+                {/* BOX 2 — VÍDEO OU IMAGEM */}
+
+                <section
+                    className={`
+                        overflow-hidden
+                        p-3
+                        md:p-4
+                        ${boxStyle}
+                    `}
+                >
+                    {performance.video_url ? (
+                        <div
+                            className="
+                                aspect-video
+                                w-full
+                                overflow-hidden
+                                rounded-lg
+                                bg-black
+                            "
+                        >
+                            <iframe
+                                src={performance.video_url}
+                                title={performance.name}
+                                className="h-full w-full"
+                                allow="
+                                    accelerometer;
+                                    autoplay;
+                                    clipboard-write;
+                                    encrypted-media;
+                                    gyroscope;
+                                    picture-in-picture
+                                "
+                                allowFullScreen
+                            />
+                        </div>
+                    ) : performance.cover_image ? (
+                        <div
+                            className="
+                                aspect-video
+                                w-full
+                                overflow-hidden
+                                rounded-lg
+                                bg-white
+                            "
+                        >
+                            <img
+                                src={performance.cover_image}
+                                alt={performance.name}
+                                className="
+                                    h-full
+                                    w-full
+                                    object-cover
+                                "
+                            />
+                        </div>
+                    ) : (
+                        <div
+                            className="
+                                flex
+                                aspect-video
+                                w-full
+                                items-center
+                                justify-center
+                                overflow-hidden
+                                rounded-lg
+                                bg-white
+                                p-8
+                                md:p-16
+                            "
+                        >
+                            <Image
+                                src={tttFallback}
+                                alt="Toda Terça Tem"
+                                className="
+                                    h-auto
+                                    w-full
+                                    max-w-md
+                                    object-contain
+                                "
+                                priority
+                            />
+                        </div>
+                    )}
+                </section>
+            </div>
         </main>
     );
 }
