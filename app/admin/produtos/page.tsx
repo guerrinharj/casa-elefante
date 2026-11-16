@@ -1,9 +1,21 @@
+
 import Link from "next/link";
 
-import { AdminInfiniteProductList } from "@/components/admin/admin-infinite-product-list";
-import { AdminProductSearch } from "@/components/admin/admin-product-search";
+import {
+    ArrowLeft,
+} from "lucide-react";
 
-import { createClient } from "@/lib/supabase/server";
+import {
+    AdminInfiniteProductList,
+} from "@/components/admin/admin-infinite-product-list";
+
+import {
+    AdminProductSearch,
+} from "@/components/admin/admin-product-search";
+
+import {
+    createClient,
+} from "@/lib/supabase/server";
 
 import {
     requireProductManager,
@@ -21,6 +33,7 @@ export default async function AdminProductsPage({
     searchParams,
 }: AdminProductsPageProps) {
     await requireProductManager();
+
     const filters = await searchParams;
 
     const supabase = await createClient();
@@ -50,7 +63,10 @@ export default async function AdminProductsPage({
         );
     }
 
-    const { data: products, error } = await query.range(
+    const {
+        data: products,
+        error,
+    } = await query.range(
         0,
         PRODUCTS_PER_PAGE - 1,
     );
@@ -63,37 +79,142 @@ export default async function AdminProductsPage({
     }
 
     return (
-        <main className="p-6">
+        <main className="p-4 text-black md:p-6">
             <div className="mx-auto flex max-w-5xl flex-col gap-8">
-                <div className="flex items-center justify-between">
-                    <div>
-                        <h1 className="text-3xl font-medium">
-                            Produtos
-                        </h1>
-                    </div>
+                {/* VOLTAR AO ADMIN */}
 
-                    <div className="flex items-center gap-3">
+                <div>
+                    <Link
+                        href="/admin"
+                        className="
+                            inline-flex
+                            items-center
+                            gap-2
+                            rounded-xl
+                            border
+                            border-black
+                            bg-white
+                            px-4
+                            py-3
+                            text-sm
+                            font-medium
+                            text-black
+                            shadow-[-5px_5px_0_0_#000]
+                            transition-all
+                            duration-200
+                            hover:-translate-y-1
+                            hover:shadow-[-5px_9px_0_0_#000]
+                        "
+                    >
+                        <ArrowLeft
+                            size={18}
+                            strokeWidth={2}
+                        />
+
+                        Voltar
+                    </Link>
+                </div>
+
+                {/* HEADER */}
+
+                <div
+                    className="
+                        flex
+                        flex-col
+                        gap-5
+                        sm:flex-row
+                        sm:items-center
+                        sm:justify-between
+                    "
+                >
+                    <h1
+                        className="
+                            font-october
+                            text-5xl
+                            uppercase
+                            leading-none
+                            text-black
+                            md:text-6xl
+                        "
+                    >
+                        Produtos
+                    </h1>
+
+                    <div
+                        className="
+                            flex
+                            flex-wrap
+                            items-center
+                            gap-3
+                        "
+                    >
                         <Link
                             href="/admin/produtos/importar"
-                            className="border border-black px-4 py-2 transition-opacity hover:opacity-60"
+                            className="
+                                rounded-xl
+                                border
+                                border-black
+                                bg-white
+                                px-4
+                                py-3
+                                text-sm
+                                font-medium
+                                text-black
+                                shadow-[-5px_5px_0_0_#000]
+                                transition-all
+                                duration-200
+                                hover:-translate-y-1
+                                hover:shadow-[-5px_9px_0_0_#000]
+                            "
                         >
                             Importar planilha
                         </Link>
 
                         <Link
                             href="/admin/produtos/novo"
-                            className="border border-black px-4 py-2 transition-opacity hover:opacity-60"
+                            className="
+                                rounded-xl
+                                border
+                                border-black
+                                bg-white
+                                px-4
+                                py-3
+                                text-sm
+                                font-medium
+                                text-black
+                                shadow-[-5px_5px_0_0_#000]
+                                transition-all
+                                duration-200
+                                hover:-translate-y-1
+                                hover:shadow-[-5px_9px_0_0_#000]
+                            "
                         >
                             + Adicionar produto
                         </Link>
                     </div>
                 </div>
 
-                <AdminProductSearch />
+                {/* SEARCH */}
+
+                <AdminProductSearch
+                    initialSearch={filters.search ?? ""}
+                />
+
+                {/* PRODUCTS */}
 
                 {!products || products.length === 0 ? (
-                    <div className="border-t border-black">
-                        <p className="py-6 text-sm">
+                    <div
+                        className="
+                            rounded-xl
+                            border
+                            border-black
+                            bg-white
+                            p-6
+                            text-black
+                            shadow-[-5px_5px_0_0_#000]
+                        "
+                    >
+                        <p className="text-sm text-black/70">
                             Nenhum produto encontrado.
                         </p>
                     </div>

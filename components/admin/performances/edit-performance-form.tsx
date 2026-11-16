@@ -1,7 +1,8 @@
+
 "use client";
 
 import {
-    FormEvent,
+    type FormEvent,
     useRef,
     useState,
 } from "react";
@@ -30,6 +31,21 @@ type Performance = {
 type EditPerformanceFormProps = {
     performance: Performance;
 };
+
+const labelClassName =
+    "font-october text-xl uppercase leading-none text-[#FFFDE9]";
+
+const inputClassName =
+    "w-full min-w-0 rounded-xl border border-black bg-white px-4 py-3 text-base text-black outline-none transition-colors placeholder:text-black/40 focus:ring-2 focus:ring-[#FFFDE9]/40 disabled:opacity-50";
+
+const fileInputClassName =
+    "w-full min-w-0 rounded-xl border border-black bg-white px-4 py-3 text-sm text-black file:mr-4 file:cursor-pointer file:rounded-lg file:border file:border-black file:bg-white file:px-4 file:py-2 file:text-sm file:font-medium file:text-black disabled:opacity-50";
+
+const buttonClassName =
+    "inline-flex items-center justify-center rounded-xl border border-black bg-[#FFFDE9] px-6 py-3 text-base font-medium text-black shadow-[-5px_5px_0_0_#000] transition-all duration-200 hover:-translate-y-1 hover:shadow-[-5px_9px_0_0_#000] disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:translate-y-0 disabled:hover:shadow-[-5px_5px_0_0_#000]";
+
+const smallButtonClassName =
+    "inline-flex items-center justify-center rounded-lg border border-black bg-[#FFFDE9] px-4 py-2 text-sm font-medium text-black shadow-[-3px_3px_0_0_#000] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[-3px_5px_0_0_#000] disabled:cursor-not-allowed disabled:opacity-40";
 
 function slugify(
     value: string,
@@ -164,22 +180,24 @@ export function EditPerformanceForm({
     const [
         audioFile,
         setAudioFile,
-    ] =
-        useState<File | null>(
-            null,
-        );
+    ] = useState<File | null>(
+        null,
+    );
 
     const [
         coverImageFile,
         setCoverImageFile,
-    ] =
-        useState<File | null>(
-            null,
-        );
+    ] = useState<File | null>(
+        null,
+    );
 
-    const [removeCoverImage, setRemoveCoverImage] = useState(false);
+    const [
+        removeCoverImage,
+        setRemoveCoverImage,
+    ] = useState(false);
 
-    const coverInputRef = useRef<HTMLInputElement>(null);
+    const coverInputRef =
+        useRef<HTMLInputElement>(null);
 
     function handleRemoveCoverImage() {
         setRemoveCoverImage(true);
@@ -210,10 +228,9 @@ export function EditPerformanceForm({
     const [
         error,
         setError,
-    ] =
-        useState<string | null>(
-            null,
-        );
+    ] = useState<string | null>(
+        null,
+    );
 
     function handleNameChange(
         value: string,
@@ -273,7 +290,10 @@ export function EditPerformanceForm({
     }
 
     async function uploadCoverImage() {
-        if (removeCoverImage && !coverImageFile) {
+        if (
+            removeCoverImage &&
+            !coverImageFile
+        ) {
             return null;
         }
 
@@ -363,8 +383,7 @@ export function EditPerformanceForm({
     }
 
     async function handleSubmit(
-        event:
-            FormEvent<HTMLFormElement>,
+        event: FormEvent<HTMLFormElement>,
     ) {
         event.preventDefault();
 
@@ -389,11 +408,11 @@ export function EditPerformanceForm({
 
         let newAudioUrl:
             string | null =
-            performance.audio_url;
+                performance.audio_url;
 
         let newCoverImageUrl:
             string | null =
-            performance.cover_image;
+                performance.cover_image;
 
         try {
             [
@@ -460,7 +479,7 @@ export function EditPerformanceForm({
              */
             const filesToRemove:
                 Promise<void>[] =
-                [];
+                    [];
 
             if (
                 audioFile &&
@@ -608,15 +627,13 @@ export function EditPerformanceForm({
 
     return (
         <form
-            onSubmit={
-                handleSubmit
-            }
-            className="flex flex-col gap-6"
+            onSubmit={handleSubmit}
+            className="flex w-full flex-col gap-8 text-[#FFFDE9]"
         >
-            <div className="flex flex-col gap-2">
+            <div className="flex flex-col gap-3">
                 <label
                     htmlFor="name"
-                    className="text-sm"
+                    className={labelClassName}
                 >
                     Nome
                 </label>
@@ -624,30 +641,22 @@ export function EditPerformanceForm({
                 <input
                     id="name"
                     type="text"
-                    value={
-                        name
-                    }
-                    onChange={(
-                        event,
-                    ) =>
+                    value={name}
+                    onChange={(event) =>
                         handleNameChange(
-                            event
-                                .target
-                                .value,
+                            event.target.value,
                         )
                     }
                     required
-                    disabled={
-                        isBusy
-                    }
-                    className="rounded-md border border-black bg-[#FFFDE9] px-4 py-3 outline-none disabled:opacity-50"
+                    disabled={isBusy}
+                    className={inputClassName}
                 />
             </div>
 
-            <div className="flex flex-col gap-2">
+            <div className="flex flex-col gap-3">
                 <label
                     htmlFor="slug"
-                    className="text-sm"
+                    className={labelClassName}
                 >
                     Slug
                 </label>
@@ -655,356 +664,315 @@ export function EditPerformanceForm({
                 <input
                     id="slug"
                     type="text"
-                    value={
-                        slug
-                    }
-                    onChange={(
-                        event,
-                    ) =>
+                    value={slug}
+                    onChange={(event) =>
                         setSlug(
                             slugify(
-                                event
-                                    .target
-                                    .value,
+                                event.target.value,
                             ),
                         )
                     }
                     required
-                    disabled={
-                        isBusy
-                    }
-                    className="rounded-md border border-black bg-[#FFFDE9] px-4 py-3 outline-none disabled:opacity-50"
+                    disabled={isBusy}
+                    className={inputClassName}
                 />
             </div>
 
-            <div className="flex flex-col gap-2">
+            <div className="flex flex-col gap-3">
                 <label
                     htmlFor="description"
-                    className="text-sm"
+                    className={labelClassName}
                 >
                     Descrição
                 </label>
 
                 <textarea
                     id="description"
-                    value={
-                        description
-                    }
-                    onChange={(
-                        event,
-                    ) =>
+                    value={description}
+                    onChange={(event) =>
                         setDescription(
-                            event
-                                .target
-                                .value,
+                            event.target.value,
                         )
                     }
                     rows={6}
-                    disabled={
-                        isBusy
-                    }
-                    className="resize-y rounded-md border border-black bg-[#FFFDE9] px-4 py-3 outline-none disabled:opacity-50"
-                />
-            </div>
-
-            <div className="flex flex-col gap-2">
-                <label
-                    htmlFor="performance-date"
-                    className="text-sm"
-                >
-                    Data da apresentação
-                </label>
-
-                <input
-                    id="performance-date"
-                    type="date"
-                    value={
-                        performanceDate
-                    }
-                    onChange={(
-                        event,
-                    ) =>
-                        setPerformanceDate(
-                            event
-                                .target
-                                .value,
-                        )
-                    }
-                    disabled={
-                        isBusy
-                    }
-                    className="rounded-md border border-black bg-[#FFFDE9] px-4 py-3 outline-none disabled:opacity-50"
-                />
-            </div>
-
-            <div className="flex flex-col gap-2">
-                <label
-                    htmlFor="location"
-                    className="text-sm"
-                >
-                    Local
-                </label>
-
-                <input
-                    id="location"
-                    type="text"
-                    value={
-                        location
-                    }
-                    onChange={(
-                        event,
-                    ) =>
-                        setLocation(
-                            event
-                                .target
-                                .value,
-                        )
-                    }
-                    disabled={
-                        isBusy
-                    }
-                    className="rounded-md border border-black bg-[#FFFDE9] px-4 py-3 outline-none disabled:opacity-50"
-                    placeholder="Ex: Casa Elefante, São Paulo"
-                />
-            </div>
-
-            <div className="flex flex-col gap-2">
-                <label
-                    htmlFor="cover-image"
-                    className="text-sm"
-                >
-                    Imagem da apresentação
-                </label>
-
-                {performance.cover_image && !removeCoverImage && (
-                    <div className="rounded-md border border-black p-4">
-                        <p className="text-xs uppercase opacity-50">
-                            Imagem atual
-                        </p>
-
-                        <img
-                            src={performance.cover_image}
-                            alt={performance.name}
-                            className="mt-3 max-h-80 w-full rounded-md object-cover"
-                        />
-
-                        <button
-                            type="button"
-                            disabled={isBusy}
-                            onClick={handleRemoveCoverImage}
-                            className="mt-4 rounded-md border border-red-600 px-4 py-2 text-sm text-red-600 hover:opacity-60 disabled:opacity-50"
-                        >
-                            Remover imagem
-                        </button>
-                    </div>
-                )}
-
-                {removeCoverImage && (
-                    <div className="rounded-md border border-black p-4">
-                        <p className="text-sm">
-                            Imagem marcada para remoção.
-                        </p>
-
-                        <p className="mt-1 text-xs opacity-60">
-                            A remoção será confirmada ao salvar.
-                        </p>
-
-                        <button
-                            type="button"
-                            disabled={isBusy}
-                            onClick={() => setRemoveCoverImage(false)}
-                            className="mt-3 text-sm underline hover:opacity-60 disabled:opacity-50"
-                        >
-                            Desfazer remoção
-                        </button>
-                    </div>
-                )}
-
-                <input
-                    ref={coverInputRef}
-                    id="cover-image"
-                    type="file"
-                    accept="image/*"
                     disabled={isBusy}
-                    onChange={(event) => {
-                        const file = event.target.files?.[0] ?? null;
-
-                        setCoverImageFile(file);
-
-                        if (file) {
-                            setRemoveCoverImage(false);
-                        }
-                    }}
-                    className="rounded-md border border-black bg-[#FFFDE9] px-4 py-3 disabled:opacity-50"
+                    className={`${inputClassName} resize-y`}
                 />
-
-                <p className="text-xs opacity-60">
-                    Deixe vazio para manter a imagem atual.
-                </p>
-
-                {coverImageFile && (
-                    <div className="flex flex-col gap-1">
-                        <p className="text-xs font-medium">
-                            Nova imagem:
-                        </p>
-
-                        <p className="text-xs opacity-60">
-                            {coverImageFile.name}
-                        </p>
-
-                        <p className="text-xs opacity-60">
-                            {formatFileSize(coverImageFile.size)}
-                        </p>
-                    </div>
-                )}
             </div>
 
-            <div className="flex flex-col gap-2">
-                <label
-                    htmlFor="audio"
-                    className="text-sm"
-                >
-                    Áudio
-                </label>
+            <div className="grid gap-8 md:grid-cols-2">
+                <div className="flex flex-col gap-3">
+                    <label
+                        htmlFor="performance-date"
+                        className={labelClassName}
+                    >
+                        Data da apresentação
+                    </label>
 
-                {performance.audio_url && (
-                    <div className="rounded-md border border-black p-4">
-                        <p className="text-xs uppercase opacity-50">
-                            Áudio atual
+                    <input
+                        id="performance-date"
+                        type="date"
+                        value={performanceDate}
+                        onChange={(event) =>
+                            setPerformanceDate(
+                                event.target.value,
+                            )
+                        }
+                        disabled={isBusy}
+                        className={inputClassName}
+                    />
+                </div>
+
+                <div className="flex flex-col gap-3">
+                    <label
+                        htmlFor="location"
+                        className={labelClassName}
+                    >
+                        Local
+                    </label>
+
+                    <input
+                        id="location"
+                        type="text"
+                        value={location}
+                        onChange={(event) =>
+                            setLocation(
+                                event.target.value,
+                            )
+                        }
+                        disabled={isBusy}
+                        className={inputClassName}
+                        placeholder="Ex: Casa Elefante, São Paulo"
+                    />
+                </div>
+            </div>
+
+            <div className="border-t border-[#FFFDE9]/30 pt-8">
+                <h2 className="font-october text-3xl uppercase leading-none text-[#FFFDE9]">
+                    Mídia
+                </h2>
+
+                <div className="mt-8 flex flex-col gap-8">
+                    <div className="flex flex-col gap-3">
+                        <label
+                            htmlFor="cover-image"
+                            className={labelClassName}
+                        >
+                            Imagem da apresentação
+                        </label>
+
+                        {performance.cover_image && !removeCoverImage && (
+                            <div className="rounded-xl border border-black bg-[#FFFDE9] p-5 text-black shadow-[-5px_5px_0_0_#000]">
+                                <p className="font-october text-lg uppercase leading-none text-black">
+                                    Imagem atual
+                                </p>
+
+                                <img
+                                    src={performance.cover_image}
+                                    alt={performance.name}
+                                    className="mt-4 max-h-80 w-full rounded-lg border border-black object-cover"
+                                />
+
+                                <button
+                                    type="button"
+                                    disabled={isBusy}
+                                    onClick={handleRemoveCoverImage}
+                                    className={`mt-5 ${smallButtonClassName}`}
+                                >
+                                    Remover imagem
+                                </button>
+                            </div>
+                        )}
+
+                        {removeCoverImage && (
+                            <div className="rounded-xl border border-black bg-[#FFFDE9] p-5 text-black shadow-[-5px_5px_0_0_#000]">
+                                <p className="text-sm font-medium">
+                                    Imagem marcada para remoção.
+                                </p>
+
+                                <p className="mt-2 text-xs text-black/60">
+                                    A remoção será confirmada ao salvar.
+                                </p>
+
+                                <button
+                                    type="button"
+                                    disabled={isBusy}
+                                    onClick={() =>
+                                        setRemoveCoverImage(false)
+                                    }
+                                    className={`mt-4 ${smallButtonClassName}`}
+                                >
+                                    Desfazer remoção
+                                </button>
+                            </div>
+                        )}
+
+                        <input
+                            ref={coverInputRef}
+                            id="cover-image"
+                            type="file"
+                            accept="image/*"
+                            disabled={isBusy}
+                            onChange={(event) => {
+                                const file =
+                                    event.target.files?.[0] ??
+                                    null;
+
+                                setCoverImageFile(file);
+
+                                if (file) {
+                                    setRemoveCoverImage(false);
+                                }
+                            }}
+                            className={fileInputClassName}
+                        />
+
+                        <p className="text-xs text-[#FFFDE9]/70">
+                            Deixe vazio para manter a imagem atual.
                         </p>
 
-                        <audio
-                            controls
-                            preload="metadata"
-                            src={
-                                performance.audio_url
+                        {coverImageFile && (
+                            <div className="rounded-xl border border-[#FFFDE9]/40 p-4">
+                                <p className="text-sm font-medium">
+                                    Nova imagem:
+                                </p>
+
+                                <p className="mt-2 break-all text-sm text-[#FFFDE9]/80">
+                                    {coverImageFile.name}
+                                </p>
+
+                                <p className="mt-1 text-xs text-[#FFFDE9]/70">
+                                    {formatFileSize(
+                                        coverImageFile.size,
+                                    )}
+                                </p>
+                            </div>
+                        )}
+                    </div>
+
+                    <div className="flex flex-col gap-3">
+                        <label
+                            htmlFor="audio"
+                            className={labelClassName}
+                        >
+                            Áudio
+                        </label>
+
+                        {performance.audio_url && (
+                            <div className="rounded-xl border border-black bg-[#FFFDE9] p-5 text-black shadow-[-5px_5px_0_0_#000]">
+                                <p className="font-october text-lg uppercase leading-none text-black">
+                                    Áudio atual
+                                </p>
+
+                                <audio
+                                    controls
+                                    preload="metadata"
+                                    src={performance.audio_url}
+                                    className="mt-4 w-full"
+                                />
+                            </div>
+                        )}
+
+                        <input
+                            id="audio"
+                            type="file"
+                            accept="audio/*"
+                            disabled={isBusy}
+                            onChange={(event) =>
+                                setAudioFile(
+                                    event.target.files?.[0] ??
+                                    null,
+                                )
                             }
-                            className="mt-3 w-full"
+                            className={fileInputClassName}
+                        />
+
+                        <p className="text-xs text-[#FFFDE9]/70">
+                            Deixe vazio para manter o áudio atual.
+                        </p>
+
+                        {audioFile && (
+                            <div className="rounded-xl border border-[#FFFDE9]/40 p-4">
+                                <p className="text-sm font-medium">
+                                    Novo áudio:
+                                </p>
+
+                                <p className="mt-2 break-all text-sm text-[#FFFDE9]/80">
+                                    {audioFile.name}
+                                </p>
+
+                                <p className="mt-1 text-xs text-[#FFFDE9]/70">
+                                    {formatFileSize(
+                                        audioFile.size,
+                                    )}
+                                </p>
+                            </div>
+                        )}
+                    </div>
+
+                    <div className="flex flex-col gap-3">
+                        <label
+                            htmlFor="video-url"
+                            className={labelClassName}
+                        >
+                            URL do vídeo
+                        </label>
+
+                        <input
+                            id="video-url"
+                            type="url"
+                            value={videoUrl}
+                            onChange={(event) =>
+                                setVideoUrl(
+                                    event.target.value,
+                                )
+                            }
+                            disabled={isBusy}
+                            className={inputClassName}
+                            placeholder="https://..."
                         />
                     </div>
-                )}
-
-                <input
-                    id="audio"
-                    type="file"
-                    accept="audio/*"
-                    disabled={
-                        isBusy
-                    }
-                    onChange={(
-                        event,
-                    ) =>
-                        setAudioFile(
-                            event
-                                .target
-                                .files?.[0] ??
-                                null,
-                        )
-                    }
-                    className="rounded-md border border-black bg-[#FFFDE9] px-4 py-3 disabled:opacity-50"
-                />
-
-                <p className="text-xs opacity-60">
-                    Deixe vazio para manter o áudio atual.
-                </p>
-
-                {audioFile && (
-                    <div className="flex flex-col gap-1">
-                        <p className="text-xs font-medium">
-                            Novo áudio:
-                        </p>
-
-                        <p className="text-xs opacity-60">
-                            {
-                                audioFile.name
-                            }
-                        </p>
-
-                        <p className="text-xs opacity-60">
-                            {formatFileSize(
-                                audioFile.size,
-                            )}
-                        </p>
-                    </div>
-                )}
+                </div>
             </div>
 
-            <div className="flex flex-col gap-2">
-                <label
-                    htmlFor="video-url"
-                    className="text-sm"
-                >
-                    URL do vídeo
-                </label>
-
-                <input
-                    id="video-url"
-                    type="url"
-                    value={
-                        videoUrl
-                    }
-                    onChange={(
-                        event,
-                    ) =>
-                        setVideoUrl(
-                            event
-                                .target
-                                .value,
-                        )
-                    }
-                    disabled={
-                        isBusy
-                    }
-                    className="rounded-md border border-black bg-[#FFFDE9] px-4 py-3 outline-none disabled:opacity-50"
-                    placeholder="https://..."
-                />
-            </div>
-
-            <label className="flex cursor-pointer items-center gap-3 border-y border-black py-4">
+            <label className="flex cursor-pointer items-start gap-4 rounded-xl border border-[#FFFDE9]/40 p-5">
                 <input
                     type="checkbox"
-                    checked={
-                        published
-                    }
-                    disabled={
-                        isBusy
-                    }
-                    onChange={(
-                        event,
-                    ) =>
+                    checked={published}
+                    disabled={isBusy}
+                    onChange={(event) =>
                         setPublished(
-                            event
-                                .target
-                                .checked,
+                            event.target.checked,
                         )
                     }
-                    className="h-4 w-4"
+                    className="mt-1 h-5 w-5 shrink-0 accent-black disabled:opacity-50"
                 />
 
                 <div>
-                    <p className="text-sm font-medium">
+                    <p className="font-october text-xl uppercase leading-none text-[#FFFDE9]">
                         Publicado
                     </p>
 
-                    <p className="mt-1 text-xs opacity-60">
+                    <p className="mt-2 text-sm text-[#FFFDE9]/70">
                         A apresentação ficará visível no Toda Terça Tem.
                     </p>
                 </div>
             </label>
 
             {error && (
-                <div className="border border-red-600 p-4 text-sm text-red-600">
+                <div
+                    role="alert"
+                    className="rounded-xl border border-black bg-[#FFFDE9] p-4 text-sm text-[#D2232A] shadow-[-3px_3px_0_0_#000]"
+                >
                     {error}
                 </div>
             )}
 
-            <div className="flex flex-wrap items-center gap-4">
+            <div className="flex flex-wrap items-center gap-4 border-t border-[#FFFDE9]/30 pt-8">
                 <button
                     type="submit"
-                    disabled={
-                        isBusy
-                    }
-                    className="rounded-md border border-black bg-[#FFFDE9] px-5 py-3 shadow-[3px_3px_0_#000] transition-transform hover:-translate-x-0.5 hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-50"
+                    disabled={isBusy}
+                    className={buttonClassName}
                 >
                     {loading
                         ? "Salvando..."
@@ -1013,28 +981,22 @@ export function EditPerformanceForm({
 
                 <button
                     type="button"
-                    disabled={
-                        isBusy
-                    }
+                    disabled={isBusy}
                     onClick={() =>
                         router.push(
                             "/admin/performances",
                         )
                     }
-                    className="px-4 py-3 text-sm transition-opacity hover:opacity-50 disabled:opacity-50"
+                    className={buttonClassName}
                 >
                     Cancelar
                 </button>
 
                 <button
                     type="button"
-                    disabled={
-                        isBusy
-                    }
-                    onClick={
-                        handleDelete
-                    }
-                    className="ml-auto rounded-md border border-red-600 bg-[#FFFDE9] px-5 py-3 text-red-600 transition-opacity hover:opacity-60 disabled:cursor-not-allowed disabled:opacity-50"
+                    disabled={isBusy}
+                    onClick={handleDelete}
+                    className={`${buttonClassName} sm:ml-auto`}
                 >
                     {deleting
                         ? "Excluindo..."

@@ -1,7 +1,8 @@
+
 "use client";
 
 import {
-    FormEvent,
+    type FormEvent,
     useState,
 } from "react";
 
@@ -13,69 +14,56 @@ import {
     createClient,
 } from "@/lib/supabase/client";
 
+const labelClassName =
+    "font-october text-xl uppercase leading-none text-black";
+
+const inputClassName =
+    "w-full min-w-0 rounded-xl border border-black bg-white px-4 py-3 text-base text-black outline-none transition-colors placeholder:text-black/35 focus:ring-2 focus:ring-black/15";
+
+const buttonClassName =
+    "inline-flex items-center justify-center rounded-xl border border-black bg-white px-6 py-3 text-base font-medium text-black shadow-[-5px_5px_0_0_#000] transition-all duration-200 hover:-translate-y-1 hover:shadow-[-5px_9px_0_0_#000] disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:translate-y-0 disabled:hover:shadow-[-5px_5px_0_0_#000]";
+
 export function CouponForm() {
     const router = useRouter();
 
     const supabase = createClient();
 
-    const [
-        code,
-        setCode,
-    ] = useState("");
+    const [code, setCode] =
+        useState("");
 
-    const [
-        discountType,
-        setDiscountType,
-    ] = useState<
-        "percentage" | "fixed"
-    >("percentage");
+    const [discountType, setDiscountType] =
+        useState<"percentage" | "fixed">(
+            "percentage",
+        );
 
-    const [
-        discountValue,
-        setDiscountValue,
-    ] = useState("");
+    const [discountValue, setDiscountValue] =
+        useState("");
 
-    const [
-        minimumOrderValue,
-        setMinimumOrderValue,
-    ] = useState("");
+    const [minimumOrderValue, setMinimumOrderValue] =
+        useState("");
 
-    const [
-        startsAt,
-        setStartsAt,
-    ] = useState("");
+    const [startsAt, setStartsAt] =
+        useState("");
 
-    const [
-        expiresAt,
-        setExpiresAt,
-    ] = useState("");
+    const [expiresAt, setExpiresAt] =
+        useState("");
 
-    const [
-        maxUses,
-        setMaxUses,
-    ] = useState("");
+    const [maxUses, setMaxUses] =
+        useState("");
 
-    const [
-        wholesaleOnly,
-        setWholesaleOnly,
-    ] = useState(false);
+    const [wholesaleOnly, setWholesaleOnly] =
+        useState(false);
 
-    const [
-        active,
-        setActive,
-    ] = useState(true);
+    const [active, setActive] =
+        useState(true);
 
-    const [
-        loading,
-        setLoading,
-    ] = useState(false);
+    const [loading, setLoading] =
+        useState(false);
 
-    const [
-        error,
-        setError,
-    ] = useState<string | null>(
-        null,
-    );
+    const [error, setError] =
+        useState<string | null>(
+            null,
+        );
 
     async function handleSubmit(
         event: FormEvent<HTMLFormElement>,
@@ -220,12 +208,12 @@ export function CouponForm() {
     return (
         <form
             onSubmit={handleSubmit}
-            className="flex flex-col gap-8"
+            className="flex w-full flex-col gap-8 text-black"
         >
-            <div className="flex flex-col gap-2">
+            <div className="flex flex-col gap-3">
                 <label
                     htmlFor="code"
-                    className="text-sm"
+                    className={labelClassName}
                 >
                     Código
                 </label>
@@ -241,40 +229,34 @@ export function CouponForm() {
                     }
                     placeholder="CASA10"
                     required
-                    className="border border-black bg-transparent px-3 py-2 uppercase outline-none"
+                    className={`${inputClassName} uppercase`}
                 />
 
-                <p className="text-xs opacity-60">
-                    Código que o cliente
-                    digitará no carrinho.
+                <p className="text-sm text-black/60">
+                    Código que o cliente digitará no carrinho.
                 </p>
             </div>
 
             <div className="grid gap-6 md:grid-cols-2">
-                <div className="flex flex-col gap-2">
+                <div className="flex min-w-0 flex-col gap-3">
                     <label
                         htmlFor="discountType"
-                        className="text-sm"
+                        className={labelClassName}
                     >
                         Tipo de desconto
                     </label>
 
                     <select
                         id="discountType"
-                        value={
-                            discountType
-                        }
-                        onChange={(
-                            event,
-                        ) =>
+                        value={discountType}
+                        onChange={(event) =>
                             setDiscountType(
-                                event.target
-                                    .value as
+                                event.target.value as
                                     | "percentage"
                                     | "fixed",
                             )
                         }
-                        className="border border-black bg-transparent px-3 py-2 outline-none"
+                        className={inputClassName}
                     >
                         <option value="percentage">
                             Porcentagem (%)
@@ -286,13 +268,12 @@ export function CouponForm() {
                     </select>
                 </div>
 
-                <div className="flex flex-col gap-2">
+                <div className="flex min-w-0 flex-col gap-3">
                     <label
                         htmlFor="discountValue"
-                        className="text-sm"
+                        className={labelClassName}
                     >
-                        {discountType ===
-                        "percentage"
+                        {discountType === "percentage"
                             ? "Porcentagem"
                             : "Valor do desconto"}
                     </label>
@@ -302,39 +283,32 @@ export function CouponForm() {
                         type="number"
                         min="0.01"
                         max={
-                            discountType ===
-                            "percentage"
+                            discountType === "percentage"
                                 ? "100"
                                 : undefined
                         }
                         step="0.01"
-                        value={
-                            discountValue
-                        }
-                        onChange={(
-                            event,
-                        ) =>
+                        value={discountValue}
+                        onChange={(event) =>
                             setDiscountValue(
-                                event.target
-                                    .value,
+                                event.target.value,
                             )
                         }
                         placeholder={
-                            discountType ===
-                            "percentage"
+                            discountType === "percentage"
                                 ? "10"
                                 : "20.00"
                         }
                         required
-                        className="border border-black bg-transparent px-3 py-2 outline-none"
+                        className={inputClassName}
                     />
                 </div>
             </div>
 
-            <div className="flex flex-col gap-2">
+            <div className="flex flex-col gap-3">
                 <label
                     htmlFor="minimumOrderValue"
-                    className="text-sm"
+                    className={labelClassName}
                 >
                     Valor mínimo do pedido
                 </label>
@@ -344,29 +318,26 @@ export function CouponForm() {
                     type="number"
                     min="0"
                     step="0.01"
-                    value={
-                        minimumOrderValue
-                    }
+                    value={minimumOrderValue}
                     onChange={(event) =>
                         setMinimumOrderValue(
                             event.target.value,
                         )
                     }
                     placeholder="0.00"
-                    className="border border-black bg-transparent px-3 py-2 outline-none"
+                    className={inputClassName}
                 />
 
-                <p className="text-xs opacity-60">
-                    Deixe vazio para não
-                    exigir valor mínimo.
+                <p className="text-sm text-black/60">
+                    Deixe vazio para não exigir valor mínimo.
                 </p>
             </div>
 
             <div className="grid gap-6 md:grid-cols-2">
-                <div className="flex flex-col gap-2">
+                <div className="flex min-w-0 flex-col gap-3">
                     <label
                         htmlFor="startsAt"
-                        className="text-sm"
+                        className={labelClassName}
                     >
                         Início
                     </label>
@@ -375,22 +346,19 @@ export function CouponForm() {
                         id="startsAt"
                         type="datetime-local"
                         value={startsAt}
-                        onChange={(
-                            event,
-                        ) =>
+                        onChange={(event) =>
                             setStartsAt(
-                                event.target
-                                    .value,
+                                event.target.value,
                             )
                         }
-                        className="border border-black bg-transparent px-3 py-2 outline-none"
+                        className={inputClassName}
                     />
                 </div>
 
-                <div className="flex flex-col gap-2">
+                <div className="flex min-w-0 flex-col gap-3">
                     <label
                         htmlFor="expiresAt"
-                        className="text-sm"
+                        className={labelClassName}
                     >
                         Expiração
                     </label>
@@ -399,23 +367,20 @@ export function CouponForm() {
                         id="expiresAt"
                         type="datetime-local"
                         value={expiresAt}
-                        onChange={(
-                            event,
-                        ) =>
+                        onChange={(event) =>
                             setExpiresAt(
-                                event.target
-                                    .value,
+                                event.target.value,
                             )
                         }
-                        className="border border-black bg-transparent px-3 py-2 outline-none"
+                        className={inputClassName}
                     />
                 </div>
             </div>
 
-            <div className="flex flex-col gap-2">
+            <div className="flex flex-col gap-3">
                 <label
                     htmlFor="maxUses"
-                    className="text-sm"
+                    className={labelClassName}
                 >
                     Limite de usos
                 </label>
@@ -432,71 +397,64 @@ export function CouponForm() {
                         )
                     }
                     placeholder="Sem limite"
-                    className="border border-black bg-transparent px-3 py-2 outline-none"
+                    className={inputClassName}
                 />
 
-                <p className="text-xs opacity-60">
-                    Deixe vazio para usos
-                    ilimitados.
+                <p className="text-sm text-black/60">
+                    Deixe vazio para usos ilimitados.
                 </p>
             </div>
 
-            <div className="border-t border-black pt-6">
+            <div className="flex flex-col gap-5 border-t border-black/20 pt-6">
                 <label className="flex cursor-pointer items-center gap-3">
                     <input
                         type="checkbox"
-                        checked={
-                            wholesaleOnly
-                        }
-                        onChange={(
-                            event,
-                        ) =>
+                        checked={wholesaleOnly}
+                        onChange={(event) =>
                             setWholesaleOnly(
-                                event.target
-                                    .checked,
+                                event.target.checked,
                             )
                         }
+                        className="h-5 w-5 shrink-0 accent-black"
                     />
 
-                    <span className="text-sm">
-                        Exclusivo para
-                        atacadistas
+                    <span className="text-base text-black">
+                        Exclusivo para atacadistas
                     </span>
                 </label>
-            </div>
 
-            <div>
                 <label className="flex cursor-pointer items-center gap-3">
                     <input
                         type="checkbox"
                         checked={active}
-                        onChange={(
-                            event,
-                        ) =>
+                        onChange={(event) =>
                             setActive(
-                                event.target
-                                    .checked,
+                                event.target.checked,
                             )
                         }
+                        className="h-5 w-5 shrink-0 accent-black"
                     />
 
-                    <span className="text-sm">
+                    <span className="text-base text-black">
                         Cupom ativo
                     </span>
                 </label>
             </div>
 
             {error && (
-                <div className="border border-black p-4 text-sm">
+                <div
+                    role="alert"
+                    className="rounded-xl border border-black bg-white p-4 text-sm text-[#D2232A] shadow-[-3px_3px_0_0_#000]"
+                >
                     {error}
                 </div>
             )}
 
-            <div className="flex justify-end border-t border-black pt-6">
+            <div className="flex justify-end border-t border-black/20 pt-6">
                 <button
                     type="submit"
                     disabled={loading}
-                    className="border border-black px-6 py-3 transition-opacity hover:opacity-60 disabled:cursor-not-allowed disabled:opacity-40"
+                    className={buttonClassName}
                 >
                     {loading
                         ? "Salvando..."

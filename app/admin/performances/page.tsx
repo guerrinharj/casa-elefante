@@ -1,3 +1,4 @@
+
 import Link from "next/link";
 
 import {
@@ -7,6 +8,12 @@ import {
 import {
     createClient,
 } from "@/lib/supabase/server";
+
+const buttonClassName =
+    "inline-flex items-center justify-center rounded-xl border border-black bg-white px-5 py-3 text-sm font-medium text-black shadow-[-5px_5px_0_0_#000] transition-all duration-200 hover:-translate-y-1 hover:shadow-[-5px_9px_0_0_#000]";
+
+const actionButtonClassName =
+    "inline-flex items-center justify-center rounded-lg border border-black bg-white px-4 py-2 text-sm font-medium text-black shadow-[-3px_3px_0_0_#000] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[-3px_5px_0_0_#000]";
 
 function formatDate(
     date: string | null,
@@ -36,9 +43,7 @@ export default async function AdminPerformancesPage() {
         data: performances,
         error,
     } = await supabase
-        .from(
-            "performances",
-        )
+        .from("performances")
         .select(`
             id,
             name,
@@ -67,132 +72,122 @@ export default async function AdminPerformancesPage() {
     }
 
     return (
-        <main className="p-6">
+        <main className="min-h-screen bg-[#D2232A] p-6 text-[#FFFDE9] md:p-10">
             <div className="mx-auto flex max-w-5xl flex-col gap-8">
-                <div className="flex items-center justify-between gap-4">
+                <div className="flex flex-col gap-6">
                     <div>
                         <Link
                             href="/admin"
-                            className="text-sm hover:opacity-60"
+                            className={buttonClassName}
                         >
                             ← Admin
                         </Link>
-
-                        <h1 className="mt-4 text-3xl font-medium">
-                            Toda Terça Tem
-                        </h1>
                     </div>
 
-                    <Link
-                        href="/admin/performances/novo"
-                        className="rounded-md border border-black bg-[#FFFDE9] px-4 py-3 shadow-[3px_3px_0_#000] transition-transform hover:-translate-x-0.5 hover:-translate-y-0.5"
-                    >
-                        Nova apresentação
-                    </Link>
+                    <div className="flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
+                        <div>
+                            <h1 className="font-october text-5xl uppercase leading-none text-[#FFFDE9] md:text-6xl">
+                                Toda Terça Tem
+                            </h1>
+
+                            <p className="mt-3 text-sm text-[#FFFDE9]/80 md:text-base">
+                                Gerencie as apresentações, gravações e publicações.
+                            </p>
+                        </div>
+
+                        <Link
+                            href="/admin/performances/novo"
+                            className={buttonClassName}
+                        >
+                            + Nova apresentação
+                        </Link>
+                    </div>
                 </div>
 
+                <div className="border-t border-[#FFFDE9]/40" />
+
                 {!performances ||
-                performances.length ===
-                    0 ? (
-                    <div className="border border-black p-6">
-                        <p>
+                performances.length === 0 ? (
+                    <div className="rounded-xl border border-black bg-[#FFFDE9] p-8 text-black shadow-[-5px_5px_0_0_#000]">
+                        <h2 className="font-october text-3xl uppercase leading-none">
+                            Nenhuma apresentação
+                        </h2>
+
+                        <p className="mt-3 text-sm text-black/60">
                             Nenhuma apresentação cadastrada.
                         </p>
                     </div>
                 ) : (
-                    <div className="flex flex-col">
+                    <div className="flex flex-col gap-6">
                         {performances.map(
-                            (
-                                performance,
-                            ) => (
-                                <div
-                                    key={
-                                        performance.id
-                                    }
-                                    className="grid items-center gap-4 border-t border-black py-5 md:grid-cols-[1fr_auto_auto_auto]"
+                            (performance) => (
+                                <article
+                                    key={performance.id}
+                                    className="rounded-xl border border-black bg-[#FFFDE9] p-5 text-black shadow-[-5px_5px_0_0_#000] md:p-6"
                                 >
-                                    <div className="flex items-center gap-4">
-                                        {performance.cover_image && (
-                                            <div className="h-16 w-16 shrink-0 overflow-hidden bg-neutral-100">
-                                                <img
-                                                    src={
-                                                        performance.cover_image
-                                                    }
-                                                    alt=""
-                                                    className="h-full w-full object-cover"
-                                                />
+                                    <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
+                                        <div className="flex min-w-0 items-center gap-4">
+                                            {performance.cover_image && (
+                                                <div className="h-20 w-20 shrink-0 overflow-hidden rounded-lg border border-black bg-white md:h-24 md:w-24">
+                                                    <img
+                                                        src={performance.cover_image}
+                                                        alt=""
+                                                        className="h-full w-full object-cover"
+                                                    />
+                                                </div>
+                                            )}
+
+                                            <div className="min-w-0">
+                                                <h2 className="font-october text-2xl uppercase leading-none text-black md:text-3xl">
+                                                    {performance.name}
+                                                </h2>
+
+                                                <p className="mt-2 text-sm text-black/60">
+                                                    {formatDate(
+                                                        performance.performance_date,
+                                                    )}
+                                                </p>
                                             </div>
-                                        )}
+                                        </div>
 
-                                        <div>
-                                            <h2 className="text-lg font-medium">
-                                                {
-                                                    performance.name
-                                                }
-                                            </h2>
+                                        <div className="flex flex-wrap items-center gap-3">
+                                            <span className="inline-flex items-center rounded-lg border border-black bg-white px-3 py-1.5 text-xs font-medium text-black">
+                                                {performance.audio_url
+                                                    ? "Com áudio"
+                                                    : "Sem áudio"}
+                                            </span>
 
-                                            <p className="mt-1 text-sm opacity-60">
-                                                {formatDate(
-                                                    performance.performance_date,
-                                                )}
-                                            </p>
+                                            <span
+                                                className={`inline-flex items-center rounded-lg border border-black px-3 py-1.5 text-xs font-medium ${
+                                                    performance.published
+                                                        ? "bg-[#D2232A] text-white"
+                                                        : "bg-white text-black"
+                                                }`}
+                                            >
+                                                {performance.published
+                                                    ? "Publicado"
+                                                    : "Rascunho"}
+                                            </span>
                                         </div>
                                     </div>
 
-                                    <div className="text-sm">
-                                        {performance.audio_url
-                                            ? "Com áudio"
-                                            : "Sem áudio"}
-                                    </div>
-
-                                    <div>
-                                        <span
-                                            className={`
-                                                border
-                                                border-black
-                                                px-2
-                                                py-1
-                                                text-xs
-                                                
-
-                                                ${
-                                                    performance.published
-                                                        ? "  text-white"
-                                                        : "bg-[#FFFDE9] text-black"
-                                                }
-                                            `}
-                                        >
-                                            {performance.published
-                                                ? "Publicado"
-                                                : "Rascunho"}
-                                        </span>
-                                    </div>
-
-                                    <div className="flex items-center gap-3">
+                                    <div className="mt-6 flex flex-wrap items-center gap-4 border-t border-black/20 pt-5">
                                         <Link
                                             href={`/admin/performances/${performance.id}/editar`}
-                                            className="rounded-md border border-black bg-[#FFFDE9] px-4 py-2 text-sm shadow-[3px_3px_0_#000] transition-transform hover:-translate-x-0.5 hover:-translate-y-0.5"
+                                            className={actionButtonClassName}
                                         >
                                             Editar
                                         </Link>
 
                                         <DeletePerformanceButton
-                                            id={
-                                                performance.id
-                                            }
-                                            name={
-                                                performance.name
-                                            }
-                                            audioUrl={
-                                                performance.audio_url
-                                            }
+                                            id={performance.id}
+                                            name={performance.name}
+                                            audioUrl={performance.audio_url}
                                         />
                                     </div>
-                                </div>
+                                </article>
                             ),
                         )}
-
-                        <div className="border-t border-black" />
                     </div>
                 )}
             </div>

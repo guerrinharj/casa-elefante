@@ -1,7 +1,8 @@
+
 "use client";
 
 import {
-    FormEvent,
+    type FormEvent,
     useState,
 } from "react";
 
@@ -12,6 +13,18 @@ import {
 import {
     createClient,
 } from "@/lib/supabase/client";
+
+const labelClassName =
+    "font-october text-xl uppercase leading-none text-[#FFFDE9]";
+
+const inputClassName =
+    "w-full min-w-0 rounded-xl border border-black bg-white px-4 py-3 text-base text-black outline-none transition-colors placeholder:text-black/40 focus:ring-2 focus:ring-[#FFFDE9]/40";
+
+const fileInputClassName =
+    "w-full min-w-0 rounded-xl border border-black bg-white px-4 py-3 text-sm text-black file:mr-4 file:rounded-lg file:border file:border-black file:bg-white file:px-4 file:py-2 file:text-sm file:font-medium file:text-black file:cursor-pointer";
+
+const buttonClassName =
+    "inline-flex items-center justify-center rounded-xl border border-black bg-[#FFFDE9] px-6 py-3 text-base font-medium text-black shadow-[-5px_5px_0_0_#000] transition-all duration-200 hover:-translate-y-1 hover:shadow-[-5px_9px_0_0_#000] disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:translate-y-0 disabled:hover:shadow-[-5px_5px_0_0_#000]";
 
 function slugify(
     value: string,
@@ -90,18 +103,16 @@ export function PerformanceForm() {
     const [
         audioFile,
         setAudioFile,
-    ] =
-        useState<File | null>(
-            null,
-        );
+    ] = useState<File | null>(
+        null,
+    );
 
     const [
         coverImageFile,
         setCoverImageFile,
-    ] =
-        useState<File | null>(
-            null,
-        );
+    ] = useState<File | null>(
+        null,
+    );
 
     const [
         published,
@@ -116,10 +127,9 @@ export function PerformanceForm() {
     const [
         error,
         setError,
-    ] =
-        useState<string | null>(
-            null,
-        );
+    ] = useState<string | null>(
+        null,
+    );
 
     function handleNameChange(
         value: string,
@@ -234,8 +244,7 @@ export function PerformanceForm() {
     }
 
     async function handleSubmit(
-        event:
-            FormEvent<HTMLFormElement>,
+        event: FormEvent<HTMLFormElement>,
     ) {
         event.preventDefault();
 
@@ -344,15 +353,13 @@ export function PerformanceForm() {
 
     return (
         <form
-            onSubmit={
-                handleSubmit
-            }
-            className="flex flex-col gap-6"
+            onSubmit={handleSubmit}
+            className="flex w-full flex-col gap-8 text-[#FFFDE9]"
         >
-            <div className="flex flex-col gap-2">
+            <div className="flex flex-col gap-3">
                 <label
                     htmlFor="name"
-                    className="text-sm"
+                    className={labelClassName}
                 >
                     Nome
                 </label>
@@ -360,28 +367,22 @@ export function PerformanceForm() {
                 <input
                     id="name"
                     type="text"
-                    value={
-                        name
-                    }
-                    onChange={(
-                        event,
-                    ) =>
+                    value={name}
+                    onChange={(event) =>
                         handleNameChange(
-                            event
-                                .target
-                                .value,
+                            event.target.value,
                         )
                     }
                     required
-                    className="rounded-md border border-black bg-[#FFFDE9] px-4 py-3 outline-none"
+                    className={inputClassName}
                     placeholder="Nome da apresentação"
                 />
             </div>
 
-            <div className="flex flex-col gap-2">
+            <div className="flex flex-col gap-3">
                 <label
                     htmlFor="slug"
-                    className="text-sm"
+                    className={labelClassName}
                 >
                     Slug
                 </label>
@@ -389,285 +390,241 @@ export function PerformanceForm() {
                 <input
                     id="slug"
                     type="text"
-                    value={
-                        slug
-                    }
-                    onChange={(
-                        event,
-                    ) =>
+                    value={slug}
+                    onChange={(event) =>
                         setSlug(
                             slugify(
-                                event
-                                    .target
-                                    .value,
+                                event.target.value,
                             ),
                         )
                     }
                     required
-                    className="rounded-md border border-black bg-[#FFFDE9] px-4 py-3 outline-none"
+                    className={inputClassName}
                     placeholder="nome-da-apresentacao"
                 />
             </div>
 
-            <div className="flex flex-col gap-2">
+            <div className="flex flex-col gap-3">
                 <label
                     htmlFor="description"
-                    className="text-sm"
+                    className={labelClassName}
                 >
                     Descrição
                 </label>
 
                 <textarea
                     id="description"
-                    value={
-                        description
-                    }
-                    onChange={(
-                        event,
-                    ) =>
+                    value={description}
+                    onChange={(event) =>
                         setDescription(
-                            event
-                                .target
-                                .value,
+                            event.target.value,
                         )
                     }
                     rows={6}
-                    className="resize-y rounded-md border border-black bg-[#FFFDE9] px-4 py-3 outline-none"
+                    className={`${inputClassName} resize-y`}
                     placeholder="Descrição da apresentação"
                 />
             </div>
 
-            <div className="flex flex-col gap-2">
-                <label
-                    htmlFor="performance-date"
-                    className="text-sm"
-                >
-                    Data da apresentação
-                </label>
+            <div className="grid gap-8 md:grid-cols-2">
+                <div className="flex flex-col gap-3">
+                    <label
+                        htmlFor="performance-date"
+                        className={labelClassName}
+                    >
+                        Data da apresentação
+                    </label>
 
-                <input
-                    id="performance-date"
-                    type="date"
-                    value={
-                        performanceDate
-                    }
-                    onChange={(
-                        event,
-                    ) =>
-                        setPerformanceDate(
-                            event
-                                .target
-                                .value,
-                        )
-                    }
-                    className="rounded-md border border-black bg-[#FFFDE9] px-4 py-3 outline-none"
-                />
+                    <input
+                        id="performance-date"
+                        type="date"
+                        value={performanceDate}
+                        onChange={(event) =>
+                            setPerformanceDate(
+                                event.target.value,
+                            )
+                        }
+                        className={inputClassName}
+                    />
+                </div>
+
+                <div className="flex flex-col gap-3">
+                    <label
+                        htmlFor="location"
+                        className={labelClassName}
+                    >
+                        Local
+                        <span className="ml-2 font-sans text-xs font-normal normal-case opacity-60">
+                            Opcional
+                        </span>
+                    </label>
+
+                    <input
+                        id="location"
+                        type="text"
+                        value={location}
+                        onChange={(event) =>
+                            setLocation(
+                                event.target.value,
+                            )
+                        }
+                        className={inputClassName}
+                        placeholder="Ex: Casa Elefante, São Paulo"
+                    />
+                </div>
             </div>
 
-            <div className="flex flex-col gap-2">
-                <label
-                    htmlFor="location"
-                    className="text-sm"
-                >
-                    Local
+            <div className="border-t border-[#FFFDE9]/30 pt-8">
+                <h2 className="font-october text-3xl uppercase leading-none text-[#FFFDE9]">
+                    Mídia
+                </h2>
 
-                    <span className="ml-2 text-xs opacity-50">
-                        Opcional
-                    </span>
-                </label>
+                <div className="mt-8 flex flex-col gap-8">
+                    <div className="flex flex-col gap-3">
+                        <label
+                            htmlFor="cover-image"
+                            className={labelClassName}
+                        >
+                            Imagem da apresentação
+                            <span className="ml-2 font-sans text-xs font-normal normal-case opacity-60">
+                                Opcional
+                            </span>
+                        </label>
 
-                <input
-                    id="location"
-                    type="text"
-                    value={
-                        location
-                    }
-                    onChange={(
-                        event,
-                    ) =>
-                        setLocation(
-                            event
-                                .target
-                                .value,
-                        )
-                    }
-                    className="rounded-md border border-black bg-[#FFFDE9] px-4 py-3 outline-none"
-                    placeholder="Ex: Casa Elefante, São Paulo"
-                />
-            </div>
-
-            <div className="flex flex-col gap-2">
-                <label
-                    htmlFor="cover-image"
-                    className="text-sm"
-                >
-                    Imagem da apresentação
-
-                    <span className="ml-2 text-xs opacity-50">
-                        Opcional
-                    </span>
-                </label>
-
-                <input
-                    id="cover-image"
-                    type="file"
-                    accept="image/*"
-                    onChange={(
-                        event,
-                    ) =>
-                        setCoverImageFile(
-                            event
-                                .target
-                                .files?.[0] ??
-                                null,
-                        )
-                    }
-                    className="rounded-md border border-black bg-[#FFFDE9] px-4 py-3"
-                />
-
-                {coverImageFile && (
-                    <div className="flex flex-col gap-1">
-                        <p className="text-xs opacity-60">
-                            {
-                                coverImageFile.name
+                        <input
+                            id="cover-image"
+                            type="file"
+                            accept="image/*"
+                            onChange={(event) =>
+                                setCoverImageFile(
+                                    event.target.files?.[0] ??
+                                    null,
+                                )
                             }
-                        </p>
+                            className={fileInputClassName}
+                        />
 
-                        <p className="text-xs opacity-60">
-                            {(
-                                coverImageFile.size /
-                                1024 /
-                                1024
-                            ).toFixed(
-                                1,
-                            )}{" "}
-                            MB
-                        </p>
+                        {coverImageFile && (
+                            <div className="rounded-xl border border-[#FFFDE9]/40 p-4">
+                                <p className="break-all text-sm font-medium">
+                                    {coverImageFile.name}
+                                </p>
+
+                                <p className="mt-1 text-xs text-[#FFFDE9]/70">
+                                    {(
+                                        coverImageFile.size /
+                                        1024 /
+                                        1024
+                                    ).toFixed(1)}{" "}
+                                    MB
+                                </p>
+                            </div>
+                        )}
                     </div>
-                )}
-            </div>
 
-            <div className="flex flex-col gap-2">
-                <label
-                    htmlFor="audio"
-                    className="text-sm"
-                >
-                    Áudio
+                    <div className="flex flex-col gap-3">
+                        <label
+                            htmlFor="audio"
+                            className={labelClassName}
+                        >
+                            Áudio
+                            <span className="ml-2 font-sans text-xs font-normal normal-case opacity-60">
+                                Opcional
+                            </span>
+                        </label>
 
-                    <span className="ml-2 text-xs opacity-50">
-                        Opcional
-                    </span>
-                </label>
-
-                <input
-                    id="audio"
-                    type="file"
-                    accept="audio/*"
-                    onChange={(
-                        event,
-                    ) =>
-                        setAudioFile(
-                            event
-                                .target
-                                .files?.[0] ??
-                                null,
-                        )
-                    }
-                    className="rounded-md border border-black bg-[#FFFDE9] px-4 py-3"
-                />
-
-                {audioFile && (
-                    <div className="flex flex-col gap-1">
-                        <p className="text-xs opacity-60">
-                            {
-                                audioFile.name
+                        <input
+                            id="audio"
+                            type="file"
+                            accept="audio/*"
+                            onChange={(event) =>
+                                setAudioFile(
+                                    event.target.files?.[0] ??
+                                    null,
+                                )
                             }
-                        </p>
+                            className={fileInputClassName}
+                        />
 
-                        <p className="text-xs opacity-60">
-                            {(
-                                audioFile.size /
-                                1024 /
-                                1024
-                            ).toFixed(
-                                1,
-                            )}{" "}
-                            MB
-                        </p>
+                        {audioFile && (
+                            <div className="rounded-xl border border-[#FFFDE9]/40 p-4">
+                                <p className="break-all text-sm font-medium">
+                                    {audioFile.name}
+                                </p>
+
+                                <p className="mt-1 text-xs text-[#FFFDE9]/70">
+                                    {(
+                                        audioFile.size /
+                                        1024 /
+                                        1024
+                                    ).toFixed(1)}{" "}
+                                    MB
+                                </p>
+                            </div>
+                        )}
                     </div>
-                )}
+
+                    <div className="flex flex-col gap-3">
+                        <label
+                            htmlFor="video-url"
+                            className={labelClassName}
+                        >
+                            URL do vídeo
+                        </label>
+
+                        <input
+                            id="video-url"
+                            type="url"
+                            value={videoUrl}
+                            onChange={(event) =>
+                                setVideoUrl(
+                                    event.target.value,
+                                )
+                            }
+                            className={inputClassName}
+                            placeholder="https://..."
+                        />
+                    </div>
+                </div>
             </div>
 
-            <div className="flex flex-col gap-2">
-                <label
-                    htmlFor="video-url"
-                    className="text-sm"
-                >
-                    URL do vídeo
-                </label>
-
-                <input
-                    id="video-url"
-                    type="url"
-                    value={
-                        videoUrl
-                    }
-                    onChange={(
-                        event,
-                    ) =>
-                        setVideoUrl(
-                            event
-                                .target
-                                .value,
-                        )
-                    }
-                    className="rounded-md border border-black bg-[#FFFDE9] px-4 py-3 outline-none"
-                    placeholder="https://..."
-                />
-            </div>
-
-            <label className="flex cursor-pointer items-center gap-3 border-y border-black py-4">
+            <label className="flex cursor-pointer items-start gap-4 rounded-xl border border-[#FFFDE9]/40 p-5">
                 <input
                     type="checkbox"
-                    checked={
-                        published
-                    }
-                    onChange={(
-                        event,
-                    ) =>
+                    checked={published}
+                    onChange={(event) =>
                         setPublished(
-                            event
-                                .target
-                                .checked,
+                            event.target.checked,
                         )
                     }
-                    className="h-4 w-4"
+                    className="mt-1 h-5 w-5 shrink-0 accent-black"
                 />
 
                 <div>
-                    <p className="text-sm font-medium">
+                    <p className="font-october text-xl uppercase leading-none text-[#FFFDE9]">
                         Publicado
                     </p>
 
-                    <p className="mt-1 text-xs opacity-60">
+                    <p className="mt-2 text-sm text-[#FFFDE9]/70">
                         A apresentação ficará visível no Toda Terça Tem.
                     </p>
                 </div>
             </label>
 
             {error && (
-                <div className="border border-red-600 p-4 text-sm text-red-600">
+                <div
+                    role="alert"
+                    className="rounded-xl border border-black bg-[#FFFDE9] p-4 text-sm text-[#D2232A] shadow-[-3px_3px_0_0_#000]"
+                >
                     {error}
                 </div>
             )}
 
-            <div className="flex items-center gap-4">
+            <div className="flex flex-wrap items-center gap-4 border-t border-[#FFFDE9]/30 pt-8">
                 <button
                     type="submit"
-                    disabled={
-                        loading
-                    }
-                    className="rounded-md border border-black bg-[#FFFDE9] px-5 py-3 shadow-[3px_3px_0_#000] transition-transform hover:-translate-x-0.5 hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-50"
+                    disabled={loading}
+                    className={buttonClassName}
                 >
                     {loading
                         ? "Enviando..."
@@ -676,15 +633,13 @@ export function PerformanceForm() {
 
                 <button
                     type="button"
-                    disabled={
-                        loading
-                    }
+                    disabled={loading}
                     onClick={() =>
                         router.push(
                             "/admin/performances",
                         )
                     }
-                    className="px-4 py-3 text-sm transition-opacity hover:opacity-50 disabled:opacity-50"
+                    className={buttonClassName}
                 >
                     Cancelar
                 </button>

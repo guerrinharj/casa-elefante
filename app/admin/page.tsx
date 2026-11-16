@@ -1,3 +1,4 @@
+
 import Link from "next/link";
 
 import {
@@ -13,180 +14,233 @@ export default async function AdminPage() {
     const isCollaborator =
         profile.role === "collaborator";
 
+    const cardClassName = `
+        rounded-xl
+        border
+        border-black
+        bg-white
+        p-6
+        text-black
+        shadow-[-5px_5px_0_0_#000]
+        transition-all
+        duration-200
+        hover:-translate-y-1
+        hover:shadow-[-5px_9px_0_0_#000]
+    `;
+
+    const disabledCardClassName = `
+        rounded-xl
+        border
+        border-black
+        bg-white
+        p-6
+        text-black
+        shadow-[-5px_5px_0_0_#000]
+        cursor-not-allowed
+        opacity-30
+    `;
+
     return (
         <main className="p-6">
             <div className="mx-auto flex max-w-5xl flex-col gap-8">
+                {/* HEADER */}
+
                 <div className="flex items-center justify-between">
                     <div>
-                        <h1 className="text-3xl font-medium">
+                        <h1
+                            className="
+                                font-october
+                                text-5xl
+                                uppercase
+                                leading-none
+                                text-black
+                                md:text-6xl
+                            "
+                        >
                             Admin
                         </h1>
 
-                        <p className="mt-1 text-sm">
+                        <p className="mt-2 text-sm text-black/60">
                             {user.email}
                         </p>
                     </div>
                 </div>
 
-                <div className="grid gap-4 md:grid-cols-2">
+                {/* CARDS */}
+
+                <div className="grid gap-6 md:grid-cols-2">
+                    {/* PRODUTOS */}
+
                     <Link
                         href="/admin/produtos"
-                        className="border border-black p-6 transition-opacity hover:opacity-60"
+                        className={cardClassName}
                     >
-                        <h2 className="text-xl">
+                        <h2 className="font-october text-4xl uppercase leading-none md:text-5xl">
                             Produtos
                         </h2>
 
-                        <p className="mt-2 text-sm">
+                        <p className="mt-3 text-sm text-black/70">
                             Adicionar, editar e remover produtos.
                         </p>
                     </Link>
 
+                    {/* PEDIDOS */}
+
                     {isCollaborator ? (
-                        <div className="cursor-not-allowed border border-black p-6 opacity-30">
-                            <h2 className="text-xl">
+                        <div className={disabledCardClassName}>
+                            <h2 className="font-october text-4xl uppercase leading-none md:text-5xl">
                                 Pedidos
                             </h2>
 
-                            <p className="mt-2 text-sm">
+                            <p className="mt-3 text-sm text-black/70">
                                 Visualizar e gerenciar pedidos.
                             </p>
                         </div>
                     ) : (
                         <Link
                             href="/admin/pedidos"
-                            className="border border-black p-6 transition-opacity hover:opacity-60"
+                            className={cardClassName}
                         >
-                            <h2 className="text-xl">
+                            <h2 className="font-october text-4xl uppercase leading-none md:text-5xl">
                                 Pedidos
                             </h2>
 
-                            <p className="mt-2 text-sm">
+                            <p className="mt-3 text-sm text-black/70">
                                 Visualizar e gerenciar pedidos.
                             </p>
                         </Link>
                     )}
 
+                    {/* CUPONS */}
+
                     {isCollaborator ? (
-                        <div className="cursor-not-allowed border border-black p-6 opacity-30">
-                            <h2 className="text-xl">
+                        <div className={disabledCardClassName}>
+                            <h2 className="font-october text-4xl uppercase leading-none md:text-5xl">
                                 Cupons
                             </h2>
 
-                            <p className="mt-2 text-sm">
+                            <p className="mt-3 text-sm text-black/70">
                                 Criar e gerenciar cupons de desconto.
                             </p>
                         </div>
                     ) : (
                         <Link
                             href="/admin/cupons"
-                            className="border border-black p-6 transition-opacity hover:opacity-60"
+                            className={cardClassName}
                         >
-                            <h2 className="text-xl">
+                            <h2 className="font-october text-4xl uppercase leading-none md:text-5xl">
                                 Cupons
                             </h2>
 
-                            <p className="mt-2 text-sm">
+                            <p className="mt-3 text-sm text-black/70">
                                 Criar e gerenciar cupons de desconto.
                             </p>
                         </Link>
                     )}
 
+                    {/* ATACADISTAS */}
+
                     {isCollaborator ? (
-                        <div className="cursor-not-allowed border border-black p-6 opacity-30">
-                            <h2 className="text-xl">
+                        <div className={disabledCardClassName}>
+                            <h2 className="font-october text-4xl uppercase leading-none md:text-5xl">
                                 Atacadistas
                             </h2>
 
-                            <p className="mt-2 text-sm">
+                            <p className="mt-3 text-sm text-black/70">
                                 Aprovar e gerenciar cadastros de atacadistas.
                             </p>
                         </div>
                     ) : (
                         <Link
                             href="/admin/atacadistas"
-                            className="border border-black p-6 transition-opacity hover:opacity-60"
+                            className={cardClassName}
                         >
-                            <h2 className="text-xl">
+                            <h2 className="font-october text-4xl uppercase leading-none md:text-5xl">
                                 Atacadistas
                             </h2>
 
-                            <p className="mt-2 text-sm">
+                            <p className="mt-3 text-sm text-black/70">
                                 Aprovar e gerenciar cadastros de atacadistas.
                             </p>
                         </Link>
                     )}
 
+                    {/* COLABORADORES */}
+
                     {isCollaborator ? (
-                        <div className="cursor-not-allowed border border-black p-6 opacity-30">
-                            <h2 className="text-xl">
+                        <div className={disabledCardClassName}>
+                            <h2 className="font-october text-4xl uppercase leading-none md:text-5xl">
                                 Colaboradores
                             </h2>
 
-                            <p className="mt-2 text-sm">
+                            <p className="mt-3 text-sm text-black/70">
                                 Criar e gerenciar colaboradores.
                             </p>
                         </div>
                     ) : (
                         <Link
                             href="/admin/colaboradores"
-                            className="border border-black p-6 transition-opacity hover:opacity-60"
+                            className={cardClassName}
                         >
-                            <h2 className="text-xl">
+                            <h2 className="font-october text-4xl uppercase leading-none md:text-5xl">
                                 Colaboradores
                             </h2>
 
-                            <p className="mt-2 text-sm">
+                            <p className="mt-3 text-sm text-black/70">
                                 Criar e gerenciar colaboradores.
                             </p>
                         </Link>
                     )}
 
+                    {/* TODA TERÇA TEM */}
+
                     {isCollaborator ? (
-                        <div className="cursor-not-allowed border border-black p-6 opacity-30">
-                            <h2 className="text-xl">
+                        <div className={disabledCardClassName}>
+                            <h2 className="font-october text-4xl uppercase leading-none md:text-5xl">
                                 Toda Terça Tem
                             </h2>
 
-                            <p className="mt-2 text-sm">
+                            <p className="mt-3 text-sm text-black/70">
                                 Adicionar, editar e remover apresentações.
                             </p>
                         </div>
                     ) : (
                         <Link
                             href="/admin/performances"
-                            className="border border-black p-6 transition-opacity hover:opacity-60"
+                            className={cardClassName}
                         >
-                            <h2 className="text-xl">
+                            <h2 className="font-october text-4xl uppercase leading-none md:text-5xl">
                                 Toda Terça Tem
                             </h2>
 
-                            <p className="mt-2 text-sm">
+                            <p className="mt-3 text-sm text-black/70">
                                 Adicionar, editar e remover apresentações.
                             </p>
                         </Link>
                     )}
 
+                    {/* NEWSLETTER */}
+
                     {isCollaborator ? (
-                        <div className="cursor-not-allowed border border-black p-6 opacity-30">
-                            <h2 className="text-xl">
+                        <div className={disabledCardClassName}>
+                            <h2 className="font-october text-4xl uppercase leading-none md:text-5xl">
                                 Newsletter
                             </h2>
 
-                            <p className="mt-2 text-sm">
+                            <p className="mt-3 text-sm text-black/70">
                                 Criar e enviar newsletters para os assinantes.
                             </p>
                         </div>
                     ) : (
                         <Link
                             href="/admin/newsletter"
-                            className="border border-black p-6 transition-opacity hover:opacity-60"
+                            className={cardClassName}
                         >
-                            <h2 className="text-xl">
+                            <h2 className="font-october text-4xl uppercase leading-none md:text-5xl">
                                 Newsletter
                             </h2>
 
-                            <p className="mt-2 text-sm">
+                            <p className="mt-3 text-sm text-black/70">
                                 Criar e enviar newsletters para os assinantes.
                             </p>
                         </Link>

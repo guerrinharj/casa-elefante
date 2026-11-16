@@ -1,3 +1,4 @@
+
 "use client";
 
 import {
@@ -29,6 +30,15 @@ type NewsletterEditorProps = {
     products: Product[];
     performances: Performance[];
 };
+
+const labelClassName =
+    "font-october text-xl uppercase leading-none text-black";
+
+const inputClassName =
+    "w-full min-w-0 rounded-xl border border-black bg-white px-4 py-3 text-base text-black outline-none transition-colors placeholder:text-black/35 focus:ring-2 focus:ring-black/15";
+
+const sectionTitleClassName =
+    "font-october text-3xl uppercase leading-none text-black";
 
 function formatPerformanceDate(
     date: string | null,
@@ -91,8 +101,7 @@ export function NewsletterEditor({
                 ) {
                     return current.filter(
                         (id) =>
-                            id !==
-                            productId,
+                            id !== productId,
                     );
                 }
 
@@ -116,8 +125,7 @@ export function NewsletterEditor({
                 ) {
                     return current.filter(
                         (id) =>
-                            id !==
-                            performanceId,
+                            id !== performanceId,
                     );
                 }
 
@@ -130,13 +138,13 @@ export function NewsletterEditor({
     }
 
     return (
-        <div className="mt-10 grid gap-10 lg:grid-cols-[1fr_1fr]">
-            <div>
-                <div className="flex flex-col gap-6">
-                    <div className="flex flex-col gap-2">
+        <div className="grid items-start gap-10 lg:grid-cols-2">
+            <div className="flex min-w-0 flex-col gap-10">
+                <section className="flex flex-col gap-6">
+                    <div className="flex flex-col gap-3">
                         <label
                             htmlFor="subject"
-                            className="font-medium"
+                            className={labelClassName}
                         >
                             Assunto
                         </label>
@@ -145,24 +153,20 @@ export function NewsletterEditor({
                             id="subject"
                             type="text"
                             value={subject}
-                            onChange={(
-                                event,
-                            ) =>
+                            onChange={(event) =>
                                 setSubject(
-                                    event
-                                        .target
-                                        .value,
+                                    event.target.value,
                                 )
                             }
                             placeholder="Discos novos na Casa Elefante"
-                            className="rounded-xl border border-black bg-[#FFFDE9] p-3 outline-none"
+                            className={inputClassName}
                         />
                     </div>
 
-                    <div className="flex flex-col gap-2">
+                    <div className="flex flex-col gap-3">
                         <label
                             htmlFor="title"
-                            className="font-medium"
+                            className={labelClassName}
                         >
                             Título
                         </label>
@@ -171,24 +175,20 @@ export function NewsletterEditor({
                             id="title"
                             type="text"
                             value={title}
-                            onChange={(
-                                event,
-                            ) =>
+                            onChange={(event) =>
                                 setTitle(
-                                    event
-                                        .target
-                                        .value,
+                                    event.target.value,
                                 )
                             }
                             placeholder="Chegaram por aqui"
-                            className="rounded-xl border border-black bg-[#FFFDE9] p-3 outline-none"
+                            className={inputClassName}
                         />
                     </div>
 
-                    <div className="flex flex-col gap-2">
+                    <div className="flex flex-col gap-3">
                         <label
                             htmlFor="content"
-                            className="font-medium"
+                            className={labelClassName}
                         >
                             Texto
                         </label>
@@ -196,30 +196,30 @@ export function NewsletterEditor({
                         <textarea
                             id="content"
                             value={content}
-                            onChange={(
-                                event,
-                            ) =>
+                            onChange={(event) =>
                                 setContent(
-                                    event
-                                        .target
-                                        .value,
+                                    event.target.value,
                                 )
                             }
                             rows={8}
                             placeholder="Escreva o texto da newsletter..."
-                            className="resize-none rounded-xl border border-black bg-[#FFFDE9] p-3 outline-none"
+                            className={`${inputClassName} resize-y`}
                         />
                     </div>
-                </div>
+                </section>
 
-                {/* PRODUCTS */}
+                <section className="border-t border-black/20 pt-8">
+                    <div className="flex flex-wrap items-center justify-between gap-3">
+                        <h2 className={sectionTitleClassName}>
+                            Produtos
+                        </h2>
 
-                <div className="mt-10">
-                    <h2 className="text-xl font-bold uppercase">
-                        Produtos
-                    </h2>
+                        <span className="rounded-lg border border-black bg-white px-3 py-1 text-xs font-medium text-black">
+                            {selectedProducts.length} selecionados
+                        </span>
+                    </div>
 
-                    <div className="mt-4 max-h-[500px] overflow-y-auto rounded-xl border border-black bg-[#FFFDE9]">
+                    <div className="mt-5 max-h-[500px] overflow-y-auto rounded-xl border border-black bg-white shadow-[-5px_5px_0_0_#000]">
                         {products.map(
                             (product) => {
                                 const selected =
@@ -229,25 +229,24 @@ export function NewsletterEditor({
 
                                 return (
                                     <button
-                                        key={
-                                            product.id
-                                        }
+                                        key={product.id}
                                         type="button"
+                                        aria-pressed={selected}
                                         onClick={() =>
                                             toggleProduct(
                                                 product.id,
                                             )
                                         }
-                                        className="flex w-full items-center gap-4 border-b border-black p-3 text-left last:border-b-0"
+                                        className={`flex w-full items-center gap-4 border-b border-black/20 p-4 text-left transition-colors last:border-b-0 ${
+                                            selected
+                                                ? "bg-white"
+                                                : "bg-white hover:bg-white/60"
+                                        }`}
                                     >
-                                        <div className="h-14 w-14 shrink-0 overflow-hidden rounded-lg bg-neutral-100">
-                                            {product
-                                                .images?.[0] && (
+                                        <div className="h-16 w-16 shrink-0 overflow-hidden rounded-lg border border-black/20 bg-white">
+                                            {product.images?.[0] && (
                                                 <img
-                                                    src={
-                                                        product
-                                                            .images[0]
-                                                    }
+                                                    src={product.images[0]}
                                                     alt=""
                                                     className="h-full w-full object-cover"
                                                 />
@@ -255,57 +254,52 @@ export function NewsletterEditor({
                                         </div>
 
                                         <div className="min-w-0 flex-1">
-                                            <p className="truncate font-medium">
-                                                {
-                                                    product.name
-                                                }
+                                            <p className="truncate text-sm font-medium text-black">
+                                                {product.name}
                                             </p>
 
-                                            <p className="truncate text-sm">
-                                                {
-                                                    product.artist
-                                                }
+                                            <p className="mt-1 truncate text-sm text-black/60">
+                                                {product.artist}
                                             </p>
                                         </div>
 
                                         <div
-                                            className={`flex h-6 w-6 items-center justify-center rounded-md border border-black ${
+                                            aria-hidden="true"
+                                            className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-md border border-black text-sm font-bold ${
                                                 selected
-                                                    ? "  text-white"
-                                                    : "bg-[#FFFDE9]"
+                                                    ? "bg-white text-black"
+                                                    : "bg-white text-black"
                                             }`}
                                         >
-                                            {selected &&
-                                                "✓"}
+                                            {selected && "✓"}
                                         </div>
                                     </button>
                                 );
                             },
                         )}
                     </div>
-                </div>
+                </section>
 
-                {/* PERFORMANCES */}
+                <section className="border-t border-black/20 pt-8">
+                    <div className="flex flex-wrap items-center justify-between gap-3">
+                        <h2 className={sectionTitleClassName}>
+                            Apresentações
+                        </h2>
 
-                <div className="mt-10">
-                    <h2 className="text-xl font-bold uppercase">
-                        Apresentações
-                    </h2>
+                        <span className="rounded-lg border border-black bg-white px-3 py-1 text-xs font-medium text-black">
+                            {selectedPerformances.length} selecionadas
+                        </span>
+                    </div>
 
-                    <div className="mt-4 max-h-[500px] overflow-y-auto rounded-xl border border-black bg-[#FFFDE9]">
-                        {performances.length ===
-                            0 && (
-                            <div className="p-4 text-sm opacity-60">
-                                Nenhuma
-                                apresentação
-                                disponível.
+                    <div className="mt-5 max-h-[500px] overflow-y-auto rounded-xl border border-black bg-white shadow-[-5px_5px_0_0_#000]">
+                        {performances.length === 0 && (
+                            <div className="p-5 text-sm text-black/60">
+                                Nenhuma apresentação disponível.
                             </div>
                         )}
 
                         {performances.map(
-                            (
-                                performance,
-                            ) => {
+                            (performance) => {
                                 const selected =
                                     selectedPerformances.includes(
                                         performance.id,
@@ -313,23 +307,24 @@ export function NewsletterEditor({
 
                                 return (
                                     <button
-                                        key={
-                                            performance.id
-                                        }
+                                        key={performance.id}
                                         type="button"
+                                        aria-pressed={selected}
                                         onClick={() =>
                                             togglePerformance(
                                                 performance.id,
                                             )
                                         }
-                                        className="flex w-full items-center gap-4 border-b border-black p-3 text-left last:border-b-0"
+                                        className={`flex w-full items-center gap-4 border-b border-black/20 p-4 text-left transition-colors last:border-b-0 ${
+                                            selected
+                                                ? "bg-white"
+                                                : "bg-white hover:bg-white/60"
+                                        }`}
                                     >
-                                        <div className="h-14 w-14 shrink-0 overflow-hidden rounded-lg bg-neutral-100">
+                                        <div className="h-16 w-16 shrink-0 overflow-hidden rounded-lg border border-black/20 bg-white">
                                             {performance.cover_image && (
                                                 <img
-                                                    src={
-                                                        performance.cover_image
-                                                    }
+                                                    src={performance.cover_image}
                                                     alt=""
                                                     className="h-full w-full object-cover"
                                                 />
@@ -337,14 +332,12 @@ export function NewsletterEditor({
                                         </div>
 
                                         <div className="min-w-0 flex-1">
-                                            <p className="truncate font-medium">
-                                                {
-                                                    performance.name
-                                                }
+                                            <p className="truncate text-sm font-medium text-black">
+                                                {performance.name}
                                             </p>
 
                                             {performance.performance_date && (
-                                                <p className="text-sm">
+                                                <p className="mt-1 text-sm text-black/60">
                                                     {formatPerformanceDate(
                                                         performance.performance_date,
                                                     )}
@@ -353,15 +346,15 @@ export function NewsletterEditor({
 
                                             {(performance.audio_url ||
                                                 performance.video_url) && (
-                                                <div className="mt-1 flex gap-2 text-xs uppercase">
+                                                <div className="mt-2 flex flex-wrap gap-2 text-xs text-black/60">
                                                     {performance.audio_url && (
-                                                        <span>
+                                                        <span className="rounded-md border border-black/20 px-2 py-1">
                                                             Áudio
                                                         </span>
                                                     )}
 
                                                     {performance.video_url && (
-                                                        <span>
+                                                        <span className="rounded-md border border-black/20 px-2 py-1">
                                                             Vídeo
                                                         </span>
                                                     )}
@@ -370,112 +363,92 @@ export function NewsletterEditor({
                                         </div>
 
                                         <div
-                                            className={`flex h-6 w-6 items-center justify-center rounded-md border border-black ${
+                                            aria-hidden="true"
+                                            className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-md border border-black text-sm font-bold ${
                                                 selected
-                                                    ? "  text-white"
-                                                    : "bg-[#FFFDE9]"
+                                                    ? "bg-[#D2232A] text-white"
+                                                    : "bg-white text-black"
                                             }`}
                                         >
-                                            {selected &&
-                                                "✓"}
+                                            {selected && "✓"}
                                         </div>
                                     </button>
                                 );
                             },
                         )}
                     </div>
-                </div>
+                </section>
             </div>
 
-            {/* PREVIEW */}
+            <div className="min-w-0">
+                <div className="lg:sticky lg:top-24">
+                    <h2 className={`${sectionTitleClassName} mb-5`}>
+                        Prévia
+                    </h2>
 
-            <div>
-                <div className="sticky top-24">
-                    <p className="mb-3 text-sm uppercase">
-                        Preview
-                    </p>
-
-                    <div className="rounded-xl border border-black bg-[#FFFDE9] p-6 shadow-[4px_4px_0_#000]">
-                        <p className="text-center text-xl font-bold uppercase">
+                    <div className="rounded-xl border border-black bg-white p-6 text-black shadow-[-5px_5px_0_0_#000] md:p-8">
+                        <p className="font-october text-center text-3xl uppercase leading-none text-black">
                             Casa Elefante
                         </p>
 
                         {title && (
-                            <h2 className="mt-10 text-3xl font-bold uppercase">
+                            <h2 className="mt-10 font-october text-4xl uppercase leading-none text-black">
                                 {title}
                             </h2>
                         )}
 
                         {content && (
-                            <p className="mt-6 whitespace-pre-line">
+                            <p className="mt-6 whitespace-pre-line text-sm leading-relaxed text-black/80">
                                 {content}
                             </p>
                         )}
 
-                        {/* PRODUCTS PREVIEW */}
-
-                        {selectedProducts.length >
-                            0 && (
-                            <div className="mt-10">
-                                <h3 className="mb-4 text-lg font-bold uppercase">
+                        {selectedProducts.length > 0 && (
+                            <div className="mt-10 border-t border-black/20 pt-8">
+                                <h3 className="font-october text-2xl uppercase leading-none text-black">
                                     Discos
                                 </h3>
 
-                                <div className="grid grid-cols-2 gap-4">
+                                <div className="mt-5 grid grid-cols-2 gap-4">
                                     {products
                                         .filter(
-                                            (
-                                                product,
-                                            ) =>
+                                            (product) =>
                                                 selectedProducts.includes(
                                                     product.id,
                                                 ),
                                         )
                                         .map(
-                                            (
-                                                product,
-                                            ) => (
+                                            (product) => (
                                                 <div
-                                                    key={
-                                                        product.id
-                                                    }
+                                                    key={product.id}
+                                                    className="min-w-0"
                                                 >
-                                                    <div className="aspect-square overflow-hidden rounded-xl bg-neutral-100">
-                                                        {product
-                                                            .images?.[0] && (
+                                                    <div className="aspect-square overflow-hidden rounded-xl border border-black/20 bg-white">
+                                                        {product.images?.[0] && (
                                                             <img
-                                                                src={
-                                                                    product
-                                                                        .images[0]
-                                                                }
+                                                                src={product.images[0]}
                                                                 alt=""
                                                                 className="h-full w-full object-cover"
                                                             />
                                                         )}
                                                     </div>
 
-                                                    <p className="mt-2 font-medium">
-                                                        {
-                                                            product.name
-                                                        }
+                                                    <p className="mt-3 text-sm font-medium text-black">
+                                                        {product.name}
                                                     </p>
 
-                                                    <p className="text-sm">
-                                                        {
-                                                            product.artist
-                                                        }
+                                                    <p className="mt-1 text-xs text-black/60">
+                                                        {product.artist}
                                                     </p>
 
-                                                    <p className="mt-1 text-sm">
+                                                    <p className="mt-2 text-sm font-medium text-black">
                                                         {Number(
                                                             product.price,
                                                         ).toLocaleString(
                                                             "pt-BR",
                                                             {
-                                                                style:
-                                                                    "currency",
-                                                                currency:
-                                                                    "BRL",
+                                                                style: "currency",
+                                                                currency: "BRL",
                                                             },
                                                         )}
                                                     </p>
@@ -486,40 +459,29 @@ export function NewsletterEditor({
                             </div>
                         )}
 
-                        {/* PERFORMANCES PREVIEW */}
-
-                        {selectedPerformances.length >
-                            0 && (
-                            <div className="mt-12">
-                                <h3 className="mb-5 text-lg font-bold uppercase">
+                        {selectedPerformances.length > 0 && (
+                            <div className="mt-10 border-t border-black/20 pt-8">
+                                <h3 className="font-october text-2xl uppercase leading-none text-black">
                                     Apresentações
                                 </h3>
 
-                                <div className="flex flex-col gap-8">
+                                <div className="mt-6 flex flex-col gap-8">
                                     {performances
                                         .filter(
-                                            (
-                                                performance,
-                                            ) =>
+                                            (performance) =>
                                                 selectedPerformances.includes(
                                                     performance.id,
                                                 ),
                                         )
                                         .map(
-                                            (
-                                                performance,
-                                            ) => (
+                                            (performance) => (
                                                 <div
-                                                    key={
-                                                        performance.id
-                                                    }
+                                                    key={performance.id}
                                                 >
                                                     {performance.cover_image && (
-                                                        <div className="aspect-video overflow-hidden rounded-xl bg-neutral-100">
+                                                        <div className="aspect-video overflow-hidden rounded-xl border border-black/20 bg-white">
                                                             <img
-                                                                src={
-                                                                    performance.cover_image
-                                                                }
+                                                                src={performance.cover_image}
                                                                 alt=""
                                                                 className="h-full w-full object-cover"
                                                             />
@@ -527,41 +489,35 @@ export function NewsletterEditor({
                                                     )}
 
                                                     {performance.performance_date && (
-                                                        <p className="mt-3 text-xs uppercase">
+                                                        <p className="mt-4 text-xs font-medium uppercase text-black">
                                                             {formatPerformanceDate(
                                                                 performance.performance_date,
                                                             )}
                                                         </p>
                                                     )}
 
-                                                    <p className="mt-1 text-xl font-bold uppercase">
-                                                        {
-                                                            performance.name
-                                                        }
+                                                    <p className="mt-2 text-2xl  leading-none text-black">
+                                                        {performance.name}
                                                     </p>
 
                                                     {performance.description && (
-                                                        <p className="mt-2 text-sm">
-                                                            {
-                                                                performance.description
-                                                            }
+                                                        <p className="mt-3 whitespace-pre-line text-sm leading-relaxed text-black/70">
+                                                            {performance.description}
                                                         </p>
                                                     )}
 
                                                     {(performance.audio_url ||
                                                         performance.video_url) && (
-                                                        <div className="mt-3 flex gap-3 text-xs font-medium uppercase">
+                                                        <div className="mt-4 flex flex-wrap gap-3 text-xs font-medium text-black">
                                                             {performance.audio_url && (
-                                                                <span>
-                                                                    Ouvir
-                                                                    áudio
+                                                                <span className="rounded-lg border border-black px-3 py-2">
+                                                                    Ouvir áudio
                                                                 </span>
                                                             )}
 
                                                             {performance.video_url && (
-                                                                <span>
-                                                                    Assistir
-                                                                    vídeo
+                                                                <span className="rounded-lg border border-black px-3 py-2">
+                                                                    Assistir vídeo
                                                                 </span>
                                                             )}
                                                         </div>
@@ -577,7 +533,7 @@ export function NewsletterEditor({
                     <button
                         type="button"
                         disabled
-                        className="mt-6 w-full rounded-xl border border-black bg-[#FFFDE9] px-6 py-3 shadow-[4px_4px_0_#000] opacity-40"
+                        className="mt-6 inline-flex w-full cursor-not-allowed items-center justify-center rounded-xl border border-black bg-white px-6 py-3 text-base font-medium text-black opacity-40 shadow-[-5px_5px_0_0_#000]"
                     >
                         Enviar newsletter
                     </button>
