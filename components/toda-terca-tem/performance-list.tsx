@@ -1,7 +1,20 @@
+
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
-import { useState } from "react";
+
+import {
+    useState,
+} from "react";
+
+import {
+    Search,
+    Play,
+    Pause,
+} from "lucide-react";
+
+import tttPlaceholder from "@/app/images/ttt-3-preto.png";
 
 import {
     useAudioPlayer,
@@ -40,246 +53,387 @@ export function PerformanceList({
 }: PerformanceListProps) {
     const {
         currentPerformance,
+        isPlaying,
         playPerformance,
     } = useAudioPlayer();
 
-    const [search, setSearch] =
-        useState("");
+    const [search, setSearch] = useState("");
 
-    const normalizedSearch =
-        search
-            .trim()
-            .toLowerCase()
-            .normalize("NFD")
-            .replace(
-                /[\u0300-\u036f]/g,
-                "",
-            );
-
-    const filteredPerformances =
-        performances.filter(
-            (performance) => {
-                const searchableText = [
-                    performance.name,
-                    performance.location,
-                    formatDate(
-                        performance.performance_date,
-                    ),
-                ]
-                    .filter(Boolean)
-                    .join(" ")
-                    .toLowerCase()
-                    .normalize("NFD")
-                    .replace(
-                        /[\u0300-\u036f]/g,
-                        "",
-                    );
-
-                return searchableText.includes(
-                    normalizedSearch,
-                );
-            },
+    const normalizedSearch = search
+        .trim()
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(
+            /[\u0300-\u036f]/g,
+            "",
         );
 
-    if (
-        performances.length === 0
-    ) {
+    const filteredPerformances = performances.filter(
+        (performance) => {
+            const searchableText = [
+                performance.name,
+                performance.location,
+                formatDate(
+                    performance.performance_date,
+                ),
+            ]
+                .filter(Boolean)
+                .join(" ")
+                .toLowerCase()
+                .normalize("NFD")
+                .replace(
+                    /[\u0300-\u036f]/g,
+                    "",
+                );
+
+            return searchableText.includes(
+                normalizedSearch,
+            );
+        },
+    );
+
+    if (performances.length === 0) {
         return (
-            <section className="border-t p-4 md:p-6">
-                <p className="text-sm uppercase">
-                    Nenhuma apresentação
-                    disponível no momento.
+            <section className="p-4 md:p-6">
+                <p className="text-sm">
+                    Nenhuma apresentação disponível no momento.
                 </p>
             </section>
         );
     }
 
     return (
-        <section>
+        <section className="w-full">
+            {/* CABEÇALHO E BUSCA */}
+
             <div
                 className="
+                    mb-6
                     flex
-                    items-center
+                    flex-col
+                    items-start
                     justify-between
-                    gap-6
-                    p-4
-                    md:p-6
+                    gap-4
+                    md:flex-row
+                    md:items-end
                 "
             >
-                <p className="shrink-0 text-sm uppercase">
-                    Apresentações Passadas
-                </p>
-
-                <input
-                    type="search"
-                    value={search}
-                    onChange={(event) =>
-                        setSearch(event.target.value)
-                    }
-                    placeholder="Buscar apresentação"
-                    aria-label="Buscar apresentações"
+                <h2
                     className="
-                        w-full
-                        max-w-sm
-                        border-b
-                        border-white
-                        bg-transparent
-                        py-2
-                        text-sm
-                        text-[#D2232A]
-                        outline-none
-                        placeholder:text-[#D2232A]/50
+                        font-october
+                        text-4xl
+                        uppercase
+                        leading-none
+                        text-black
+                        md:text-5xl
                     "
-                />
+                >
+                    Apresentações passadas
+                </h2>
+
+                <div
+                    className="
+                        flex
+                        w-full
+                        items-center
+                        gap-3
+                        rounded-xl
+                        border
+                        border-black
+                        bg-white
+                        px-4
+                        py-3
+                        text-black
+                        shadow-[-5px_5px_0_0_#000]
+                        md:w-72
+                    "
+                >
+                    <Search
+                        size={20}
+                        strokeWidth={2}
+                        className="shrink-0"
+                    />
+
+                    <input
+                        type="search"
+                        value={search}
+                        onChange={(event) => {
+                            setSearch(event.target.value);
+                        }}
+                        placeholder="Buscar apresentação..."
+                        aria-label="Buscar apresentações"
+                        className="
+                            min-w-0
+                            w-full
+                            bg-transparent
+                            text-sm
+                            text-black
+                            outline-none
+                            placeholder:text-black/50
+                        "
+                    />
+                </div>
             </div>
 
-            <div>
-                {filteredPerformances.length ===
-                0 ? (
-                    <div className="p-4 md:p-6">
-                        <p className="text-sm uppercase">
-                            Nenhuma apresentação
-                            encontrada.
-                        </p>
-                    </div>
-                ) : (
-                    filteredPerformances.map(
-                        (
-                            performance,
-                        ) => {
-                            const isActive =
-                                currentPerformance
-                                    ?.id ===
-                                performance.id;
+            {/* LISTAGEM */}
 
-                            const hasAudio =
-                                Boolean(
-                                    performance.audio_url,
-                                );
+            {filteredPerformances.length === 0 ? (
+                <div className="py-8">
+                    <p className="text-sm text-black">
+                        Nenhuma apresentação encontrada.
+                    </p>
+                </div>
+            ) : (
+                <div
+                    className="
+                        grid
+                        grid-cols-2
+                        gap-4
+                        px-[5px]
+                        pb-[5px]
+                        md:grid-cols-3
+                        md:gap-6
+                    "
+                >
+                    {filteredPerformances.map((performance) => {
+                        const isActive =
+                            currentPerformance?.id === performance.id;
 
-                            return (
-                                <div
-                                    key={
-                                        performance.id
-                                    }
-                                    className={`
-                                        group
-                                        grid
+                        const hasAudio = Boolean(
+                            performance.audio_url,
+                        );
+
+                        const imageSrc =
+                            performance.cover_image || tttPlaceholder;
+
+                        return (
+                            <article
+                                key={performance.id}
+                                className="
+                                    group
+                                    flex
+                                    min-w-0
+                                    flex-col
+                                    overflow-hidden
+                                    rounded-xl
+                                    border
+                                    border-black
+                                    bg-white
+                                    text-black
+                                    shadow-[-5px_5px_0_0_#000]
+                                    transition-transform
+                                    duration-300
+                                    hover:-translate-y-1
+                                "
+                            >
+                                {/* CAPA */}
+
+                                <Link
+                                    href={`/toda-terca-tem/${performance.slug}`}
+                                    className="
+                                        relative
+                                        block
+                                        aspect-square
                                         w-full
-                                        grid-cols-[1fr_auto]
-                                        items-center
-                                        gap-4
-                                        p-4
-                                        transition-colors
-                                        duration-300
-                                        hover:bg-[#FFFDE9]
-                                        hover:text-black
-                                        md:grid-cols-[30%_1fr_auto]
-                                        md:p-6
-                                        ${
-                                            isActive
-                                                ? "bg-[#FFFDE9] text-black"
-                                                : "text-[#FFFDE9]"
-                                        }
-                                    `}
+                                        overflow-hidden
+                                        border-b
+                                        border-black
+                                        bg-white
+                                    "
+                                    aria-label={`Ver apresentação ${performance.name}`}
                                 >
+                                    <Image
+                                        src={imageSrc}
+                                        alt={performance.name}
+                                        fill
+                                        sizes="
+                                            (max-width: 767px) 50vw,
+                                            33vw
+                                        "
+                                        className={`
+                                            object-cover
+                                            transition-transform
+                                            duration-500
+                                            group-hover:scale-105
+                                            ${
+                                                performance.cover_image
+                                                    ? ""
+                                                    : "object-contain p-8"
+                                            }
+                                        `}
+                                        unoptimized={
+                                            typeof imageSrc === "string"
+                                        }
+                                    />
+                                </Link>
+
+                                {/* INFORMAÇÕES */}
+
+                                <div
+                                    className="
+                                        flex
+                                        flex-1
+                                        flex-col
+                                        gap-3
+                                        p-3
+                                        md:p-4
+                                    "
+                                >
+                                    {/* DATA E LOCAL */}
+
                                     <div
                                         className="
-                                            hidden
+                                            flex
                                             flex-col
                                             gap-1
-                                            md:flex
+                                            text-xs
+                                            leading-tight
+                                            text-black/60
+                                            md:text-sm
                                         "
                                     >
-                                        <span className="text-sm">
+                                        <span>
                                             {formatDate(
                                                 performance.performance_date,
                                             )}
                                         </span>
 
                                         {performance.location && (
-                                            <span
-                                                className="
-                                                    font-october
-                                                    text-xl
-                                                    leading-none
-                                                "
-                                            >
-                                                {
-                                                    performance.location
-                                                }
+                                            <span>
+                                                {performance.location}
                                             </span>
                                         )}
                                     </div>
 
+                                    {/* NOME DO ARTISTA */}
+
                                     <Link
                                         href={`/toda-terca-tem/${performance.slug}`}
                                         className="
+                                            block
                                             font-october
-                                            text-xl
+                                            text-2xl
+                                            uppercase
+                                            leading-[0.9]
                                             transition-opacity
                                             duration-200
                                             hover:opacity-60
-                                            md:text-5xl
+                                            md:text-4xl
+                                            lg:text-5xl
                                         "
                                     >
-                                        {
-                                            performance.name
-                                        }
+                                        {performance.name}
                                     </Link>
 
-                                    <button
-                                        type="button"
-                                        disabled={
-                                            !hasAudio
-                                        }
-                                        onClick={() =>
-                                            playPerformance(
-                                                performance,
-                                            )
-                                        }
-                                        aria-label={
-                                            isActive
-                                                ? `Tocando ${performance.name}`
-                                                : `Ouvir ${performance.name}`
-                                        }
+                                    {/* DESCRIÇÃO DA PERFORMANCE */}
+
+                                    {performance.description && (
+                                        <p
+                                            className="
+                                                line-clamp-3
+                                                text-xs
+                                                leading-relaxed
+                                                text-black/70
+                                                md:text-sm
+                                            "
+                                        >
+                                            {performance.description}
+                                        </p>
+                                    )}
+
+                                    {/* RODAPÉ */}
+
+                                    <div
                                         className="
+                                            mt-auto
                                             flex
-                                            h-12
-                                            w-12
                                             items-center
-                                            justify-center
-                                            rounded-full
-                                            transition-transform
-                                            duration-200
-                                            hover:scale-110
-                                            disabled:cursor-default
-                                            disabled:opacity-30
-                                            md:h-14
-                                            md:w-14
+                                            justify-between
+                                            gap-2
+                                            border-t
+                                            border-black
+                                            pt-3
                                         "
                                     >
-                                        {isActive ? (
-                                            <span className="flex gap-1">
-                                                <span className="h-4 w-1 bg-current" />
-                                                <span className="h-4 w-1 bg-current" />
-                                            </span>
-                                        ) : (
-                                            <svg
-                                                viewBox="0 0 24 24"
-                                                className="ml-1 h-5 w-5 fill-current md:h-6 md:w-6"
-                                                aria-hidden="true"
-                                            >
-                                                <path d="M8 5v14l11-7z" />
-                                            </svg>
-                                        )}
-                                    </button>
+                                        <Link
+                                            href={`/toda-terca-tem/${performance.slug}`}
+                                            className="
+                                                text-xs
+                                                font-semibold
+                                                transition-opacity
+                                                hover:opacity-60
+                                            "
+                                        >
+                                            Ver apresentação ↗
+                                        </Link>
+
+                                        <button
+                                            type="button"
+                                            disabled={!hasAudio}
+                                            onClick={() => {
+                                                playPerformance(
+                                                    performance,
+                                                );
+                                            }}
+                                            aria-label={
+                                                isActive
+                                                    ? isPlaying
+                                                        ? `Tocando ${performance.name}`
+                                                        : `Reproduzir ${performance.name}`
+                                                    : `Ouvir ${performance.name}`
+                                            }
+                                            title={
+                                                hasAudio
+                                                    ? `Ouvir ${performance.name}`
+                                                    : "Áudio indisponível"
+                                            }
+                                            className={`
+                                                flex
+                                                h-10
+                                                w-10
+                                                shrink-0
+                                                items-center
+                                                justify-center
+                                                rounded-full
+                                                border
+                                                border-black
+                                                transition-colors
+                                                duration-200
+                                                hover:bg-black
+                                                hover:text-white
+                                                disabled:cursor-not-allowed
+                                                disabled:opacity-30
+                                                disabled:hover:bg-white
+                                                disabled:hover:text-black
+                                                ${
+                                                    isActive
+                                                        ? "bg-black text-white"
+                                                        : "bg-white text-black"
+                                                }
+                                            `}
+                                        >
+                                            {isActive && isPlaying ? (
+                                                <Pause
+                                                    size={18}
+                                                    fill="currentColor"
+                                                    strokeWidth={2}
+                                                />
+                                            ) : (
+                                                <Play
+                                                    size={18}
+                                                    fill="currentColor"
+                                                    strokeWidth={2}
+                                                    className="ml-0.5"
+                                                />
+                                            )}
+                                        </button>
+                                    </div>
                                 </div>
-                            );
-                        },
-                    )
-                )}
-            </div>
+                            </article>
+                        );
+                    })}
+                </div>
+            )}
         </section>
     );
 }
