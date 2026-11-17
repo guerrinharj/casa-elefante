@@ -275,17 +275,13 @@ export function FeaturedProductsCarousel({
                                     uppercase
                                     leading-[0.85]
                                     tracking-tight
-                                    text-[#FFFDE9]
+                                    text-black
                                     transition-opacity
                                     group-hover:opacity-60
                                     sm:text-5xl
                                     md:text-6xl
                                     lg:text-7xl
                                 "
-                                style={{
-                                    WebkitTextStroke: "4px #000000",
-                                    paintOrder: "stroke fill",
-                                }}
                             >
                                 {slide.name}
                             </h2>
