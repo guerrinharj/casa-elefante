@@ -1,3 +1,4 @@
+
 import Link from "next/link";
 
 type WholesaleStatus =
@@ -28,8 +29,7 @@ export function ProductCard({
     isWholesale = false,
     wholesaleStatus = null,
 }: ProductCardProps) {
-    const image =
-        product.images?.[0];
+    const image = product.images?.[0];
 
     const isPendingWholesaleProduct =
         product.wholesale_only &&
@@ -38,7 +38,9 @@ export function ProductCard({
 
     const cardContent = (
         <>
-            <div className="relative aspect-square overflow-hidden rounded-lg bg-neutral-100">
+            {/* CAPA DO DISCO */}
+
+            <div className="relative aspect-square w-full shrink-0 overflow-hidden rounded-lg bg-neutral-100">
                 {image ? (
                     <img
                         src={image}
@@ -109,43 +111,67 @@ export function ProductCard({
                 )}
             </div>
 
-            <div>
-                <h2 className="font-medium">
+            {/* INFORMAÇÕES DO PRODUTO */}
+
+            <div className="flex h-[88px] min-w-0 flex-col overflow-hidden">
+
+                {/* NOME DO DISCO */}
+
+                <h2
+                    className="
+                        w-full
+                        truncate
+                        font-medium
+                        leading-5
+                    "
+                    title={product.name}
+                >
                     {product.name}
                 </h2>
 
-                <p className="text-sm">
+                {/* ARTISTA */}
+
+                <p
+                    className="
+                        mt-1
+                        w-full
+                        truncate
+                        text-sm
+                        leading-5
+                    "
+                    title={product.artist}
+                >
                     {product.artist}
                 </p>
 
-                <div className="mt-1 flex items-center justify-between gap-4 text-sm">
-                    <div className="flex gap-2">
+                {/* FORMATO, ANO E PREÇO */}
+
+                <div className="mt-auto flex min-w-0 items-center justify-between gap-2 text-sm">
+                    <div className="flex min-w-0 items-center gap-2 overflow-hidden">
                         {product.format && (
-                            <span>
-                                {
-                                    product.format
-                                }
+                            <span
+                                className="min-w-0 truncate"
+                                title={product.format}
+                            >
+                                {product.format}
                             </span>
                         )}
 
                         {product.year && (
-                            <span>
-                                {
-                                    product.year
-                                }
+                            <span className="shrink-0">
+                                {product.year}
                             </span>
                         )}
                     </div>
 
-                    <span>
+                    <span className="shrink-0 whitespace-nowrap">
                         {Number(
                             product.price,
                         ).toLocaleString(
                             "pt-BR",
                             {
                                 style: "currency",
-                                currency:
-                                    "BRL",
+                                currency: "BRL",
                             },
                         )}
                     </span>
@@ -154,24 +180,29 @@ export function ProductCard({
         </>
     );
 
-    if (
-        isPendingWholesaleProduct
-    ) {
+    const baseCardClasses = `
+        flex
+        w-full
+        min-w-0
+        flex-col
+        gap-3
+        overflow-hidden
+        rounded-xl
+        border
+        border-black
+        p-3
+        shadow-[-5px_5px_0_0_#000]
+    `;
+
+    if (isPendingWholesaleProduct) {
         return (
             <div
-                className="
-                    flex
+                className={`
+                    ${baseCardClasses}
                     cursor-not-allowed
-                    flex-col
-                    gap-3
-                    rounded-xl
-                    border
-                    border-black
                     bg-[#FFFDE9]
-                    p-3
                     opacity-70
-                    shadow-[-5px_5px_0_0_#000]
-                "
+                `}
             >
                 {cardContent}
             </div>
@@ -181,25 +212,18 @@ export function ProductCard({
     return (
         <Link
             href={`/produtos/${product.slug}`}
-            className="
+            className={`
                 group
-                flex
-                flex-col
-                gap-3
-                rounded-xl
-                border
-                border-black
+                ${baseCardClasses}
                 bg-white
                 text-black
-                p-3
-                shadow-[-5px_5px_0_0_#000]
                 transition-all
                 duration-200
                 ease-out
                 hover:translate-x-1
                 hover:-translate-y-1
                 hover:shadow-[-9px_9px_0_0_#000]
-            "
+            `}
         >
             {cardContent}
         </Link>
