@@ -23,6 +23,8 @@ export function AboutSection() {
         >
             <div
                 className="
+                    w-full
+                    max-w-[420px]
                     overflow-hidden
                     rounded-xl
                     border
@@ -119,7 +121,6 @@ export function AboutSection() {
                                 mx-5
                                 border-t
                                 border-black
-                                px-0
                                 pb-7
                                 pt-7
                                 md:mx-7
@@ -127,45 +128,39 @@ export function AboutSection() {
                                 md:pt-10
                             "
                         >
-                            <div className="grid gap-10 md:grid-cols-12">
-                                <div className="md:col-span-8">
-                                    <p
-                                        className="
-                                            text-2xl
-                                            leading-tight
-                                            md:text-4xl
-                                        "
-                                    >
-                                        A Casa Elefante é mais que uma loja de discos.
-                                        Somos um ponto de encontro para amantes da música
-                                        independente, um espaço para descobrir novos sons e
-                                        reviver clássicos.
-                                    </p>
+                            <p
+                                className="
+                                    text-2xl
+                                    leading-tight
+                                    md:text-3xl
+                                "
+                            >
+                                A Casa Elefante é mais que uma loja de discos.
+                                Somos um ponto de encontro para amantes da
+                                música independente, um espaço para descobrir
+                                novos sons e reviver clássicos.
+                            </p>
 
-                                    <div
-                                        className="
-                                            mt-12
-                                            max-w-2xl
-                                            space-y-6
-                                            text-base
-                                            leading-relaxed
-                                            md:text-lg
-                                        "
-                                    >
-                                        <p>
-                                            Nascemos em São Paulo com a missão de fortalecer
-                                            a cena da música independente, oferecendo uma
-                                            curadoria especial de livros, discos de vinil,
-                                            CDs e K7s.
-                                        </p>
+                            <div
+                                className="
+                                    mt-8
+                                    space-y-6
+                                    text-base
+                                    leading-relaxed
+                                "
+                            >
+                                <p>
+                                    Nascemos em São Paulo com a missão de
+                                    fortalecer a cena da música independente,
+                                    oferecendo uma curadoria especial de
+                                    livros, discos de vinil, CDs e K7s.
+                                </p>
 
-                                        <p>
-                                            Acreditamos no poder da cultura e da música para
-                                            conectar pessoas e criar experiências
-                                            memoráveis.
-                                        </p>
-                                    </div>
-                                </div>
+                                <p>
+                                    Acreditamos no poder da cultura e da
+                                    música para conectar pessoas e criar
+                                    experiências memoráveis.
+                                </p>
                             </div>
                         </div>
                     </div>

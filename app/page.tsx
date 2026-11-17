@@ -246,7 +246,6 @@ export default async function HomePage({
                 </Suspense>
             </DraggableComponent>
 
-
             {/* CONTENT */}
 
             <main className="w-full overflow-hidden p-4 md:p-6">
@@ -280,14 +279,31 @@ export default async function HomePage({
                     />
                 </Suspense>
 
+
                 {/* HOME SECTIONS */}
 
                 {!hasActiveFilters && (
-                    <>
-                        <AboutSection />
-                        <NewsletterSection />
-                    </>
+                    <div
+                        className="
+                            mt-8
+                            flex
+                            flex-col
+                            items-start
+                            gap-6
+                            md:flex-row
+                            md:gap-8
+                        "
+                    >
+                        <div className="w-full max-w-[420px]">
+                            <AboutSection />
+                        </div>
+
+                        <div className="w-full max-w-[420px]">
+                            <NewsletterSection />
+                        </div>
+                    </div>
                 )}
+
             </main>
         </div>
     );

@@ -78,6 +78,8 @@ export function NewsletterSection() {
         >
             <div
                 className="
+                    w-full
+                    max-w-[420px]
                     overflow-hidden
                     rounded-xl
                     border
@@ -181,157 +183,158 @@ export function NewsletterSection() {
                                 md:pt-10
                             "
                         >
-                            <div className="grid gap-10 md:grid-cols-12">
-                                {/* FORMULÁRIO */}
+                            {success ? (
+                                <div>
+                                    <p
+                                        className="
+                                            text-2xl
+                                            leading-tight
+                                            md:text-3xl
+                                        "
+                                    >
+                                        Inscrição realizada.
+                                    </p>
 
-                                <div className="md:col-span-8">
-                                    {success ? (
-                                        <div className="max-w-xl">
-                                            <p className="text-2xl md:text-3xl">
-                                                Inscrição realizada.
-                                            </p>
-
-                                            <p className="mt-4 text-lg">
-                                                Você agora faz parte da newsletter
-                                                da Casa Elefante.
-                                            </p>
-                                        </div>
-                                    ) : (
-                                        <>
-                                            <p
-                                                className="
-                                                    max-w-xl
-                                                    text-xl
-                                                    leading-relaxed
-                                                    md:text-2xl
-                                                "
-                                            >
-                                                Receba novidades, discos que acabaram
-                                                de chegar e outras notícias da
-                                                Casa Elefante.
-                                            </p>
-
-                                            <form
-                                                onSubmit={handleSubmit}
-                                                className="
-                                                    mt-10
-                                                    flex
-                                                    max-w-xl
-                                                    flex-col
-                                                    gap-6
-                                                "
-                                            >
-                                                {/* NOME */}
-
-                                                <div className="flex flex-col gap-2">
-                                                    <label
-                                                        htmlFor="newsletter-name"
-                                                        className="font-medium"
-                                                    >
-                                                        Nome
-                                                    </label>
-
-                                                    <input
-                                                        id="newsletter-name"
-                                                        type="text"
-                                                        value={name}
-                                                        onChange={(event) => {
-                                                            setName(event.target.value);
-                                                        }}
-                                                        className="
-                                                            rounded-xl
-                                                            border
-                                                            border-black
-                                                            bg-white
-                                                            p-3
-                                                            text-black
-                                                            outline-none
-                                                            transition-shadow
-                                                            duration-200
-                                                            focus:shadow-[3px_3px_0_0_#000]
-                                                        "
-                                                    />
-                                                </div>
-
-                                                {/* EMAIL */}
-
-                                                <div className="flex flex-col gap-2">
-                                                    <label
-                                                        htmlFor="newsletter-email"
-                                                        className="font-medium"
-                                                    >
-                                                        E-mail
-                                                    </label>
-
-                                                    <input
-                                                        id="newsletter-email"
-                                                        type="email"
-                                                        required
-                                                        value={email}
-                                                        onChange={(event) => {
-                                                            setEmail(event.target.value);
-                                                        }}
-                                                        className="
-                                                            rounded-xl
-                                                            border
-                                                            border-black
-                                                            bg-white
-                                                            p-3
-                                                            text-black
-                                                            outline-none
-                                                            transition-shadow
-                                                            duration-200
-                                                            focus:shadow-[3px_3px_0_0_#000]
-                                                        "
-                                                    />
-                                                </div>
-
-                                                {/* ERRO */}
-
-                                                {error && (
-                                                    <p
-                                                        role="alert"
-                                                        className="text-sm"
-                                                    >
-                                                        {error}
-                                                    </p>
-                                                )}
-
-                                                {/* BOTÃO */}
-
-                                                <button
-                                                    type="submit"
-                                                    disabled={loading}
-                                                    className="
-                                                        w-fit
-                                                        rounded-xl
-                                                        border
-                                                        border-black
-                                                        bg-white
-                                                        px-6
-                                                        py-3
-                                                        font-medium
-                                                        text-black
-                                                        shadow-[-5px_5px_0_0_#000]
-                                                        transition-all
-                                                        duration-200
-                                                        ease-out
-                                                        hover:translate-x-1
-                                                        hover:-translate-y-1
-                                                        hover:shadow-[-9px_9px_0_0_#000]
-                                                        disabled:cursor-not-allowed
-                                                        disabled:opacity-50
-                                                    "
-                                                >
-                                                    {loading
-                                                        ? "Inscrevendo..."
-                                                        : "Assinar newsletter"}
-                                                </button>
-                                            </form>
-                                        </>
-                                    )}
+                                    <p className="mt-4 text-base leading-relaxed">
+                                        Você agora faz parte da newsletter
+                                        da Casa Elefante.
+                                    </p>
                                 </div>
-                            </div>
+                            ) : (
+                                <>
+                                    <p
+                                        className="
+                                            text-xl
+                                            leading-relaxed
+                                            md:text-2xl
+                                        "
+                                    >
+                                        Receba novidades, discos que acabaram
+                                        de chegar e outras notícias da
+                                        Casa Elefante.
+                                    </p>
+
+                                    <form
+                                        onSubmit={handleSubmit}
+                                        className="
+                                            mt-8
+                                            flex
+                                            flex-col
+                                            gap-6
+                                        "
+                                    >
+                                        {/* NOME */}
+
+                                        <div className="flex flex-col gap-2">
+                                            <label
+                                                htmlFor="newsletter-name"
+                                                className="font-medium"
+                                            >
+                                                Nome
+                                            </label>
+
+                                            <input
+                                                id="newsletter-name"
+                                                type="text"
+                                                value={name}
+                                                onChange={(event) => {
+                                                    setName(event.target.value);
+                                                }}
+                                                className="
+                                                    w-full
+                                                    rounded-xl
+                                                    border
+                                                    border-black
+                                                    bg-white
+                                                    p-3
+                                                    text-black
+                                                    outline-none
+                                                    transition-shadow
+                                                    duration-200
+                                                    focus:shadow-[3px_3px_0_0_#000]
+                                                "
+                                            />
+                                        </div>
+
+                                        {/* EMAIL */}
+
+                                        <div className="flex flex-col gap-2">
+                                            <label
+                                                htmlFor="newsletter-email"
+                                                className="font-medium"
+                                            >
+                                                E-mail
+                                            </label>
+
+                                            <input
+                                                id="newsletter-email"
+                                                type="email"
+                                                required
+                                                value={email}
+                                                onChange={(event) => {
+                                                    setEmail(event.target.value);
+                                                }}
+                                                className="
+                                                    w-full
+                                                    rounded-xl
+                                                    border
+                                                    border-black
+                                                    bg-white
+                                                    p-3
+                                                    text-black
+                                                    outline-none
+                                                    transition-shadow
+                                                    duration-200
+                                                    focus:shadow-[3px_3px_0_0_#000]
+                                                "
+                                            />
+                                        </div>
+
+                                        {/* ERRO */}
+
+                                        {error && (
+                                            <p
+                                                role="alert"
+                                                className="text-sm"
+                                            >
+                                                {error}
+                                            </p>
+                                        )}
+
+                                        {/* BOTÃO */}
+
+                                        <button
+                                            type="submit"
+                                            disabled={loading}
+                                            className="
+                                                w-fit
+                                                max-w-full
+                                                rounded-xl
+                                                border
+                                                border-black
+                                                bg-white
+                                                px-6
+                                                py-3
+                                                font-medium
+                                                text-black
+                                                shadow-[-5px_5px_0_0_#000]
+                                                transition-all
+                                                duration-200
+                                                ease-out
+                                                hover:translate-x-1
+                                                hover:-translate-y-1
+                                                hover:shadow-[-9px_9px_0_0_#000]
+                                                disabled:cursor-not-allowed
+                                                disabled:opacity-50
+                                            "
+                                        >
+                                            {loading
+                                                ? "Inscrevendo..."
+                                                : "Assinar newsletter"}
+                                        </button>
+                                    </form>
+                                </>
+                            )}
                         </div>
                     </div>
                 </div>
