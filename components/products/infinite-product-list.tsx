@@ -101,7 +101,7 @@ export function InfiniteProductList({
                     params.set(key, currentFilters[key]);
                 }
             }
-            const response = await fetch(`/api/products?${params.toString()}`);
+            const response = await fetch(`/api/produtos?${params.toString()}`);
             if (!response.ok) throw new Error("Erro ao carregar produtos.");
             const nextProducts: Product[] = await response.json();
             if (requestVersion !== requestVersionRef.current) return;
@@ -171,7 +171,7 @@ export function InfiniteProductList({
                 ))}
             </div>
             {hasMore && <div ref={sentinelRef} className="h-1" />}
-            {loading && <p className="py-8 text-center text-sm">Carregando...</p>}
+            {loading && <p className="py-8 text-center text-black text-sm">Carregando...</p>}
         </>
     );
 }
