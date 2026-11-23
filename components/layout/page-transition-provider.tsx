@@ -38,6 +38,99 @@ const CREAM = "#FFFDE9";
 const EXPAND_DURATION = 0.55;
 const COLLAPSE_DURATION = 0.65;
 
+const CASCADE_ANGLE = -24;
+const CASCADE_ROWS = 18;
+const CASCADE_REPETITIONS = 8;
+
+function TransitionCascade({
+    title,
+    color,
+}: {
+    title: string;
+    color: string;
+}) {
+    return (
+        <div
+            className="
+                absolute
+                inset-0
+                overflow-hidden
+                pointer-events-none
+            "
+            aria-hidden="true"
+        >
+            <div
+                className="
+                    absolute
+                    flex
+                    flex-col
+                    justify-center
+                "
+                style={{
+                    left: "-70%",
+                    top: "-100%",
+                    width: "240%",
+                    height: "300%",
+                    gap: "13px",
+                    transform: `rotate(${CASCADE_ANGLE}deg)`,
+                    color,
+                }}
+            >
+                {Array.from({
+                    length: CASCADE_ROWS,
+                }).map((_, rowIndex) => (
+                    <motion.div
+                        key={rowIndex}
+                        className="
+                            flex
+                            w-max
+                            shrink-0
+                            whitespace-nowrap
+                            font-black
+                            uppercase
+                            leading-none
+                        "
+                        style={{
+                            gap: "25px",
+                            marginLeft:
+                                rowIndex % 2 === 0
+                                    ? "0px"
+                                    : "-140px",
+                            fontFamily:
+                                'Impact, "Arial Narrow", sans-serif',
+                            fontSize:
+                                "clamp(30px, 6vw, 65px)",
+                            letterSpacing: "-1.5px",
+                        }}
+                        animate={{
+                            x:
+                                rowIndex % 2 === 0
+                                    ? [0, -180]
+                                    : [-180, 0],
+                        }}
+                        transition={{
+                            duration: 1.5,
+                            ease: "linear",
+                            repeat: Infinity,
+                        }}
+                    >
+                        {Array.from({
+                            length: CASCADE_REPETITIONS,
+                        }).map((_, repetitionIndex) => (
+                            <span
+                                key={repetitionIndex}
+                                className="shrink-0"
+                            >
+                                {title}
+                            </span>
+                        ))}
+                    </motion.div>
+                ))}
+            </div>
+        </div>
+    );
+}
+
 export function PageTransitionProvider({
     children,
 }: {
@@ -55,6 +148,12 @@ export function PageTransitionProvider({
 
     const [transitionColor, setTransitionColor] =
         useState(CREAM);
+
+    const [transitionTitle, setTransitionTitle] =
+        useState("CASA ELEFANTE");
+
+    const [transitionTextColor, setTransitionTextColor] =
+        useState(RED);
 
     const pendingPathRef = useRef<string | null>(null);
     const transitioningRef = useRef(false);
@@ -152,7 +251,8 @@ export function PageTransitionProvider({
             return;
         }
 
-        // Define a cor pela página de destino.
+        // Define a identidade visual
+        // pela página de destino.
 
         const isTodaTercaTem =
             url.pathname === "/toda-terca-tem" ||
@@ -164,11 +264,21 @@ export function PageTransitionProvider({
             isTodaTercaTem ? RED : CREAM,
         );
 
+        setTransitionTitle(
+            isTodaTercaTem
+                ? "TODA TERÇA TEM"
+                : "CASA ELEFANTE",
+        );
+
+        setTransitionTextColor(
+            isTodaTercaTem ? CREAM : RED,
+        );
+
         transitioningRef.current = true;
         setIsTransitioning(true);
 
-        // Localiza o dial para iniciar a expansão
-        // exatamente a partir do seu centro.
+        // Localiza o dial para iniciar
+        // a expansão exatamente do centro.
 
         const dial = document.querySelector(
             "[data-page-transition-origin]",
@@ -184,8 +294,8 @@ export function PageTransitionProvider({
             ? rect.top + rect.height / 2
             : window.innerHeight;
 
-        // Calcula o raio necessário para
-        // cobrir toda a janela.
+        // Calcula o raio necessário
+        // para cobrir toda a janela.
 
         const radius = Math.max(
             Math.hypot(x, y),
@@ -219,7 +329,8 @@ export function PageTransitionProvider({
 
         setVisible(true);
 
-        // Expande até cobrir a tela.
+        // Expande o círculo com a cascata
+        // tipográfica em movimento.
 
         await controls.start({
             clipPath: `circle(${radius}px at ${x}px ${y}px)`,
@@ -229,14 +340,15 @@ export function PageTransitionProvider({
             },
         });
 
-        // Navega somente depois da expansão.
+        // Navega somente depois
+        // da expansão completa.
 
         router.push(
             url.pathname + url.search + url.hash,
         );
 
         // Evita que a tela fique bloqueada
-        // indefinidamente se a navegação falhar.
+        // indefinidamente caso a navegação falhe.
 
         timeoutRef.current = setTimeout(() => {
             void finishTransition();
@@ -266,6 +378,7 @@ export function PageTransitionProvider({
                     fixed
                     inset-0
                     z-[9999]
+                    overflow-hidden
                 "
                 style={{
                     backgroundColor: transitionColor,
@@ -274,7 +387,12 @@ export function PageTransitionProvider({
                         : "hidden",
                     clipPath: "circle(0px at 50% 100%)",
                 }}
-            />
+            >
+                <TransitionCascade
+                    title={transitionTitle}
+                    color={transitionTextColor}
+                />
+            </motion.div>
         </PageTransitionContext.Provider>
     );
 }
