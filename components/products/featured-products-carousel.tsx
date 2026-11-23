@@ -275,9 +275,9 @@ export function FeaturedProductsCarousel({
                                     uppercase
                                     leading-[0.85]
                                     tracking-tight
-                                    text-black
                                     transition-opacity
                                     group-hover:opacity-60
+                                    text-[#D2232A]
                                     sm:text-5xl
                                     md:text-6xl
                                     lg:text-7xl

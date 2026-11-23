@@ -274,10 +274,13 @@ export default async function ProductPage({
                                         uppercase
                                         leading-[0.85]
                                         tracking-tight
-                                        text-black
+                                        text-[#D2232A]
                                         md:text-5xl
                                         lg:text-6xl
                                     "
+                                        style={{
+                                            WebkitTextStroke: "0.01px black",
+                                        }}
                                 >
                                     {product.name}
                                 </h1>

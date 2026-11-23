@@ -13,7 +13,7 @@ export function PageHeader({
     const textColor =
         variant === "ttt"
             ? "text-[#FFFDE9]"
-            : "text-black";
+            : "text-[#D2232A]";
 
     const repeatedTitle = Array.from(
         { length: 4 },

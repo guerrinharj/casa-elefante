@@ -61,6 +61,7 @@ export function AboutSection() {
                         className="
                             font-october
                             text-4xl
+                            text-[#D2232A]
                             uppercase
                             leading-none
                             md:text-5xl
