@@ -40,7 +40,7 @@ export function ProductCard({
         <>
             {/* CAPA DO DISCO */}
 
-            <div className="relative aspect-square w-full shrink-0 overflow-hidden rounded-lg bg-neutral-100">
+            <div className="relative aspect-square w-full shrink-0 overflow-hidden rounded-md bg-neutral-100">
                 {image ? (
                     <img
                         src={image}
@@ -59,7 +59,7 @@ export function ProductCard({
                         `}
                     />
                 ) : (
-                    <div className="flex h-full w-full items-center justify-center text-sm">
+                    <div className="flex h-full w-full items-center justify-center text-xs">
                         Sem imagem
                     </div>
                 )}
@@ -75,7 +75,7 @@ export function ProductCard({
                                 bg-[#FFFDE9]
                                 px-2
                                 py-1
-                                text-[10px]
+                                text-[9px]
                                 font-medium
                                 uppercase
                                 tracking-wide
@@ -95,10 +95,10 @@ export function ProductCard({
                                 border
                                 border-black
                                 bg-[#FFFDE9]
-                                px-3
-                                py-2
+                                px-2
+                                py-1.5
                                 text-center
-                                text-[10px]
+                                text-[9px]
                                 font-medium
                                 uppercase
                                 tracking-wide
@@ -113,7 +113,7 @@ export function ProductCard({
 
             {/* INFORMAÇÕES DO PRODUTO */}
 
-            <div className="flex h-[88px] min-w-0 flex-col overflow-hidden">
+            <div className="flex h-[72px] min-w-0 flex-col overflow-hidden">
 
                 {/* NOME DO DISCO */}
 
@@ -121,8 +121,9 @@ export function ProductCard({
                     className="
                         w-full
                         truncate
+                        text-sm
                         font-medium
-                        leading-5
+                        leading-4
                     "
                     title={product.name}
                 >
@@ -136,8 +137,8 @@ export function ProductCard({
                         mt-1
                         w-full
                         truncate
-                        text-sm
-                        leading-5
+                        text-xs
+                        leading-4
                     "
                     title={product.artist}
                 >
@@ -146,8 +147,8 @@ export function ProductCard({
 
                 {/* FORMATO, ANO E PREÇO */}
 
-                <div className="mt-auto flex min-w-0 items-center justify-between gap-2 text-sm">
-                    <div className="flex min-w-0 items-center gap-2 overflow-hidden">
+                <div className="mt-auto flex min-w-0 items-center justify-between gap-1 text-xs">
+                    <div className="flex min-w-0 items-center gap-1 overflow-hidden">
                         {product.format && (
                             <span
                                 className="min-w-0 truncate"
@@ -185,13 +186,13 @@ export function ProductCard({
         w-full
         min-w-0
         flex-col
-        gap-3
+        gap-2
         overflow-hidden
-        rounded-xl
+        rounded-lg
         border
         border-black
-        p-3
-        shadow-[-5px_5px_0_0_#000]
+        p-2
+        shadow-[-4px_4px_0_0_#000]
     `;
 
     if (isPendingWholesaleProduct) {
@@ -222,7 +223,7 @@ export function ProductCard({
                 ease-out
                 hover:translate-x-1
                 hover:-translate-y-1
-                hover:shadow-[-9px_9px_0_0_#000]
+                hover:shadow-[-8px_8px_0_0_#000]
             `}
         >
             {cardContent}

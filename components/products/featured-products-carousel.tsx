@@ -153,12 +153,12 @@ export function FeaturedProductsCarousel({
             <div
                 className="
                     overflow-hidden
-                    rounded-xl
+                    rounded-lg
                     border
                     border-black
                     bg-white
                     text-black
-                    shadow-[-5px_5px_0_0_#000]
+                    shadow-[-4px_4px_0_0_#000]
                 "
             >
                 {/* IMAGEM */}
@@ -166,11 +166,11 @@ export function FeaturedProductsCarousel({
                 <div
                     className="
                         relative
-                        h-[300px]
+                        h-[220px]
                         overflow-hidden
                         bg-[#D2232A]
-                        sm:h-[400px]
-                        md:h-[520px]
+                        sm:h-[300px]
+                        md:h-[390px]
                     "
                 >
                     {slides.map((item, index) => {
@@ -230,15 +230,15 @@ export function FeaturedProductsCarousel({
                 <div
                     className="
                         flex
-                        min-h-20
+                        min-h-[64px]
                         items-center
                         justify-between
-                        gap-4
+                        gap-3
                         border-t
                         border-black
-                        px-4
-                        py-3
-                        md:px-6
+                        px-3
+                        py-2
+                        md:px-4
                     "
                 >
                     {/* INFORMAÇÕES */}
@@ -254,7 +254,7 @@ export function FeaturedProductsCarousel({
                         <p
                             className="
                                 mb-1
-                                text-[10px]
+                                text-[9px]
                                 uppercase
                                 tracking-[0.15em]
                                 text-black/60
@@ -267,25 +267,22 @@ export function FeaturedProductsCarousel({
                             href={slide.href}
                             className="group block w-fit max-w-full"
                         >
-                            
                             <h2
                                 className="
                                     font-october
-                                    text-4xl
+                                    text-3xl
                                     uppercase
                                     leading-[0.85]
                                     tracking-tight
+                                    text-[#D2232A]
                                     transition-opacity
                                     group-hover:opacity-60
-                                    text-[#D2232A]
-                                    sm:text-5xl
-                                    md:text-6xl
-                                    lg:text-7xl
+                                    sm:text-4xl
+                                    md:text-5xl
                                 "
                             >
                                 {slide.name}
                             </h2>
-
                         </Link>
 
                         {slide.secondary && (
@@ -295,7 +292,6 @@ export function FeaturedProductsCarousel({
                                     truncate
                                     text-xs
                                     text-black/70
-                                    md:text-sm
                                 "
                             >
                                 {slide.secondary}
@@ -309,10 +305,10 @@ export function FeaturedProductsCarousel({
                         <div
                             className="
                                 flex
-                                max-w-[100px]
+                                max-w-[80px]
                                 shrink-0
                                 items-center
-                                gap-1.5
+                                gap-1
                                 overflow-x-auto
                                 py-2
                                 [scrollbar-width:none]
@@ -333,8 +329,8 @@ export function FeaturedProductsCarousel({
                                             : undefined
                                     }
                                     className={`
-                                        h-2
-                                        w-2
+                                        h-1.5
+                                        w-1.5
                                         shrink-0
                                         rounded-full
                                         border
