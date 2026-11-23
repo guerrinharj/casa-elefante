@@ -29,6 +29,12 @@ type PageTransitionContextType = {
     isTransitioning: boolean;
 };
 
+type TransitionTheme = {
+    background: string;
+    text: string;
+    title: string;
+};
+
 const PageTransitionContext =
     createContext<PageTransitionContextType | null>(null);
 
@@ -38,9 +44,64 @@ const CREAM = "#FFFDE9";
 const EXPAND_DURATION = 0.55;
 const COLLAPSE_DURATION = 0.65;
 
+const ENTRANCE_HOLD_DURATION = 0.8;
+const ENTRANCE_EXIT_DURATION = 0.85;
+
 const CASCADE_ANGLE = -24;
 const CASCADE_ROWS = 18;
 const CASCADE_REPETITIONS = 8;
+
+function getTransitionTheme(
+    pathname: string,
+): TransitionTheme {
+    const isTodaTercaTem =
+        pathname === "/toda-terca-tem" ||
+        pathname.startsWith("/toda-terca-tem/");
+
+    return isTodaTercaTem
+        ? {
+            background: RED,
+            text: CREAM,
+            title: "TODA TERÇA TEM",
+        }
+        : {
+            background: CREAM,
+            text: RED,
+            title: "CASA ELEFANTE",
+        };
+}
+
+function getTransitionOrigin() {
+    const dial = document.querySelector(
+        "[data-page-transition-origin]",
+    );
+
+    const rect = dial?.getBoundingClientRect();
+
+    const x = rect
+        ? rect.left + rect.width / 2
+        : window.innerWidth / 2;
+
+    const y = rect
+        ? rect.top + rect.height / 2
+        : window.innerHeight;
+
+    const radius = Math.max(
+        Math.hypot(x, y),
+        Math.hypot(window.innerWidth - x, y),
+        Math.hypot(x, window.innerHeight - y),
+        Math.hypot(
+            window.innerWidth - x,
+            window.innerHeight - y,
+        ),
+    ) + 20;
+
+    return {
+        x,
+        y,
+        radius,
+    };
+}
 
 function TransitionCascade({
     title,
@@ -140,27 +201,28 @@ export function PageTransitionProvider({
     const pathname = usePathname();
     const controls = useAnimationControls();
 
+    const [theme, setTheme] = useState<
+        TransitionTheme
+    >(() => getTransitionTheme(pathname));
+
     const [isTransitioning, setIsTransitioning] =
-        useState(false);
+        useState(true);
 
     const [visible, setVisible] =
-        useState(false);
-
-    const [transitionColor, setTransitionColor] =
-        useState(CREAM);
-
-    const [transitionTitle, setTransitionTitle] =
-        useState("CASA ELEFANTE");
-
-    const [transitionTextColor, setTransitionTextColor] =
-        useState(RED);
+        useState(true);
 
     const pendingPathRef = useRef<string | null>(null);
-    const transitioningRef = useRef(false);
+    const transitioningRef = useRef(true);
 
     const timeoutRef = useRef<ReturnType<
         typeof setTimeout
     > | null>(null);
+
+    const entranceTimeoutRef = useRef<ReturnType<
+        typeof setTimeout
+    > | null>(null);
+
+    const entranceFinishedRef = useRef(false);
 
     const originRef = useRef({
         x: 0,
@@ -204,6 +266,102 @@ export function PageTransitionProvider({
         clearFallback,
     ]);
 
+    // Animação inicial:
+    // aparece ao abrir diretamente qualquer rota.
+    //
+    // O cleanup cancela os timers corretamente,
+    // inclusive no React Strict Mode.
+
+    useEffect(() => {
+        if (entranceFinishedRef.current) {
+            return;
+        }
+
+        let cancelled = false;
+
+        const origin = getTransitionOrigin();
+
+        originRef.current = origin;
+
+        const {
+            x,
+            y,
+            radius,
+        } = origin;
+
+        controls.set({
+            clipPath: `circle(${radius}px at ${x}px ${y}px)`,
+        });
+
+        setVisible(true);
+
+        transitioningRef.current = true;
+        setIsTransitioning(true);
+
+        const completeEntrance = () => {
+            if (cancelled) {
+                return;
+            }
+
+            entranceFinishedRef.current = true;
+
+            controls.set({
+                clipPath: `circle(0px at ${x}px ${y}px)`,
+            });
+
+            setVisible(false);
+            setIsTransitioning(false);
+            transitioningRef.current = false;
+        };
+
+        entranceTimeoutRef.current = setTimeout(
+            () => {
+                if (cancelled) {
+                    return;
+                }
+
+                void controls.start({
+                    clipPath: `circle(0px at ${x}px ${y}px)`,
+                    transition: {
+                        duration: ENTRANCE_EXIT_DURATION,
+                        ease: [0.76, 0, 0.24, 1],
+                    },
+                }).then(() => {
+                    completeEntrance();
+                });
+
+                // Proteção adicional:
+                // garante o fechamento caso a
+                // animação seja interrompida.
+
+                timeoutRef.current = setTimeout(
+                    completeEntrance,
+                    (ENTRANCE_EXIT_DURATION + 0.5) * 1000,
+                );
+            },
+            ENTRANCE_HOLD_DURATION * 1000,
+        );
+
+        return () => {
+            cancelled = true;
+
+            if (entranceTimeoutRef.current !== null) {
+                clearTimeout(entranceTimeoutRef.current);
+                entranceTimeoutRef.current = null;
+            }
+
+            clearFallback();
+
+            controls.stop();
+        };
+    }, [
+        controls,
+        clearFallback,
+    ]);
+
+    // Finaliza a transição quando a
+    // página de destino estiver ativa.
+
     useEffect(() => {
         if (
             pendingPathRef.current !== null &&
@@ -215,6 +373,8 @@ export function PageTransitionProvider({
         pathname,
         finishTransition,
     ]);
+
+    // Limpeza do fallback de navegação.
 
     useEffect(() => {
         return () => {
@@ -251,86 +411,31 @@ export function PageTransitionProvider({
             return;
         }
 
-        // Define a identidade visual
-        // pela página de destino.
+        const destinationTheme =
+            getTransitionTheme(url.pathname);
 
-        const isTodaTercaTem =
-            url.pathname === "/toda-terca-tem" ||
-            url.pathname.startsWith(
-                "/toda-terca-tem/",
-            );
-
-        setTransitionColor(
-            isTodaTercaTem ? RED : CREAM,
-        );
-
-        setTransitionTitle(
-            isTodaTercaTem
-                ? "TODA TERÇA TEM"
-                : "CASA ELEFANTE",
-        );
-
-        setTransitionTextColor(
-            isTodaTercaTem ? CREAM : RED,
-        );
+        setTheme(destinationTheme);
 
         transitioningRef.current = true;
         setIsTransitioning(true);
 
-        // Localiza o dial para iniciar
-        // a expansão exatamente do centro.
+        const origin = getTransitionOrigin();
 
-        const dial = document.querySelector(
-            "[data-page-transition-origin]",
-        );
+        originRef.current = origin;
 
-        const rect = dial?.getBoundingClientRect();
-
-        const x = rect
-            ? rect.left + rect.width / 2
-            : window.innerWidth / 2;
-
-        const y = rect
-            ? rect.top + rect.height / 2
-            : window.innerHeight;
-
-        // Calcula o raio necessário
-        // para cobrir toda a janela.
-
-        const radius = Math.max(
-            Math.hypot(x, y),
-            Math.hypot(
-                window.innerWidth - x,
-                y,
-            ),
-            Math.hypot(
-                x,
-                window.innerHeight - y,
-            ),
-            Math.hypot(
-                window.innerWidth - x,
-                window.innerHeight - y,
-            ),
-        ) + 20;
-
-        originRef.current = {
+        const {
             x,
             y,
             radius,
-        };
+        } = origin;
 
         pendingPathRef.current = url.pathname;
-
-        // Começa com o círculo fechado.
 
         controls.set({
             clipPath: `circle(0px at ${x}px ${y}px)`,
         });
 
         setVisible(true);
-
-        // Expande o círculo com a cascata
-        // tipográfica em movimento.
 
         await controls.start({
             clipPath: `circle(${radius}px at ${x}px ${y}px)`,
@@ -340,15 +445,9 @@ export function PageTransitionProvider({
             },
         });
 
-        // Navega somente depois
-        // da expansão completa.
-
         router.push(
             url.pathname + url.search + url.hash,
         );
-
-        // Evita que a tela fique bloqueada
-        // indefinidamente caso a navegação falhe.
 
         timeoutRef.current = setTimeout(() => {
             void finishTransition();
@@ -381,16 +480,16 @@ export function PageTransitionProvider({
                     overflow-hidden
                 "
                 style={{
-                    backgroundColor: transitionColor,
+                    backgroundColor: theme.background,
                     visibility: visible
                         ? "visible"
                         : "hidden",
-                    clipPath: "circle(0px at 50% 100%)",
+                    clipPath: "circle(150vmax at 50% 50%)",
                 }}
             >
                 <TransitionCascade
-                    title={transitionTitle}
-                    color={transitionTextColor}
+                    title={theme.title}
+                    color={theme.text}
                 />
             </motion.div>
         </PageTransitionContext.Provider>
