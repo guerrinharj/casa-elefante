@@ -95,12 +95,21 @@ export default async function AdminPerformancesPage() {
                             </p>
                         </div>
 
-                        <Link
-                            href="/admin/performances/novo"
-                            className={buttonClassName}
-                        >
-                            + Nova apresentação
-                        </Link>
+                        <div className="flex flex-wrap items-center gap-4">
+                            <Link
+                                href="/admin/performances/novo"
+                                className={buttonClassName}
+                            >
+                                + Nova apresentação
+                            </Link>
+
+                            <Link
+                                href="/admin/performances/import"
+                                className={buttonClassName}
+                            >
+                                + Adicionar em massa
+                            </Link>
+                        </div>
                     </div>
                 </div>
 
