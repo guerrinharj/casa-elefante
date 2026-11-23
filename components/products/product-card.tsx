@@ -165,7 +165,7 @@ export function ProductCard({
                         )}
                     </div>
 
-                    <span className="shrink-0 whitespace-nowrap">
+                    <span className="shrink-0 whitespace-nowrap text-xl">
                         {Number(
                             product.price,
                         ).toLocaleString(
