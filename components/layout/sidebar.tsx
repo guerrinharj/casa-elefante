@@ -46,7 +46,7 @@ type FilterKey =
 export function Sidebar({ mobile = false }: SidebarProps) {
     const searchParams = useSearchParams();
     const [products, setProducts] = useState<SidebarProduct[]>([]);
-    const [expanded, setExpanded] = useState(false);
+    const [expanded, setExpanded] = useState(true);
 
     const [openSections, setOpenSections] = useState<Record<FilterSection, boolean>>({
         genre: !mobile,

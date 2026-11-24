@@ -1,4 +1,3 @@
-
 "use client";
 
 import {
@@ -8,28 +7,12 @@ import {
     useState,
 } from "react";
 
-import type {
-    MouseEvent,
-    PointerEvent,
-} from "react";
-
 import {
     ProductCard,
 } from "@/components/products/product-card";
 
 const PRODUCTS_PER_PAGE = 24;
-const ROW_COUNT = 4;
-
-const SCROLL_SPEED = 0.32;
-const RESUME_DELAY = 2500;
 const PRELOAD_DISTANCE = 500;
-
-const INITIAL_DIRECTIONS = [
-    -1,
-    1,
-    -1,
-    1,
-];
 
 type WholesaleStatus =
     | "pending"
@@ -70,13 +53,6 @@ type InfiniteProductListProps = {
     wholesaleStatus: WholesaleStatus;
 };
 
-type DragState = {
-    active: boolean;
-    startX: number;
-    startScrollLeft: number;
-    moved: boolean;
-};
-
 function filterProducts(
     productList: Product[],
     isWholesale: boolean,
@@ -95,72 +71,15 @@ function filterProducts(
     );
 }
 
-function distributeProducts(
-    products: Product[],
-): Product[][] {
-    const rows: Product[][] = Array.from(
-        {
-            length: ROW_COUNT,
-        },
-        () => [],
-    );
-
-    products.forEach((product, index) => {
-        const rowIndex =
-            Math.floor(index / 4) % ROW_COUNT;
-
-        rows[rowIndex].push(product);
-    });
-
-    return rows;
-}
-
 export function InfiniteProductList({
     initialProducts,
     filters,
     isWholesale,
     wholesaleStatus,
 }: InfiniteProductListProps) {
-    const rowRefs = useRef<Array<HTMLDivElement | null>>(
-        Array(ROW_COUNT).fill(null),
+    const sentinelRef = useRef<HTMLDivElement | null>(
+        null,
     );
-
-    const dragRefs = useRef<DragState[]>(
-        Array.from(
-            {
-                length: ROW_COUNT,
-            },
-            () => ({
-                active: false,
-                startX: 0,
-                startScrollLeft: 0,
-                moved: false,
-            }),
-        ),
-    );
-
-    const directionsRef = useRef<number[]>(
-        [...INITIAL_DIRECTIONS],
-    );
-
-    const initializedRowsRef = useRef<boolean[]>(
-        Array(ROW_COUNT).fill(false),
-    );
-
-    const pauseUntilRef = useRef<number[]>(
-        Array(ROW_COUNT).fill(0),
-    );
-
-    const hoverRef = useRef<boolean[]>(
-        Array(ROW_COUNT).fill(false),
-    );
-
-    const scrollPositionsRef = useRef<number[]>(
-        Array(ROW_COUNT).fill(0),
-    );
-
-    const animationFrameRef = useRef<number | null>(null);
-    const lastFrameTimeRef = useRef<number | null>(null);
 
     const pageRef = useRef(1);
     const loadingRef = useRef(false);
@@ -195,73 +114,14 @@ export function InfiniteProductList({
     );
 
     const [loading, setLoading] = useState(false);
-    const [loadError, setLoadError] = useState<string | null>(null);
 
-    const rows = distributeProducts(products);
-
-    /*
-     * Pausa uma fileira após interação manual.
-     */
-
-    const pauseRow = useCallback((
-        rowIndex: number,
-    ) => {
-        pauseUntilRef.current[rowIndex] =
-            performance.now() + RESUME_DELAY;
-    }, []);
+    const [loadError, setLoadError] = useState<
+        string | null
+    >(null);
 
     /*
-     * Posiciona inicialmente as fileiras.
-     *
-     * Fileiras que andam para a esquerda
-     * começam no lado direito do trilho.
-     *
-     * Fileiras que andam para a direita
-     * começam no lado esquerdo.
-     */
-
-    const initializeRows = useCallback(() => {
-        for (
-            let rowIndex = 0;
-            rowIndex < ROW_COUNT;
-            rowIndex += 1
-        ) {
-            const row = rowRefs.current[rowIndex];
-
-            if (
-                !row ||
-                initializedRowsRef.current[rowIndex]
-            ) {
-                continue;
-            }
-
-            const maxScrollLeft =
-                row.scrollWidth - row.clientWidth;
-
-            if (maxScrollLeft <= 0) {
-                continue;
-            }
-
-            const direction =
-                INITIAL_DIRECTIONS[rowIndex];
-
-            const initialPosition =
-                direction < 0
-                    ? maxScrollLeft
-                    : 0;
-
-            row.scrollLeft = initialPosition;
-
-            scrollPositionsRef.current[rowIndex] =
-                initialPosition;
-
-            initializedRowsRef.current[rowIndex] = true;
-        }
-    }, []);
-
-    /*
-     * Reinicia os produtos e as fileiras
-     * quando os filtros mudam.
+     * Reinicia a listagem quando os filtros
+     * ou as permissões do usuário mudam.
      */
 
     useEffect(() => {
@@ -299,43 +159,17 @@ export function InfiniteProductList({
         setLoading(false);
         setLoadError(null);
 
-        directionsRef.current = [
-            ...INITIAL_DIRECTIONS,
-        ];
+        return () => {
+            requestVersionRef.current += 1;
 
-        initializedRowsRef.current =
-            Array(ROW_COUNT).fill(false);
-
-        pauseUntilRef.current =
-            Array(ROW_COUNT).fill(0);
-
-        scrollPositionsRef.current =
-            Array(ROW_COUNT).fill(0);
-
-        rowRefs.current.forEach((row) => {
-            if (row) {
-                row.scrollLeft = 0;
-            }
-        });
-
-        dragRefs.current.forEach((drag) => {
-            drag.active = false;
-            drag.moved = false;
-        });
+            abortControllerRef.current?.abort();
+            abortControllerRef.current = null;
+        };
     }, [
         initialProducts,
-        filters.genre,
-        filters.format,
-        filters.year,
-        filters.artist,
-        filters.label,
-        filters.search,
-        filters.condition,
-        filters.availability,
-        filters.pre_order,
-        filters.country,
-        wholesaleStatus,
+        filters,
         isWholesale,
+        wholesaleStatus,
     ]);
 
     /*
@@ -363,6 +197,7 @@ export function InfiniteProductList({
 
         try {
             const currentFilters = filtersRef.current;
+
             const params = new URLSearchParams();
 
             params.set(
@@ -417,7 +252,8 @@ export function InfiniteProductList({
                 );
             }
 
-            const data: unknown = await response.json();
+            const data: unknown =
+                await response.json();
 
             if (!Array.isArray(data)) {
                 throw new Error(
@@ -449,9 +285,20 @@ export function InfiniteProductList({
                     ),
                 );
 
-                const uniqueProducts = visibleNextProducts.filter(
-                    (product) => !existingIds.has(product.id),
-                );
+                const uniqueProducts =
+                    visibleNextProducts.filter(
+                        (product) => {
+                            if (
+                                existingIds.has(product.id)
+                            ) {
+                                return false;
+                            }
+
+                            existingIds.add(product.id);
+
+                            return true;
+                        },
+                    );
 
                 return [
                     ...currentProducts,
@@ -507,257 +354,57 @@ export function InfiniteProductList({
     }, []);
 
     /*
-     * Animação automática.
+     * Infinite Scroll vertical.
+     *
+     * Carrega mais produtos quando o usuário
+     * estiver próximo do final da listagem.
      */
 
     useEffect(() => {
-        const mediaQuery = window.matchMedia(
-            "(prefers-reduced-motion: reduce)",
-        );
+        const sentinel = sentinelRef.current;
 
-        let reducedMotion = mediaQuery.matches;
-
-        function handleMotionChange(
-            event: MediaQueryListEvent,
+        if (
+            !sentinel ||
+            !hasMore ||
+            loading ||
+            loadError
         ) {
-            reducedMotion = event.matches;
+            return;
         }
 
-        mediaQuery.addEventListener(
-            "change",
-            handleMotionChange,
+        const observer = new IntersectionObserver(
+            (entries) => {
+                if (
+                    entries.some(
+                        (entry) => entry.isIntersecting,
+                    )
+                ) {
+                    void loadMore();
+                }
+            },
+            {
+                root: null,
+                rootMargin: `0px 0px ${PRELOAD_DISTANCE}px 0px`,
+                threshold: 0,
+            },
         );
 
-        function animate(time: number) {
-            const previousTime = lastFrameTimeRef.current;
-
-            const deltaTime =
-                previousTime === null
-                    ? 16
-                    : Math.min(time - previousTime, 50);
-
-            lastFrameTimeRef.current = time;
-
-            /*
-             * Inicializa depois que o DOM
-             * recebeu os produtos.
-             */
-
-            initializeRows();
-
-            if (
-                !reducedMotion &&
-                document.visibilityState === "visible"
-            ) {
-                for (
-                    let rowIndex = 0;
-                    rowIndex < ROW_COUNT;
-                    rowIndex += 1
-                ) {
-                    const row = rowRefs.current[rowIndex];
-
-                    if (!row) {
-                        continue;
-                    }
-
-                    const drag = dragRefs.current[rowIndex];
-
-                    if (
-                        drag.active ||
-                        hoverRef.current[rowIndex] ||
-                        time < pauseUntilRef.current[rowIndex]
-                    ) {
-                        scrollPositionsRef.current[rowIndex] =
-                            row.scrollLeft;
-
-                        continue;
-                    }
-
-                    const maxScrollLeft =
-                        row.scrollWidth - row.clientWidth;
-
-                    if (maxScrollLeft <= 0) {
-                        continue;
-                    }
-
-                    let direction =
-                        directionsRef.current[rowIndex];
-
-                    if (
-                        row.scrollLeft >= maxScrollLeft - 1 &&
-                        direction > 0
-                    ) {
-                        direction = -1;
-                    }
-
-                    if (
-                        row.scrollLeft <= 1 &&
-                        direction < 0
-                    ) {
-                        direction = 1;
-                    }
-
-                    directionsRef.current[rowIndex] =
-                        direction;
-
-                    const distance =
-                        SCROLL_SPEED *
-                        (deltaTime / 16) *
-                        direction;
-
-                    const nextPosition = Math.max(
-                        0,
-                        Math.min(
-                            maxScrollLeft,
-                            scrollPositionsRef.current[rowIndex] +
-                                distance,
-                        ),
-                    );
-
-                    scrollPositionsRef.current[rowIndex] =
-                        nextPosition;
-
-                    row.scrollLeft = nextPosition;
-
-                    const remainingDistance =
-                        maxScrollLeft - nextPosition;
-
-                    if (
-                        remainingDistance <= PRELOAD_DISTANCE &&
-                        hasMoreRef.current &&
-                        !loadingRef.current &&
-                        !errorRef.current
-                    ) {
-                        void loadMore();
-                    }
-                }
-            }
-
-            animationFrameRef.current =
-                requestAnimationFrame(animate);
-        }
-
-        animationFrameRef.current =
-            requestAnimationFrame(animate);
+        observer.observe(sentinel);
 
         return () => {
-            if (animationFrameRef.current !== null) {
-                cancelAnimationFrame(
-                    animationFrameRef.current,
-                );
-            }
-
-            lastFrameTimeRef.current = null;
-
-            mediaQuery.removeEventListener(
-                "change",
-                handleMotionChange,
-            );
+            observer.disconnect();
         };
     }, [
-        initializeRows,
+        hasMore,
+        loading,
+        loadError,
         loadMore,
+        products.length,
+        initialProducts,
+        filters,
+        isWholesale,
+        wholesaleStatus,
     ]);
-
-    /*
-     * Arrastar com o mouse.
-     */
-
-    function handlePointerDown(
-        event: PointerEvent<HTMLDivElement>,
-        rowIndex: number,
-    ) {
-        if (
-            event.pointerType !== "mouse" ||
-            event.button !== 0
-        ) {
-            return;
-        }
-
-        const row = rowRefs.current[rowIndex];
-
-        if (!row) {
-            return;
-        }
-
-        pauseRow(rowIndex);
-
-        dragRefs.current[rowIndex] = {
-            active: true,
-            startX: event.clientX,
-            startScrollLeft: row.scrollLeft,
-            moved: false,
-        };
-    }
-
-    function handlePointerMove(
-        event: PointerEvent<HTMLDivElement>,
-        rowIndex: number,
-    ) {
-        const row = rowRefs.current[rowIndex];
-        const drag = dragRefs.current[rowIndex];
-
-        if (
-            !row ||
-            !drag.active
-        ) {
-            return;
-        }
-
-        const distance =
-            event.clientX - drag.startX;
-
-        if (Math.abs(distance) > 6) {
-            drag.moved = true;
-        }
-
-        if (drag.moved) {
-            row.scrollLeft =
-                drag.startScrollLeft - distance;
-
-            scrollPositionsRef.current[rowIndex] =
-                row.scrollLeft;
-
-            pauseRow(rowIndex);
-        }
-    }
-
-    function handlePointerUp(
-        rowIndex: number,
-    ) {
-        dragRefs.current[rowIndex].active = false;
-    }
-
-    function handleClickCapture(
-        event: MouseEvent<HTMLDivElement>,
-        rowIndex: number,
-    ) {
-        const drag = dragRefs.current[rowIndex];
-
-        if (drag.moved) {
-            event.preventDefault();
-            event.stopPropagation();
-
-            drag.moved = false;
-        }
-    }
-
-    /*
-     * Sincroniza scroll manual.
-     */
-
-    function handleRowScroll(
-        rowIndex: number,
-    ) {
-        const row = rowRefs.current[rowIndex];
-
-        if (!row) {
-            return;
-        }
-
-        scrollPositionsRef.current[rowIndex] =
-            row.scrollLeft;
-    }
 
     /*
      * Retry manual.
@@ -771,104 +418,103 @@ export function InfiniteProductList({
     }
 
     return (
-        <section className="w-full min-w-0">
-            <div className="flex flex-col gap-10">
-                {rows.map((rowProducts, rowIndex) => (
+        <section
+            className="
+                w-full
+                min-w-0
+            "
+        >
+
+            {/* PRODUCT GRID */}
+
+            <div
+                className="
+                    grid
+                    w-full
+                    min-w-0
+                    grid-cols-2
+                    items-start
+                    gap-x-4
+                    gap-y-8
+                    md:grid-cols-3
+                    lg:grid-cols-4
+                    xl:grid-cols-5
+                "
+            >
+                {products.map((product, index) => (
                     <div
-                        key={rowIndex}
-                        className="relative w-full min-w-0"
+                        key={product.id}
+                        className="
+                            relative
+                            min-w-0
+                            hover:z-20
+                        "
                     >
                         <div
-                            ref={(element) => {
-                                rowRefs.current[rowIndex] = element;
-                            }}
-                            onScroll={() => {
-                                handleRowScroll(rowIndex);
-                            }}
-                            onWheel={() => {
-                                pauseRow(rowIndex);
-                            }}
-                            onTouchStart={() => {
-                                pauseRow(rowIndex);
-                            }}
-                            onTouchMove={() => {
-                                pauseRow(rowIndex);
-                            }}
-                            onPointerEnter={() => {
-                                hoverRef.current[rowIndex] = true;
-                            }}
-                            onPointerLeave={() => {
-                                hoverRef.current[rowIndex] = false;
-                                dragRefs.current[rowIndex].active = false;
-                                pauseUntilRef.current[rowIndex] = 0;
-                            }}
-                            onPointerDown={(event) => {
-                                handlePointerDown(
-                                    event,
-                                    rowIndex,
-                                );
-                            }}
-                            onPointerMove={(event) => {
-                                handlePointerMove(
-                                    event,
-                                    rowIndex,
-                                );
-                            }}
-                            onPointerUp={() => {
-                                handlePointerUp(rowIndex);
-                            }}
-                            onPointerCancel={() => {
-                                handlePointerUp(rowIndex);
-                            }}
-                            onClickCapture={(event) => {
-                                handleClickCapture(
-                                    event,
-                                    rowIndex,
-                                );
-                            }}
-                            className="flex w-full min-w-0 flex-row flex-nowrap items-start gap-4 overflow-x-auto overflow-y-hidden pb-5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+                            className="
+                                animate-card-in
+                                opacity-0
+                            "
                             style={{
-                                touchAction: "pan-x pan-y",
-                                cursor: "grab",
+                                animationDelay: `${
+                                    (index % 6) * 45
+                                }ms`,
                             }}
                         >
-                            {rowProducts.map((product, index) => (
-                                <div
-                                    key={product.id}
-                                    className="w-[calc((100%-1rem)/2)] min-w-0 shrink-0 md:w-[calc((100%-2rem)/3)] xl:w-[calc((100%-3rem)/4)]"
-                                >
-                                    <div
-                                        className="animate-card-in opacity-0"
-                                        style={{
-                                            animationDelay: `${
-                                                (index % 6) * 45
-                                            }ms`,
-                                        }}
-                                    >
-                                        <ProductCard
-                                            product={product}
-                                            isWholesale={isWholesale}
-                                            wholesaleStatus={wholesaleStatus}
-                                        />
-                                    </div>
-                                </div>
-                            ))}
+                            <ProductCard
+                                product={product}
+                                isWholesale={isWholesale}
+                                wholesaleStatus={wholesaleStatus}
+                            />
                         </div>
                     </div>
                 ))}
             </div>
 
+            {/* INFINITE SCROLL SENTINEL */}
+
+            {hasMore && (
+                <div
+                    ref={sentinelRef}
+                    className="h-px w-full"
+                    aria-hidden="true"
+                />
+            )}
+
+            {/* LOADING */}
+
             {loading && (
                 <p
-                    className="py-6 text-center text-sm text-black"
+                    className="
+                        py-6
+                        text-center
+                        text-sm
+                        text-black
+                    "
                     role="status"
                 >
                     Carregando mais discos...
                 </p>
             )}
 
+            {/* ERROR */}
+
             {loadError && (
-                <div className="my-8 flex flex-col text-black items-center gap-4 rounded-xl border border-current p-6 text-center">
+                <div
+                    className="
+                        my-8
+                        flex
+                        flex-col
+                        items-center
+                        gap-4
+                        rounded-xl
+                        border
+                        border-current
+                        p-6
+                        text-center
+                        text-black
+                    "
+                >
                     <p className="text-sm font-semibold">
                         Não foi possível carregar mais produtos.
                     </p>
@@ -881,24 +527,57 @@ export function InfiniteProductList({
                         type="button"
                         onClick={handleRetry}
                         disabled={loading}
-                        className="rounded-xl border border-current px-5 py-3 text-sm font-medium hover:opacity-70 disabled:opacity-40"
+                        className="
+                            rounded-xl
+                            border
+                            border-current
+                            px-5
+                            py-3
+                            text-sm
+                            font-medium
+                            hover:opacity-70
+                            disabled:opacity-40
+                        "
                     >
                         Tentar novamente
                     </button>
                 </div>
             )}
 
-            {!loading && products.length === 0 && !loadError && (
-                <p className="py-12 text-center text-black text-sm opacity-60">
-                    Nenhum produto encontrado.
-                </p>
-            )}
+            {/* EMPTY STATE */}
+
+            {!loading &&
+                products.length === 0 &&
+                !loadError && (
+                    <p
+                        className="
+                            py-12
+                            text-center
+                            text-sm
+                            text-black
+                            opacity-60
+                        "
+                    >
+                        Nenhum produto encontrado.
+                    </p>
+                )}
+
+            {/* END OF PRODUCTS */}
 
             {!hasMore && products.length > 0 && (
-                <p className="pt-6 text-center text-xs text-black opacity-40">
+                <p
+                    className="
+                        pt-6
+                        text-center
+                        text-xs
+                        text-black
+                        opacity-40
+                    "
+                >
                     Todos os discos foram carregados.
                 </p>
             )}
+
         </section>
     );
 }

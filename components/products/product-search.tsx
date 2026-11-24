@@ -1,4 +1,3 @@
-
 "use client";
 
 import {
@@ -31,25 +30,30 @@ export function ProductSearch() {
         currentSearch,
     );
 
-    const [expanded, setExpanded] = useState(
-        Boolean(currentSearch),
-    );
+    const [expanded, setExpanded] = useState(true);
 
     const inputRef = useRef<HTMLInputElement>(null);
+
+    const shouldFocusRef = useRef(false);
 
     /*
      * Sincroniza a pesquisa com a URL.
      */
+
     useEffect(() => {
         setSearch(currentSearch);
     }, [currentSearch]);
 
     /*
-     * Foca o campo ao expandir.
+     * Foca o campo somente quando o usuário
+     * expande manualmente a pesquisa.
      */
+
     useEffect(() => {
-        if (expanded) {
+        if (expanded && shouldFocusRef.current) {
             inputRef.current?.focus();
+
+            shouldFocusRef.current = false;
         }
     }, [expanded]);
 
@@ -57,6 +61,7 @@ export function ProductSearch() {
      * Busca com debounce de 300ms.
      * Preserva os filtros existentes.
      */
+
     useEffect(() => {
         if (search.trim() === currentSearch) {
             return;
@@ -105,6 +110,7 @@ export function ProductSearch() {
                 ml-auto
                 flex
                 h-14
+                min-w-0
                 max-w-full
                 items-center
                 overflow-hidden
@@ -119,7 +125,7 @@ export function ProductSearch() {
                 ease-in-out
                 ${
                     expanded
-                        ? "w-[min(320px,calc(100vw-48px))]"
+                        ? "w-full"
                         : "w-14"
                 }
             `}
@@ -133,12 +139,11 @@ export function ProductSearch() {
                     flex-1
                     items-center
                     gap-1
-                    pl-3
                     transition-opacity
                     duration-200
                     ${
                         expanded
-                            ? "opacity-100"
+                            ? "pl-3 opacity-100"
                             : "pointer-events-none opacity-0"
                     }
                 `}
@@ -232,6 +237,8 @@ export function ProductSearch() {
                 type="button"
                 onClick={() => {
                     if (!expanded) {
+                        shouldFocusRef.current = true;
+
                         setExpanded(true);
                     } else {
                         inputRef.current?.focus();

@@ -1,4 +1,3 @@
-
 import {
     Suspense,
 } from "react";
@@ -43,10 +42,6 @@ import {
     PageHeader,
 } from "@/components/layout/page-header";
 
-import {
-    DraggableComponent,
-} from "@/components/layout/draggable-component";
-
 type HomePageProps = {
     searchParams: Promise<{
         genre?: string;
@@ -56,6 +51,7 @@ type HomePageProps = {
         label?: string;
         condition?: string;
         availability?: string;
+        pre_order?: string;
         country?: string;
         search?: string;
     }>;
@@ -84,14 +80,7 @@ export default async function HomePage({
     } = await getUserAccess();
 
     /*
-     * Quem pode enxergar produtos
-     * exclusivos no carrossel:
-     *
-     * admin     -> sim
-     * approved  -> sim
-     * pending   -> sim
-     * rejected  -> não
-     * comum     -> não
+     * WHOLESALE ACCESS
      */
     const canSeeWholesaleOnly =
         isAdmin ||
@@ -99,7 +88,7 @@ export default async function HomePage({
         wholesaleStatus === "pending";
 
     /*
-     * PRODUTOS DESTACADOS
+     * FEATURED PRODUCTS
      */
     let featuredQuery = supabase
         .from("products")
@@ -123,10 +112,6 @@ export default async function HomePage({
             0,
         );
 
-    /*
-     * Rejected e usuários comuns
-     * não recebem produtos exclusivos.
-     */
     if (!canSeeWholesaleOnly) {
         featuredQuery = featuredQuery.eq(
             "wholesale_only",
@@ -152,7 +137,7 @@ export default async function HomePage({
     }
 
     /*
-     * APRESENTAÇÕES FUTURAS
+     * UPCOMING PERFORMANCES
      */
     const today = new Date()
         .toISOString()
@@ -193,63 +178,31 @@ export default async function HomePage({
         );
     }
 
-    /*
-     * Define se existe algum conteúdo
-     * para mostrar no carousel.
-     */
     const hasFeaturedContent =
         (featuredProducts?.length ?? 0) > 0 ||
         (upcomingPerformances?.length ?? 0) > 0;
 
     return (
-        <div className="w-full max-w-full overflow-x-hidden">
-            {/* SEARCH — MOBILE E DESKTOP */}
+        <div
+            className="
+                w-full
+                min-w-0
+                max-w-full
+                overflow-x-clip
+            "
+        >
 
-            <DraggableComponent
-                id="product-search"
-                defaultPosition={{
-                    top: 24,
-                    left: 24,
-                }}
-                width="max-content"
-                zIndex={60}
+            {/* FULL WIDTH HERO */}
+
+            <section
+                className="
+                    w-full
+                    min-w-0
+                    overflow-hidden
+                "
             >
-                <Suspense fallback={null}>
-                    <ProductSearch />
-                </Suspense>
-            </DraggableComponent>
 
-            {/* FILTERS — MOBILE */}
-
-            <div className="md:hidden">
-                <Suspense fallback={null}>
-                    <MobileFilters>
-                        <Sidebar mobile />
-                    </MobileFilters>
-                </Suspense>
-            </div>
-
-            {/* FILTERS — DESKTOP */}
-
-            <DraggableComponent
-                id="sidebar"
-                defaultPosition={{
-                    top: 24,
-                    left: 96,
-                }}
-                width="max-content"
-                zIndex={40}
-                className="hidden md:block"
-            >
-                <Suspense fallback={null}>
-                    <Sidebar />
-                </Suspense>
-            </DraggableComponent>
-
-            {/* CONTENT */}
-
-            <main className="w-full overflow-hidden p-4 md:p-6">
-                {/* TÍTULO PRINCIPAL */}
+                {/* PAGE HEADER */}
 
                 <PageHeader title="Casa Elefante" />
 
@@ -257,7 +210,12 @@ export default async function HomePage({
 
                 {!hasActiveFilters &&
                     hasFeaturedContent && (
-                        <div className="mb-8">
+                        <div
+                            className="
+                                w-full
+                                min-w-0
+                            "
+                        >
                             <FeaturedProductsCarousel
                                 products={
                                     featuredProducts ?? []
@@ -269,42 +227,131 @@ export default async function HomePage({
                         </div>
                     )}
 
-                {/* PRODUCTS */}
+            </section>
 
-                <Suspense fallback={<p></p>}>
-                    <ProductsSection
-                        searchParams={
-                            Promise.resolve(filters)
-                        }
-                    />
-                </Suspense>
+            {/* STORE CONTAINER */}
 
+            <div
+                className="
+                    mx-auto
+                    flex
+                    w-full
+                    min-w-0
+                    max-w-[1440px]
+                    items-start
+                    gap-6
+                    px-4
+                    py-8
+                    md:px-6
+                    lg:gap-8
+                "
+            >
 
-                {/* HOME SECTIONS */}
+                {/* DESKTOP SIDEBAR */}
 
-                {!hasActiveFilters && (
+                <aside
+                    className="
+                        hidden
+                        w-72
+                        shrink-0
+                        md:block
+                    "
+                >
+                    <Suspense fallback={null}>
+                        <Sidebar />
+                    </Suspense>
+                </aside>
+
+                {/* MAIN CONTENT */}
+
+                <main
+                    className="
+                        min-w-0
+                        flex-1
+                    "
+                >
+
+                    {/* SEARCH AND MOBILE FILTERS */}
+
                     <div
                         className="
-                            mt-8
+                            relative
+                            z-30
+                            mb-8
                             flex
-                            flex-col
-                            items-start
-                            gap-6
-                            md:flex-row
-                            md:gap-8
+                            w-full
+                            min-w-0
+                            items-center
+                            justify-between
+                            gap-4
                         "
                     >
-                        <div className="w-full max-w-[420px]">
-                            <AboutSection />
+
+                        {/* MOBILE FILTERS */}
+
+                        <div className="shrink-0 md:hidden">
+                            <Suspense fallback={null}>
+                                <MobileFilters>
+                                    <Sidebar mobile />
+                                </MobileFilters>
+                            </Suspense>
                         </div>
 
-                        <div className="w-full max-w-[420px]">
-                            <NewsletterSection />
+                        {/* PRODUCT SEARCH */}
+
+                        <div
+                            className="
+                                flex
+                                w-full
+                                min-w-0
+                                flex-1
+                            "
+                        >
+                            <Suspense fallback={null}>
+                                <ProductSearch />
+                            </Suspense>
                         </div>
+
                     </div>
-                )}
 
-            </main>
+                    {/* PRODUCTS */}
+
+                    <Suspense fallback={null}>
+                        <ProductsSection
+                            searchParams={
+                                Promise.resolve(filters)
+                            }
+                        />
+                    </Suspense>
+
+                    {/* HOME SECTIONS */}
+
+                    {!hasActiveFilters && (
+                        <div
+                            className="
+                                mt-12
+                                flex
+                                flex-col
+                                items-start
+                                gap-6
+                                md:flex-row
+                                md:gap-8
+                            "
+                        >
+                            <div className="w-full max-w-[420px]">
+                                <AboutSection />
+                            </div>
+
+                            <div className="w-full max-w-[420px]">
+                                <NewsletterSection />
+                            </div>
+                        </div>
+                    )}
+
+                </main>
+
+            </div>
+
         </div>
     );
 }
