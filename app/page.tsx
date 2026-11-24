@@ -103,6 +103,7 @@ export default async function HomePage({
             format,
             year,
             images,
+            stock,
             wholesale_only
         `)
         .eq(
@@ -220,12 +221,10 @@ export default async function HomePage({
                             "
                         >
                             <FeaturedProductsCarousel
-                                products={
-                                    featuredProducts ?? []
-                                }
-                                performances={
-                                    upcomingPerformances ?? []
-                                }
+                                products={featuredProducts ?? []}
+                                performances={upcomingPerformances ?? []}
+                                isWholesale={isWholesale || isAdmin}
+                                wholesaleStatus={wholesaleStatus}
                             />
                         </div>
                     )}
