@@ -82,6 +82,7 @@ export default async function HomePage({
     /*
      * WHOLESALE ACCESS
      */
+
     const canSeeWholesaleOnly =
         isAdmin ||
         isWholesale ||
@@ -90,6 +91,7 @@ export default async function HomePage({
     /*
      * FEATURED PRODUCTS
      */
+
     let featuredQuery = supabase
         .from("products")
         .select(`
@@ -139,6 +141,7 @@ export default async function HomePage({
     /*
      * UPCOMING PERFORMANCES
      */
+
     const today = new Date()
         .toISOString()
         .split("T")[0];
@@ -247,19 +250,38 @@ export default async function HomePage({
                 "
             >
 
-                {/* DESKTOP SIDEBAR */}
+                {/* DESKTOP LEFT COLUMN */}
 
                 <aside
                     className="
                         hidden
                         w-72
                         shrink-0
-                        md:block
+                        flex-col
+                        items-start
+                        gap-6
+                        md:flex
                     "
                 >
+
+                    {/* DESKTOP FILTERS */}
+
                     <Suspense fallback={null}>
                         <Sidebar />
                     </Suspense>
+
+                    {/* DESKTOP ABOUT */}
+
+                    <div className="w-full min-w-0">
+                        <AboutSection />
+                    </div>
+
+                    {/* DESKTOP NEWSLETTER */}
+
+                    <div className="w-full min-w-0">
+                        <NewsletterSection />
+                    </div>
+
                 </aside>
 
                 {/* MAIN CONTENT */}
@@ -324,34 +346,36 @@ export default async function HomePage({
                         />
                     </Suspense>
 
-                    {/* HOME SECTIONS */}
+                    {/* MOBILE HOME SECTIONS */}
 
                     {!hasActiveFilters && (
                         <div
                             className="
                                 mt-12
                                 flex
+                                w-full
                                 flex-col
                                 items-start
                                 gap-6
-                                md:flex-row
-                                md:gap-8
+                                md:hidden
                             "
                         >
+
+                            {/* MOBILE ABOUT */}
+
                             <div className="w-full max-w-[420px]">
                                 <AboutSection />
                             </div>
+
+                            {/* MOBILE NEWSLETTER */}
 
                             <div className="w-full max-w-[420px]">
                                 <NewsletterSection />
                             </div>
                         </div>
                     )}
-
                 </main>
-
             </div>
-
         </div>
     );
 }

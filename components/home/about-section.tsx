@@ -1,4 +1,3 @@
-
 "use client";
 
 import {
@@ -16,15 +15,13 @@ export function AboutSection() {
         <section
             id="sobre"
             className="
-                px-2
-                py-8
-                md:py-12
+                w-full
+                min-w-0
             "
         >
             <div
                 className="
                     w-full
-                    max-w-[420px]
                     overflow-hidden
                     rounded-xl
                     border
@@ -48,23 +45,21 @@ export function AboutSection() {
                         w-full
                         items-center
                         justify-between
-                        gap-4
-                        p-5
+                        gap-2
+                        p-3
                         text-left
                         transition-colors
                         duration-200
                         hover:bg-black/5
-                        md:p-7
                     "
                 >
                     <h2
                         className="
                             font-october
-                            text-4xl
-                            text-[#D2232A]
+                            text-xl
                             uppercase
                             leading-none
-                            md:text-5xl
+                            text-[#D2232A]
                         "
                     >
                         Sobre
@@ -73,8 +68,8 @@ export function AboutSection() {
                     <span
                         className="
                             flex
-                            h-10
-                            w-10
+                            h-6
+                            w-6
                             shrink-0
                             items-center
                             justify-center
@@ -82,7 +77,7 @@ export function AboutSection() {
                         "
                     >
                         <ChevronDown
-                            size={28}
+                            size={18}
                             strokeWidth={2}
                             className={`
                                 transition-transform
@@ -119,21 +114,17 @@ export function AboutSection() {
                     <div className="min-h-0 overflow-hidden">
                         <div
                             className="
-                                mx-5
+                                mx-3
                                 border-t
                                 border-black
-                                pb-7
-                                pt-7
-                                md:mx-7
-                                md:pb-10
-                                md:pt-10
+                                pb-4
+                                pt-4
                             "
                         >
                             <p
                                 className="
-                                    text-2xl
-                                    leading-tight
-                                    md:text-3xl
+                                    text-sm
+                                    leading-snug
                                 "
                             >
                                 A Casa Elefante é mais que uma loja de discos.
@@ -144,9 +135,9 @@ export function AboutSection() {
 
                             <div
                                 className="
-                                    mt-8
-                                    space-y-6
-                                    text-base
+                                    mt-4
+                                    space-y-3
+                                    text-xs
                                     leading-relaxed
                                 "
                             >

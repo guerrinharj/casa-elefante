@@ -1,4 +1,3 @@
-
 "use client";
 
 import {
@@ -71,15 +70,13 @@ export function NewsletterSection() {
         <section
             id="newsletter"
             className="
-                px-2
-                py-8
-                md:py-12
+                w-full
+                min-w-0
             "
         >
             <div
                 className="
                     w-full
-                    max-w-[420px]
                     overflow-hidden
                     rounded-xl
                     border
@@ -103,22 +100,20 @@ export function NewsletterSection() {
                         w-full
                         items-center
                         justify-between
-                        gap-4
-                        p-5
+                        gap-2
+                        p-3
                         text-left
                         transition-colors
                         duration-200
                         hover:bg-black/5
-                        md:p-7
                     "
                 >
                     <h2
                         className="
                             font-october
-                            text-4xl
+                            text-xl
                             uppercase
                             leading-none
-                            md:text-5xl
                             text-[#D2232A]
                         "
                     >
@@ -128,8 +123,8 @@ export function NewsletterSection() {
                     <span
                         className="
                             flex
-                            h-10
-                            w-10
+                            h-6
+                            w-6
                             shrink-0
                             items-center
                             justify-center
@@ -137,7 +132,7 @@ export function NewsletterSection() {
                         "
                     >
                         <ChevronDown
-                            size={28}
+                            size={18}
                             strokeWidth={2}
                             className={`
                                 transition-transform
@@ -174,29 +169,31 @@ export function NewsletterSection() {
                     <div className="min-h-0 overflow-hidden">
                         <div
                             className="
-                                mx-5
+                                mx-3
                                 border-t
                                 border-black
-                                pb-7
-                                pt-7
-                                md:mx-7
-                                md:pb-10
-                                md:pt-10
+                                pb-4
+                                pt-4
                             "
                         >
                             {success ? (
                                 <div>
                                     <p
                                         className="
-                                            text-2xl
+                                            text-sm
                                             leading-tight
-                                            md:text-3xl
                                         "
                                     >
                                         Inscrição realizada.
                                     </p>
 
-                                    <p className="mt-4 text-base leading-relaxed">
+                                    <p
+                                        className="
+                                            mt-2
+                                            text-xs
+                                            leading-relaxed
+                                        "
+                                    >
                                         Você agora faz parte da newsletter
                                         da Casa Elefante.
                                     </p>
@@ -205,9 +202,8 @@ export function NewsletterSection() {
                                 <>
                                     <p
                                         className="
-                                            text-xl
-                                            leading-relaxed
-                                            md:text-2xl
+                                            text-sm
+                                            leading-snug
                                         "
                                     >
                                         Receba novidades, discos que acabaram
@@ -218,18 +214,21 @@ export function NewsletterSection() {
                                     <form
                                         onSubmit={handleSubmit}
                                         className="
-                                            mt-8
+                                            mt-4
                                             flex
                                             flex-col
-                                            gap-6
+                                            gap-3
                                         "
                                     >
                                         {/* NOME */}
 
-                                        <div className="flex flex-col gap-2">
+                                        <div className="flex flex-col gap-1">
                                             <label
                                                 htmlFor="newsletter-name"
-                                                className="font-medium"
+                                                className="
+                                                    text-xs
+                                                    font-medium
+                                                "
                                             >
                                                 Nome
                                             </label>
@@ -243,11 +242,13 @@ export function NewsletterSection() {
                                                 }}
                                                 className="
                                                     w-full
-                                                    rounded-xl
+                                                    min-w-0
+                                                    rounded-lg
                                                     border
                                                     border-black
                                                     bg-white
-                                                    p-3
+                                                    p-2
+                                                    text-sm
                                                     text-black
                                                     outline-none
                                                     transition-shadow
@@ -259,10 +260,13 @@ export function NewsletterSection() {
 
                                         {/* EMAIL */}
 
-                                        <div className="flex flex-col gap-2">
+                                        <div className="flex flex-col gap-1">
                                             <label
                                                 htmlFor="newsletter-email"
-                                                className="font-medium"
+                                                className="
+                                                    text-xs
+                                                    font-medium
+                                                "
                                             >
                                                 E-mail
                                             </label>
@@ -277,11 +281,13 @@ export function NewsletterSection() {
                                                 }}
                                                 className="
                                                     w-full
-                                                    rounded-xl
+                                                    min-w-0
+                                                    rounded-lg
                                                     border
                                                     border-black
                                                     bg-white
-                                                    p-3
+                                                    p-2
+                                                    text-sm
                                                     text-black
                                                     outline-none
                                                     transition-shadow
@@ -296,7 +302,7 @@ export function NewsletterSection() {
                                         {error && (
                                             <p
                                                 role="alert"
-                                                className="text-sm"
+                                                className="text-xs"
                                             >
                                                 {error}
                                             </p>
@@ -310,21 +316,22 @@ export function NewsletterSection() {
                                             className="
                                                 w-fit
                                                 max-w-full
-                                                rounded-xl
+                                                rounded-lg
                                                 border
                                                 border-black
                                                 bg-white
-                                                px-6
-                                                py-3
+                                                px-3
+                                                py-2
+                                                text-xs
                                                 font-medium
                                                 text-black
-                                                shadow-[-5px_5px_0_0_#000]
+                                                shadow-[-3px_3px_0_0_#000]
                                                 transition-all
                                                 duration-200
                                                 ease-out
                                                 hover:translate-x-1
                                                 hover:-translate-y-1
-                                                hover:shadow-[-9px_9px_0_0_#000]
+                                                hover:shadow-[-5px_5px_0_0_#000]
                                                 disabled:cursor-not-allowed
                                                 disabled:opacity-50
                                             "
