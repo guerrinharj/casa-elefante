@@ -19,9 +19,6 @@ import {
     DraggableComponent,
 } from "@/components/layout/draggable-component";
 
-import {
-    PerformancesSearch,
-} from "@/components/toda-terca-tem/performances-search";
 
 import {
     useAudioPlayer,
@@ -102,22 +99,6 @@ export function PerformanceList({
 
     return (
         <section className="w-full">
-            {/* SEARCH FIXO */}
-
-            <DraggableComponent
-                id="performances-search"
-                defaultPosition={{
-                    top: 24,
-                    left: 24,
-                }}
-                width="max-content"
-            >
-                <PerformancesSearch
-                    value={search}
-                    onChange={setSearch}
-                />
-            </DraggableComponent>
-
 
             {/* LISTAGEM */}
 

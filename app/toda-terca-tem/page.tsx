@@ -1,11 +1,19 @@
 
 import {
+    Suspense,
+} from "react";
+
+import {
     PerformanceList,
 } from "@/components/toda-terca-tem/performance-list";
 
 import {
     UpcomingPerformances,
 } from "@/components/toda-terca-tem/upcoming-performances";
+
+import {
+    ProductSearch,
+} from "@/components/products/product-search";
 
 import {
     createClient,
@@ -95,7 +103,6 @@ export default async function TodaTercaTemPage() {
 
     return (
         <main className="w-full overflow-hidden p-4 md:p-6">
-
             <PageHeader
                 title="Toda Terça Tem"
                 variant="ttt"
@@ -104,6 +111,24 @@ export default async function TodaTercaTemPage() {
             <UpcomingPerformances
                 performances={upcomingPerformances}
             />
+
+            <div
+                className="
+                    relative
+                    my-6
+                    flex
+                    w-full
+                    min-w-0
+                    items-center
+                "
+            >
+                <Suspense fallback={null}>
+                    <ProductSearch
+                        alwaysExpanded
+                        placeholder="Pesquisar apresentações..."
+                    />
+                </Suspense>
+            </div>
 
             <PerformanceList
                 performances={pastPerformances}

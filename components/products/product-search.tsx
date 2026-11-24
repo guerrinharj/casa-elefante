@@ -1,3 +1,4 @@
+
 "use client";
 
 import {
@@ -18,7 +19,15 @@ import {
     X,
 } from "lucide-react";
 
-export function ProductSearch() {
+type ProductSearchProps = {
+    alwaysExpanded?: boolean;
+    placeholder?: string;
+};
+
+export function ProductSearch({
+    alwaysExpanded = false,
+    placeholder = "Pesquisar discos...",
+}: ProductSearchProps) {
     const router = useRouter();
     const pathname = usePathname();
     const searchParams = useSearchParams();
@@ -32,35 +41,23 @@ export function ProductSearch() {
 
     const [expanded, setExpanded] = useState(true);
 
+    const isExpanded = alwaysExpanded || expanded;
+
     const inputRef = useRef<HTMLInputElement>(null);
 
     const shouldFocusRef = useRef(false);
-
-    /*
-     * Sincroniza a pesquisa com a URL.
-     */
 
     useEffect(() => {
         setSearch(currentSearch);
     }, [currentSearch]);
 
-    /*
-     * Foca o campo somente quando o usuário
-     * expande manualmente a pesquisa.
-     */
-
     useEffect(() => {
-        if (expanded && shouldFocusRef.current) {
+        if (isExpanded && shouldFocusRef.current) {
             inputRef.current?.focus();
 
             shouldFocusRef.current = false;
         }
-    }, [expanded]);
-
-    /*
-     * Busca com debounce de 300ms.
-     * Preserva os filtros existentes.
-     */
+    }, [isExpanded]);
 
     useEffect(() => {
         if (search.trim() === currentSearch) {
@@ -124,14 +121,12 @@ export function ProductSearch() {
                 duration-300
                 ease-in-out
                 ${
-                    expanded
+                    isExpanded
                         ? "w-full"
                         : "w-14"
                 }
             `}
         >
-            {/* CAMPO DE PESQUISA */}
-
             <div
                 className={`
                     flex
@@ -142,40 +137,40 @@ export function ProductSearch() {
                     transition-opacity
                     duration-200
                     ${
-                        expanded
+                        isExpanded
                             ? "pl-3 opacity-100"
                             : "pointer-events-none opacity-0"
                     }
                 `}
-                aria-hidden={!expanded}
-                inert={!expanded}
+                aria-hidden={!isExpanded}
+                inert={!isExpanded}
             >
-                {/* RECOLHER */}
-
-                <button
-                    type="button"
-                    onClick={() => {
-                        setExpanded(false);
-                    }}
-                    aria-label="Recolher pesquisa"
-                    title="Recolher pesquisa"
-                    className="
-                        flex
-                        h-9
-                        w-7
-                        shrink-0
-                        items-center
-                        justify-center
-                        rounded-lg
-                        transition-colors
-                        hover:bg-black/5
-                    "
-                >
-                    <ChevronRight
-                        size={20}
-                        strokeWidth={2}
-                    />
-                </button>
+                {!alwaysExpanded && (
+                    <button
+                        type="button"
+                        onClick={() => {
+                            setExpanded(false);
+                        }}
+                        aria-label="Recolher pesquisa"
+                        title="Recolher pesquisa"
+                        className="
+                            flex
+                            h-9
+                            w-7
+                            shrink-0
+                            items-center
+                            justify-center
+                            rounded-lg
+                            transition-colors
+                            hover:bg-black/5
+                        "
+                    >
+                        <ChevronRight
+                            size={20}
+                            strokeWidth={2}
+                        />
+                    </button>
+                )}
 
                 <input
                     ref={inputRef}
@@ -184,8 +179,8 @@ export function ProductSearch() {
                     onChange={(event) => {
                         setSearch(event.target.value);
                     }}
-                    placeholder="Pesquisar discos..."
-                    aria-label="Pesquisar produtos"
+                    placeholder={placeholder}
+                    aria-label="Pesquisar"
                     className="
                         min-w-0
                         w-full
@@ -199,8 +194,6 @@ export function ProductSearch() {
                         [&::-webkit-search-cancel-button]:hidden
                     "
                 />
-
-                {/* LIMPAR PESQUISA */}
 
                 {search && (
                     <button
@@ -231,26 +224,23 @@ export function ProductSearch() {
                 )}
             </div>
 
-            {/* LUPA FIXA À DIREITA */}
-
             <button
                 type="button"
                 onClick={() => {
-                    if (!expanded) {
+                    if (!isExpanded) {
                         shouldFocusRef.current = true;
-
                         setExpanded(true);
                     } else {
                         inputRef.current?.focus();
                     }
                 }}
                 aria-label={
-                    expanded
+                    isExpanded
                         ? "Focar pesquisa"
                         : "Expandir pesquisa"
                 }
-                aria-expanded={expanded}
-                title="Pesquisar produtos"
+                aria-expanded={isExpanded}
+                title="Pesquisar"
                 className="
                     flex
                     h-[54px]

@@ -2,13 +2,10 @@
 "use client";
 
 import {
-    useEffect,
     useRef,
-    useState,
 } from "react";
 
 import {
-    ChevronRight,
     Search,
     X,
 } from "lucide-react";
@@ -22,25 +19,16 @@ export function PerformancesSearch({
     value,
     onChange,
 }: PerformancesSearchProps) {
-    const [expanded, setExpanded] = useState(
-        Boolean(value),
-    );
-
     const inputRef = useRef<HTMLInputElement>(null);
 
-    useEffect(() => {
-        if (expanded) {
-            inputRef.current?.focus();
-        }
-    }, [expanded]);
-
     return (
-        <div className="pointer-events-none w-full">
+        <div className="w-full min-w-0">
             <div
-                className={`
-                    pointer-events-auto
+                className="
                     flex
                     h-14
+                    w-full
+                    min-w-0
                     max-w-full
                     items-center
                     overflow-hidden
@@ -50,60 +38,20 @@ export function PerformancesSearch({
                     bg-white
                     text-black
                     shadow-[-5px_5px_0_0_#000]
-                    transition-[width]
-                    duration-300
-                    ease-in-out
-                    ${
-                        expanded
-                            ? "w-[min(320px,calc(100vw-48px))]"
-                            : "w-14"
-                    }
-                `}
+                "
             >
                 {/* CAMPO DE BUSCA */}
 
                 <div
-                    className={`
+                    className="
                         flex
                         min-w-0
                         flex-1
                         items-center
-                        gap-1
-                        pl-3
-                        transition-opacity
-                        duration-200
-                        ${
-                            expanded
-                                ? "opacity-100"
-                                : "pointer-events-none opacity-0"
-                        }
-                    `}
-                    aria-hidden={!expanded}
-                    inert={!expanded}
+                        gap-2
+                        pl-4
+                    "
                 >
-                    <button
-                        type="button"
-                        onClick={() => setExpanded(false)}
-                        aria-label="Recolher pesquisa"
-                        title="Recolher pesquisa"
-                        className="
-                            flex
-                            h-9
-                            w-7
-                            shrink-0
-                            items-center
-                            justify-center
-                            rounded-lg
-                            transition-colors
-                            hover:bg-black/5
-                        "
-                    >
-                        <ChevronRight
-                            size={20}
-                            strokeWidth={2}
-                        />
-                    </button>
-
                     <input
                         ref={inputRef}
                         type="search"
@@ -156,23 +104,14 @@ export function PerformancesSearch({
                     )}
                 </div>
 
-                {/* BOTÃO DE BUSCA */}
+                {/* LUPA À DIREITA */}
 
                 <button
                     type="button"
                     onClick={() => {
-                        if (!expanded) {
-                            setExpanded(true);
-                        } else {
-                            inputRef.current?.focus();
-                        }
+                        inputRef.current?.focus();
                     }}
-                    aria-label={
-                        expanded
-                            ? "Focar pesquisa"
-                            : "Expandir pesquisa"
-                    }
-                    aria-expanded={expanded}
+                    aria-label="Focar pesquisa"
                     title="Pesquisar apresentações"
                     className="
                         flex
