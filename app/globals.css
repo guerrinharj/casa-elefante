@@ -357,3 +357,30 @@
     background: #000;
     cursor: pointer;
 }
+
+
+/* PAGE HEADER — DIAGONAL MARQUEE */
+
+@keyframes page-header-marquee {
+    from {
+        transform: translateX(0);
+    }
+
+    to {
+        transform: translateX(-50%);
+    }
+}
+
+.page-header-marquee {
+    animation-name: page-header-marquee;
+    animation-timing-function: linear;
+    animation-iteration-count: infinite;
+    will-change: transform;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .page-header-marquee {
+        animation: none;
+        will-change: auto;
+    }
+}
