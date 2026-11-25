@@ -512,7 +512,7 @@ export function Sidebar({ mobile = false }: SidebarProps) {
                 }`}
             >
                 {expanded && (
-                    <h2 className="font-october text-3xl uppercase leading-none text-[#D2232A]">
+                    <h2 className="font-october text-3xl uppercase leading-none text-black">
                         Filtros
                     </h2>
                 )}

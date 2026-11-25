@@ -1,3 +1,4 @@
+
 "use client";
 
 import Link from "next/link";
@@ -228,18 +229,21 @@ function FeaturedCard({
                 shrink-0
                 self-start
 
-                [--card-width:170px]
+                [--card-width:220px]
                 [--card-height:calc(var(--card-width)+80px)]
                 [--expanded-width:calc(100vw-32px)]
 
-                sm:[--card-width:200px]
-                sm:[--expanded-width:440px]
+                sm:[--card-width:260px]
+                sm:[--expanded-width:540px]
 
-                md:[--card-width:220px]
-                md:[--expanded-width:480px]
+                md:[--card-width:280px]
+                md:[--expanded-width:580px]
 
-                lg:[--card-width:240px]
-                lg:[--expanded-width:520px]
+                lg:[--card-width:320px]
+                lg:[--expanded-width:660px]
+
+                xl:[--card-width:360px]
+                xl:[--expanded-width:740px]
 
                 h-[var(--card-height)]
                 min-h-[var(--card-height)]
@@ -674,7 +678,7 @@ function FeaturedCard({
                                 ${
                                     isPerformance
                                         ? "text-[#FFFDE9]"
-                                        : "text-[#D2232A]"
+                                        : "text-black"
                                 }
                             `}
                         >
