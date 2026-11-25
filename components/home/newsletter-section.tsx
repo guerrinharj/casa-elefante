@@ -114,7 +114,7 @@ export function NewsletterSection() {
                             text-xl
                             uppercase
                             leading-none
-                            text-[#D2232A]
+                            text-black
                         "
                     >
                         Newsletter

@@ -271,8 +271,9 @@ export function Sidebar({ mobile = false }: SidebarProps) {
         "group flex w-full items-center justify-between gap-4 " +
         "text-left transition-opacity duration-200 hover:opacity-70";
 
-    const headingClassName =
-        "font-october text-3xl uppercase leading-none";
+    const headingClassName = mobile
+        ? "font-questrial text-base font-normal uppercase leading-none"
+        : "font-october text-3xl uppercase leading-none";
 
     function sectionArrowClassName(section: FilterSection) {
         return `text-xl transition-transform duration-300 ease-out ${

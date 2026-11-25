@@ -59,7 +59,7 @@ export function AboutSection() {
                             text-xl
                             uppercase
                             leading-none
-                            text-[#D2232A]
+                            text-black
                         "
                     >
                         Sobre

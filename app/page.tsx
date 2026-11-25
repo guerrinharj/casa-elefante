@@ -1,3 +1,4 @@
+
 import {
     Suspense,
 } from "react";
@@ -195,7 +196,6 @@ export default async function HomePage({
                 overflow-x-clip
             "
         >
-
             {/* FULL WIDTH HERO */}
 
             <section
@@ -205,7 +205,6 @@ export default async function HomePage({
                     overflow-hidden
                 "
             >
-
                 {/* PAGE HEADER */}
 
                 <PageHeader title="Casa Elefante" />
@@ -248,7 +247,6 @@ export default async function HomePage({
                     lg:gap-8
                 "
             >
-
                 {/* DESKTOP LEFT COLUMN */}
 
                 <aside
@@ -262,7 +260,6 @@ export default async function HomePage({
                         md:flex
                     "
                 >
-
                     {/* DESKTOP FILTERS */}
 
                     <Suspense fallback={null}>
@@ -291,7 +288,6 @@ export default async function HomePage({
                         flex-1
                     "
                 >
-
                     {/* SEARCH AND MOBILE FILTERS */}
 
                     <div
@@ -302,22 +298,14 @@ export default async function HomePage({
                             flex
                             w-full
                             min-w-0
-                            items-center
-                            justify-between
+                            flex-col
+                            items-start
                             gap-4
+                            md:flex-row
+                            md:items-center
+                            md:justify-between
                         "
                     >
-
-                        {/* MOBILE FILTERS */}
-
-                        <div className="shrink-0 md:hidden">
-                            <Suspense fallback={null}>
-                                <MobileFilters>
-                                    <Sidebar mobile />
-                                </MobileFilters>
-                            </Suspense>
-                        </div>
-
                         {/* PRODUCT SEARCH */}
 
                         <div
@@ -330,6 +318,22 @@ export default async function HomePage({
                         >
                             <Suspense fallback={null}>
                                 <ProductSearch />
+                            </Suspense>
+                        </div>
+
+                        {/* MOBILE FILTERS */}
+
+                        <div
+                            className="
+                                w-full
+                                min-w-0
+                                md:hidden
+                            "
+                        >
+                            <Suspense fallback={null}>
+                                <MobileFilters>
+                                    <Sidebar mobile />
+                                </MobileFilters>
                             </Suspense>
                         </div>
 
@@ -359,7 +363,6 @@ export default async function HomePage({
                                 md:hidden
                             "
                         >
-
                             {/* MOBILE ABOUT */}
 
                             <div className="w-full max-w-[420px]">
@@ -371,8 +374,10 @@ export default async function HomePage({
                             <div className="w-full max-w-[420px]">
                                 <NewsletterSection />
                             </div>
+
                         </div>
                     )}
+
                 </main>
             </div>
         </div>

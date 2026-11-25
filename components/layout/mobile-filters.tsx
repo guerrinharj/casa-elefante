@@ -13,8 +13,8 @@ import {
 } from "next/navigation";
 
 import {
-    ChevronLeft,
-    SlidersHorizontal,
+    ChevronDown,
+    ChevronUp,
 } from "lucide-react";
 
 type MobileFiltersProps = {
@@ -36,18 +36,16 @@ export function MobileFilters({
     return (
         <div
             className="
-                pointer-events-none
-                fixed
-                left-4
-                top-[84px]
+                relative
                 z-40
+                w-full
                 md:hidden
             "
         >
             <div
-                className={`
-                    pointer-events-auto
+                className="
                     flex
+                    w-full
                     max-h-[calc(100dvh-100px)]
                     flex-col
                     overflow-hidden
@@ -57,86 +55,59 @@ export function MobileFilters({
                     bg-white
                     text-black
                     shadow-[-5px_5px_0_0_#000]
-                    transition-[width]
-                    duration-300
-                    ease-in-out
-                    ${
-                        open
-                            ? "w-[min(288px,calc(100vw-32px))]"
-                            : "w-14"
-                    }
-                `}
+                "
             >
-                {/* CABEÇALHO */}
-
-                <div
-                    className={`
+                <button
+                    type="button"
+                    onClick={() => setOpen(
+                        (current) => !current
+                    )}
+                    aria-label={
+                        open
+                            ? "Recolher filtros"
+                            : "Expandir filtros"
+                    }
+                    aria-expanded={open}
+                    aria-controls="mobile-filters-content"
+                    className="
                         flex
-                        h-14
+                        h-10
+                        w-full
                         shrink-0
                         items-center
-                        ${
-                            open
-                                ? "justify-between px-4"
-                                : "justify-center"
-                        }
-                    `}
+                        justify-between
+                        gap-2
+                        px-4
+                        text-left
+                        transition-colors
+                        hover:bg-black/5
+                    "
                 >
-                    {open && (
-                        <h2
-                            className="
-                                font-october
-                                text-3xl
-                                uppercase
-                                leading-none
-                            "
-                        >
-                            Filtros
-                        </h2>
-                    )}
-
-                    <button
-                        type="button"
-                        onClick={() => setOpen((current) => !current)}
-                        aria-label={
-                            open
-                                ? "Recolher filtros"
-                                : "Expandir filtros"
-                        }
-                        aria-expanded={open}
-                        aria-controls="mobile-filters-content"
-                        title={
-                            open
-                                ? "Recolher filtros"
-                                : "Expandir filtros"
-                        }
+                    <span
                         className="
-                            flex
-                            h-10
-                            w-10
-                            shrink-0
-                            items-center
-                            justify-center
-                            rounded-lg
-                            transition-colors
-                            hover:bg-black/5
+                            font-questrial
+                            text-base
+                            font-normal
+                            uppercase
+                            leading-none
+                            tracking-wide
                         "
                     >
-                        {open ? (
-                            <ChevronLeft
-                                size={24}
-                                strokeWidth={2}
-                            />
-                        ) : (
-                            <SlidersHorizontal
-                                size={24}
-                                strokeWidth={2}
-                            />
-                        )}
-                    </button>
-                </div>
+                        FILTROS
+                    </span>
 
-                {/* CONTEÚDO DOS FILTROS */}
+                    {open ? (
+                        <ChevronUp
+                            size={18}
+                            strokeWidth={1.5}
+                        />
+                    ) : (
+                        <ChevronDown
+                            size={18}
+                            strokeWidth={1.5}
+                        />
+                    )}
+                </button>
 
                 <div
                     id="mobile-filters-content"
@@ -158,7 +129,7 @@ export function MobileFilters({
                 >
                     <div
                         className="
-                            w-[254px]
+                            w-full
                             border-t
                             border-black
                             pt-4
