@@ -102,7 +102,7 @@ export default async function TodaTercaTemPage() {
     );
 
     return (
-        <main className="w-full overflow-hidden p-4 md:p-6">
+        <main className="w-full overflow-hidden">
             <PageHeader
                 title="Toda Terça Tem"
                 variant="ttt"
