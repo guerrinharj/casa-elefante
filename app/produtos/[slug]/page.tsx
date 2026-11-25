@@ -1,4 +1,3 @@
-
 import Link from "next/link";
 
 import {
@@ -157,7 +156,8 @@ export default async function ProductPage({
                                 ) => (
                                     <div
                                         key={image}
-                                        className="
+                                        className={`
+                                            ${index > 0 ? "hidden md:block" : "block"}
                                             aspect-square
                                             rounded-xl
                                             border
@@ -165,7 +165,7 @@ export default async function ProductPage({
                                             bg-white
                                             p-3
                                             shadow-[-5px_5px_0_0_#000]
-                                        "
+                                        `}
                                     >
                                         <div className="h-full w-full overflow-hidden rounded-lg bg-white">
                                             <img
@@ -274,13 +274,10 @@ export default async function ProductPage({
                                         uppercase
                                         leading-[0.85]
                                         tracking-tight
-                                        text-[#D2232A]
+                                        text-black
                                         md:text-5xl
                                         lg:text-6xl
                                     "
-                                        style={{
-                                            WebkitTextStroke: "0.01px black",
-                                        }}
                                 >
                                     {product.name}
                                 </h1>
