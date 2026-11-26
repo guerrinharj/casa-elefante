@@ -1,21 +1,23 @@
-
 "use client";
+
+import {
+    useEffect,
+    useState,
+    useSyncExternalStore,
+} from "react";
 
 import Link from "next/link";
 
 import {
-    useEffect,
-    useRef,
-    useState,
-} from "react";
-
-import {
+    ArrowRight,
     ArrowUpRight,
+    ChevronDown,
+    ChevronUp,
+    Disc3,
     Pause,
     Play,
+    Star,
 } from "lucide-react";
-
-import tttFallback from "@/app/images/ttt-2.png";
 
 type WholesaleStatus =
     | "pending"
@@ -23,1293 +25,935 @@ type WholesaleStatus =
     | "rejected"
     | null;
 
-export type FeaturedProduct = {
+type FeaturedProduct = {
     id: string;
     name: string;
     slug: string;
-    artist: string | null;
+    artist: string;
     price: number;
     format: string | null;
     year: number | null;
     images: string[] | null;
     stock: number;
-    wholesale_only?: boolean;
-    description?: string | null;
-    genre?: string | null;
-    label?: string | null;
-    country?: string | null;
-    condition?: string | null;
-};
-
-export type FeaturedPerformance = {
-    id: string;
-    name: string;
-    slug: string;
-    performance_date: string | null;
-    cover_image: string | null;
-    location: string | null;
-    description?: string | null;
+    wholesale_only?: boolean | null;
+    is_featured: boolean;
+    is_record_of_the_week: boolean;
+    editorial_comment: string | null;
 };
 
 type FeaturedProductsCarouselProps = {
     products: FeaturedProduct[];
-    performances: FeaturedPerformance[];
     isWholesale?: boolean;
     wholesaleStatus?: WholesaleStatus;
 };
 
-type CarouselItem =
-    | {
-        id: string;
-        type: "product";
-        product: FeaturedProduct;
-    }
-    | {
-        id: string;
-        type: "performance";
-        performance: FeaturedPerformance;
-    };
+const ROTATION_INTERVAL = 5000;
 
-type FeaturedCardProps = {
-    item: CarouselItem;
-    expanded: boolean;
-    isWholesale: boolean;
-    wholesaleStatus: WholesaleStatus;
-    onExpand: () => void;
-    onCollapse: () => void;
-    onToggle: () => void;
-    duplicate: boolean;
-};
+const priceFormatter = new Intl.NumberFormat("pt-BR", {
+    style: "currency",
+    currency: "BRL",
+});
 
-const SCROLL_SPEED = 35;
-
-function formatDate(date: string | null) {
-    if (!date) return "";
-
-    return new Intl.DateTimeFormat("pt-BR", {
-        day: "2-digit",
-        month: "short",
-        year: "numeric",
-        timeZone: "UTC",
-    }).format(new Date(date));
-}
-
-function formatPrice(price: number) {
-    return Number(price).toLocaleString("pt-BR", {
-        style: "currency",
-        currency: "BRL",
-    });
-}
-
-function FeaturedCard({
-    item,
-    expanded,
-    isWholesale,
-    wholesaleStatus,
-    onExpand,
-    onCollapse,
-    onToggle,
-    duplicate,
-}: FeaturedCardProps) {
-    const isPerformance =
-        item.type === "performance";
-
-    const product =
-        item.type === "product"
-            ? item.product
-            : null;
-
-    const performance =
-        item.type === "performance"
-            ? item.performance
-            : null;
-
-    const name =
-        product?.name ??
-        performance?.name ??
-        "";
-
-    const artist =
-        product?.artist ??
-        (isPerformance ? "Toda Terça Tem" : "");
-
-    const image =
-        product?.images?.[0] ??
-        performance?.cover_image ??
-        (isPerformance ? tttFallback.src : null);
-
-    const isFallback =
-        isPerformance &&
-        !performance?.cover_image;
-
-    const isPendingWholesaleProduct =
-        Boolean(product?.wholesale_only) &&
-        wholesaleStatus === "pending" &&
-        !isWholesale;
-
-    const href =
-        isPerformance
-            ? `/toda-terca-tem/${performance?.slug}`
-            : `/produtos/${product?.slug}`;
-
-    const description =
-        product?.description ??
-        performance?.description ??
-        null;
-
-    const details = product
-        ? [
-            {
-                label: "Gênero",
-                value: product.genre,
-            },
-            {
-                label: "Gravadora",
-                value: product.label,
-            },
-            {
-                label: "Ano",
-                value: product.year,
-            },
-            {
-                label: "Formato",
-                value: product.format,
-            },
-            {
-                label: "País",
-                value: product.country,
-            },
-            {
-                label: "Condição",
-                value: product.condition,
-            },
-        ]
-        : [
-            {
-                label: "Data",
-                value: formatDate(
-                    performance?.performance_date ?? null
-                ),
-            },
-            {
-                label: "Local",
-                value: performance?.location,
-            },
-        ];
-
-    const availableDetails = details.filter(
-        (detail) =>
-            detail.value !== null &&
-            detail.value !== undefined &&
-            detail.value !== ""
+function subscribeReducedMotion(
+    callback: () => void,
+) {
+    const media = window.matchMedia(
+        "(prefers-reduced-motion: reduce)",
     );
 
+    media.addEventListener("change", callback);
+
+    return () => {
+        media.removeEventListener("change", callback);
+    };
+}
+
+function getReducedMotion() {
+    return window.matchMedia(
+        "(prefers-reduced-motion: reduce)",
+    ).matches;
+}
+
+function getServerReducedMotion() {
+    return true;
+}
+
+function ProductImage({
+    product,
+    locked = false,
+}: {
+    product: FeaturedProduct;
+    locked?: boolean;
+}) {
+    const image = product.images?.[0];
+
     return (
-        <article
-            onMouseEnter={onExpand}
-            onMouseLeave={onCollapse}
-            onFocusCapture={onExpand}
-            onBlurCapture={(event) => {
-                if (
-                    !event.currentTarget.contains(
-                        event.relatedTarget as Node | null
-                    )
-                ) {
-                    onCollapse();
-                }
-            }}
-            onKeyDown={(event) => {
-                if (event.key === "Escape") {
-                    onCollapse();
-                }
-            }}
+        <div
             className={`
                 relative
-                box-border
-                shrink-0
-                self-start
-
-                [--card-width:220px]
-                [--card-height:calc(var(--card-width)+80px)]
-                [--expanded-width:calc(100vw-32px)]
-
-                sm:[--card-width:260px]
-                sm:[--expanded-width:540px]
-
-                md:[--card-width:280px]
-                md:[--expanded-width:580px]
-
-                lg:[--card-width:320px]
-                lg:[--expanded-width:660px]
-
-                xl:[--card-width:360px]
-                xl:[--expanded-width:740px]
-
-                h-[var(--card-height)]
-                min-h-[var(--card-height)]
-                max-h-[var(--card-height)]
-
-                transition-[width]
-                duration-[450ms]
-                ease-[cubic-bezier(0.2,0.75,0.2,1)]
-                motion-reduce:transition-none
+                aspect-square
+                w-full
+                overflow-hidden
+                border
+                border-black
+                bg-white
 
                 ${
-                    expanded
-                        ? "z-20 w-[var(--expanded-width)]"
-                        : "z-0 w-[var(--card-width)]"
+                    locked
+                        ? "opacity-50 grayscale"
+                        : ""
                 }
             `}
         >
-            <div
-                className={`
-                    relative
-                    box-border
-                    flex
-                    h-full
-                    min-h-0
-                    w-full
-                    min-w-0
-                    items-stretch
-                    overflow-hidden
-                    rounded-lg
-                    border
-                    border-black
-                    p-2
-
-                    transition-[transform,box-shadow]
-                    duration-300
-                    ease-out
-                    motion-reduce:transition-none
-
-                    ${
-                        isPerformance
-                            ? "bg-[#D2232A] text-[#FFFDE9]"
-                            : "bg-white text-black"
-                    }
-
-                    ${
-                        expanded
-                            ? "translate-x-1 -translate-y-1 shadow-[-8px_8px_0_0_#000]"
-                            : "shadow-[-4px_4px_0_0_#000]"
-                    }
-                `}
-            >
-                {/* CARD PRINCIPAL */}
-
+            {image ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                    src={image}
+                    alt={`${product.artist} — ${product.name}`}
+                    className="
+                        block
+                        h-full
+                        w-full
+                        object-contain
+                    "
+                    draggable={false}
+                />
+            ) : (
                 <div
                     className="
                         flex
                         h-full
-                        min-h-0
-                        w-[calc(var(--card-width)-18px)]
-                        min-w-0
-                        max-w-[calc(var(--card-width)-18px)]
-                        shrink-0
-                        flex-col
-                        gap-2
-                        overflow-hidden
+                        w-full
+                        items-center
+                        justify-center
+                        bg-black/5
                     "
                 >
-                    {/* CAPA */}
-
-                    <div
-                        className={`
-                            relative
-                            flex
-                            aspect-square
-                            h-[calc(var(--card-width)-18px)]
-                            w-[calc(var(--card-width)-18px)]
-                            shrink-0
-                            items-center
-                            justify-center
-                            overflow-hidden
-                            rounded-md
-
-                            ${
-                                isPerformance
-                                    ? "bg-[#D2232A]"
-                                    : "bg-neutral-100"
-                            }
-                        `}
-                    >
-                        {image ? (
-                            <img
-                                src={image}
-                                alt={name}
-                                draggable={false}
-                                loading="lazy"
-                                className={`
-                                    block
-                                    transition-all
-                                    duration-300
-
-                                    ${
-                                        isFallback
-                                            ? "h-[75%] w-[75%] object-contain"
-                                            : "h-full w-full object-cover"
-                                    }
-
-                                    ${
-                                        isPendingWholesaleProduct
-                                            ? "opacity-50 grayscale"
-                                            : ""
-                                    }
-
-                                    ${
-                                        expanded
-                                            ? "scale-[1.02]"
-                                            : "scale-100"
-                                    }
-                                `}
-                            />
-                        ) : (
-                            <span className="text-xs">
-                                Sem imagem
-                            </span>
-                        )}
-
-                        {isPerformance && (
-                            <span
-                                className="
-                                    absolute
-                                    bottom-2
-                                    left-2
-                                    max-w-[calc(100%-16px)]
-                                    truncate
-                                    rounded-full
-                                    border
-                                    border-black
-                                    bg-[#FFFDE9]
-                                    px-2
-                                    py-1
-                                    text-[9px]
-                                    font-medium
-                                    uppercase
-                                    tracking-wide
-                                    text-[#D2232A]
-                                    shadow-[2px_2px_0_0_#000]
-                                "
-                            >
-                                Próxima apresentação
-                            </span>
-                        )}
-
-                        {product?.wholesale_only && (
-                            <span
-                                className="
-                                    absolute
-                                    bottom-2
-                                    left-2
-                                    max-w-[calc(100%-16px)]
-                                    truncate
-                                    rounded-full
-                                    border
-                                    border-black
-                                    bg-[#FFFDE9]
-                                    px-2
-                                    py-1
-                                    text-[9px]
-                                    font-medium
-                                    uppercase
-                                    tracking-wide
-                                    text-black
-                                    shadow-[2px_2px_0_0_#000]
-                                "
-                            >
-                                Exclusivo atacado
-                            </span>
-                        )}
-
-                        {isPendingWholesaleProduct && (
-                            <div
-                                className="
-                                    absolute
-                                    inset-0
-                                    flex
-                                    items-center
-                                    justify-center
-                                    bg-[#FFFDE9]/30
-                                "
-                            >
-                                <span
-                                    className="
-                                        rounded-full
-                                        border
-                                        border-black
-                                        bg-[#FFFDE9]
-                                        px-3
-                                        py-2
-                                        text-center
-                                        text-[10px]
-                                        font-medium
-                                        text-black
-                                    "
-                                >
-                                    Aguardando aprovação
-                                </span>
-                            </div>
-                        )}
-                    </div>
-
-                    {/* INFORMAÇÕES COMPACTAS */}
-
-                    <div
-                        className="
-                            flex
-                            h-[72px]
-                            min-h-[72px]
-                            max-h-[72px]
-                            w-full
-                            min-w-0
-                            shrink-0
-                            flex-col
-                            overflow-hidden
-                        "
-                    >
-                        <h2
-                            title={name}
-                            className="
-                                shrink-0
-                                truncate
-                                text-sm
-                                font-medium
-                                leading-4
-                            "
-                        >
-                            {name}
-                        </h2>
-
-                        <p
-                            title={artist}
-                            className="
-                                mt-1
-                                shrink-0
-                                truncate
-                                text-xs
-                                leading-4
-                            "
-                        >
-                            {artist}
-                        </p>
-
-                        <div
-                            className="
-                                mt-auto
-                                flex
-                                w-full
-                                min-w-0
-                                shrink-0
-                                items-center
-                                justify-between
-                                gap-1
-                                overflow-hidden
-                                text-xs
-                            "
-                        >
-                            {product ? (
-                                <>
-                                    <div
-                                        className="
-                                            flex
-                                            min-w-0
-                                            items-center
-                                            gap-1
-                                            overflow-hidden
-                                        "
-                                    >
-                                        <span className="truncate">
-                                            {product.format}
-                                        </span>
-
-                                        {product.year && (
-                                            <span className="shrink-0">
-                                                · {product.year}
-                                            </span>
-                                        )}
-                                    </div>
-
-                                    <span
-                                        className="
-                                            shrink-0
-                                            whitespace-nowrap
-                                            text-xl
-                                        "
-                                    >
-                                        {formatPrice(product.price)}
-                                    </span>
-                                </>
-                            ) : (
-                                <>
-                                    <span className="truncate">
-                                        {formatDate(
-                                            performance?.performance_date ??
-                                            null
-                                        )}
-                                    </span>
-
-                                    <ArrowUpRight
-                                        size={20}
-                                        strokeWidth={1.5}
-                                        className="shrink-0"
-                                    />
-                                </>
-                            )}
-                        </div>
-                    </div>
-
-                    {/* LINK DESKTOP */}
-
-                    {!isPendingWholesaleProduct && (
-                        <Link
-                            href={href}
-                            tabIndex={duplicate ? -1 : 0}
-                            aria-label={`Ver ${name}`}
-                            className="
-                                absolute
-                                bottom-2
-                                left-2
-                                top-2
-                                hidden
-                                w-[calc(var(--card-width)-18px)]
-                                rounded-md
-                                md:block
-                            "
-                        />
-                    )}
-
-                    {/* EXPANSÃO MOBILE */}
-
-                    <button
-                        type="button"
-                        onClick={onToggle}
-                        tabIndex={duplicate ? -1 : 0}
-                        aria-expanded={expanded}
-                        aria-label={
-                            expanded
-                                ? `Recolher informações de ${name}`
-                                : `Expandir informações de ${name}`
-                        }
-                        className="
-                            absolute
-                            bottom-2
-                            left-2
-                            top-2
-                            w-[calc(var(--card-width)-18px)]
-                            rounded-md
-                            md:hidden
-                        "
+                    <Disc3
+                        size={28}
+                        className="opacity-40"
                     />
                 </div>
+            )}
+        </div>
+    );
+}
 
-                {/* PAINEL EXPANDIDO */}
+function ProductInformation({
+    product,
+    locked = false,
+    showPrice = false,
+}: {
+    product: FeaturedProduct;
+    locked?: boolean;
+    showPrice?: boolean;
+}) {
+    const metadata = [
+        product.year,
+        product.format,
+    ]
+        .filter(Boolean)
+        .join(" · ");
 
-                <div
-                    aria-hidden={!expanded}
-                    inert={!expanded}
-                    className={`
-                        flex
-                        h-full
-                        min-h-0
-                        max-h-full
-                        min-w-0
-                        flex-1
-                        flex-col
-                        overflow-hidden
+    return (
+        <div
+            className="
+                flex
+                min-w-0
+                flex-1
+                flex-col
+                items-start
+                gap-1
+            "
+        >
+            <p
+                className="
+                    w-full
+                    truncate
+                    text-[9px]
+                    uppercase
+                    leading-tight
+                    sm:text-xs
+                "
+            >
+                {product.artist}
+            </p>
 
-                        transition-[opacity,transform]
-                        duration-300
-                        motion-reduce:transition-none
+            <h3
+                className="
+                    line-clamp-3
+                    break-words
+                    font-october
+                    text-sm
+                    uppercase
+                    leading-[0.95]
+                    sm:text-xl
+                    lg:text-2xl
+                "
+            >
+                {product.name}
+            </h3>
 
-                        ${
-                            expanded
-                                ? "translate-x-0 opacity-100 delay-150"
-                                : "pointer-events-none translate-x-3 opacity-0"
-                        }
-                    `}
+            {metadata && (
+                <p
+                    className="
+                        text-[9px]
+                        leading-tight
+                        opacity-60
+                        sm:text-xs
+                    "
                 >
-                    <div
-                        className="
-                            ml-3
-                            flex
-                            h-full
-                            min-h-0
-                            max-h-full
-                            min-w-0
-                            flex-col
-                            overflow-hidden
-                            border-l
-                            border-current/20
-                            pl-3
-                            pr-1
-                            pt-1
-                        "
-                    >
-                        {/* TÍTULO */}
+                    {metadata}
+                </p>
+            )}
 
-                        <span
-                            className="
-                                shrink-0
-                                truncate
-                                text-[9px]
-                                font-medium
-                                uppercase
-                                tracking-[0.12em]
-                                opacity-60
-                            "
-                        >
-                            {isPerformance
-                                ? "Próxima apresentação"
-                                : "Disco em destaque"}
-                        </span>
+            {showPrice && !locked && (
+                <p
+                    className="
+                        mt-1
+                        text-xs
+                        font-medium
+                        sm:text-sm
+                    "
+                >
+                    {priceFormatter.format(
+                        product.price,
+                    )}
+                </p>
+            )}
 
-                        <h3
-                            className={`
-                                mt-2
-                                shrink-0
-                                line-clamp-2
-                                break-words
-                                font-october
-                                text-xl
-                                uppercase
-                                leading-none
-                                md:text-2xl
+            {locked && (
+                <p
+                    className="
+                        mt-1
+                        text-[9px]
+                        leading-tight
+                        opacity-60
+                        sm:text-xs
+                    "
+                >
+                    Cadastro em análise
+                </p>
+            )}
+        </div>
+    );
+}
 
-                                ${
-                                    isPerformance
-                                        ? "text-[#FFFDE9]"
-                                        : "text-black"
-                                }
-                            `}
-                        >
-                            {name}
-                        </h3>
+function ProductPreview({
+    product,
+    locked,
+    showPrice = false,
+}: {
+    product: FeaturedProduct;
+    locked: boolean;
+    showPrice?: boolean;
+}) {
+    const className = `
+        group
+        flex
+        min-w-0
+        items-start
+        gap-2
+        sm:gap-3
+    `;
 
-                        <p
-                            className="
-                                mt-1
-                                shrink-0
-                                truncate
-                                text-xs
-                                font-medium
-                            "
-                        >
-                            {artist}
-                        </p>
-
-                        {/* METADADOS */}
-
-                        <div
-                            className="
-                                mt-3
-                                min-h-0
-                                min-w-0
-                                flex-1
-                                space-y-1
-                                overflow-x-hidden
-                                overflow-y-auto
-                                overscroll-contain
-                            "
-                        >
-                            {availableDetails.map((detail) => (
-                                <div
-                                    key={detail.label}
-                                    className="
-                                        flex
-                                        min-w-0
-                                        items-start
-                                        justify-between
-                                        gap-2
-                                        text-[10px]
-                                        leading-tight
-                                    "
-                                >
-                                    <span
-                                        className="
-                                            shrink-0
-                                            opacity-50
-                                        "
-                                    >
-                                        {detail.label}
-                                    </span>
-
-                                    <span
-                                        className="
-                                            min-w-0
-                                            break-words
-                                            text-right
-                                            font-medium
-                                        "
-                                    >
-                                        {detail.value}
-                                    </span>
-                                </div>
-                            ))}
-
-                            {description && (
-                                <p
-                                    className="
-                                        mt-3
-                                        line-clamp-4
-                                        break-words
-                                        text-[11px]
-                                        leading-relaxed
-                                        opacity-80
-                                    "
-                                >
-                                    {description}
-                                </p>
-                            )}
-                        </div>
-
-                        {/* LINK DO PAINEL */}
-
-                        <div
-                            className="
-                                mt-auto
-                                min-w-0
-                                shrink-0
-                                pt-3
-                            "
-                        >
-                            {isPendingWholesaleProduct ? (
-                                <span
-                                    className="
-                                        block
-                                        border-t
-                                        border-current
-                                        pt-2
-                                        text-[10px]
-                                        font-medium
-                                    "
-                                >
-                                    Aguardando aprovação
-                                </span>
-                            ) : (
-                                <Link
-                                    href={href}
-                                    tabIndex={duplicate ? -1 : 0}
-                                    className="
-                                        flex
-                                        min-w-0
-                                        items-center
-                                        justify-between
-                                        gap-2
-                                        border-t
-                                        border-current
-                                        pt-2
-                                        text-xs
-                                        font-medium
-                                        transition-opacity
-                                        hover:opacity-60
-                                    "
-                                >
-                                    <span className="truncate">
-                                        {isPerformance
-                                            ? "Ver apresentação"
-                                            : "Ver disco"}
-                                    </span>
-
-                                    <ArrowUpRight
-                                        size={16}
-                                        strokeWidth={1.5}
-                                        className="shrink-0"
-                                    />
-                                </Link>
-                            )}
-                        </div>
-                    </div>
-                </div>
+    const content = (
+        <>
+            <div
+                className="
+                    w-[38%]
+                    max-w-[130px]
+                    shrink-0
+                    transition-transform
+                    duration-200
+                    group-hover:-translate-y-0.5
+                "
+            >
+                <ProductImage
+                    product={product}
+                    locked={locked}
+                />
             </div>
-        </article>
+
+            <ProductInformation
+                product={product}
+                locked={locked}
+                showPrice={showPrice}
+            />
+        </>
+    );
+
+    if (locked) {
+        return (
+            <div className={className}>
+                {content}
+            </div>
+        );
+    }
+
+    return (
+        <Link
+            href={`/produtos/${product.slug}`}
+            className={className}
+        >
+            {content}
+        </Link>
     );
 }
 
 export function FeaturedProductsCarousel({
     products,
-    performances,
     isWholesale = false,
     wholesaleStatus = null,
 }: FeaturedProductsCarouselProps) {
-    const viewportRef =
-        useRef<HTMLDivElement>(null);
+    const [expanded, setExpanded] = useState(true);
 
-    const trackRef =
-        useRef<HTMLDivElement>(null);
+    const [activeIndex, setActiveIndex] = useState(0);
 
-    const groupRef =
-        useRef<HTMLDivElement>(null);
+    const [isPlaying, setIsPlaying] = useState(true);
 
-    const positionRef =
-        useRef(0);
+    const [isHovered, setIsHovered] = useState(false);
 
-    const groupWidthRef =
-        useRef(0);
+    const [isFocused, setIsFocused] = useState(false);
 
-    const isHoveredRef =
-        useRef(false);
-
-    const isFocusedRef =
-        useRef(false);
-
-    const isPlayingRef =
-        useRef(true);
-
-    const expandedCardRef =
-        useRef<string | null>(null);
-
-    const resumeAtRef =
-        useRef(0);
-
-    const [isPlaying, setIsPlaying] =
-        useState(true);
-
-    const [repeatCount, setRepeatCount] =
-        useState(1);
-
-    const [reducedMotion, setReducedMotion] =
-        useState(false);
-
-    const [expandedCard, setExpandedCard] =
-        useState<string | null>(null);
-
-    const visibleProducts = products.filter(
-        (product) =>
-            !product.wholesale_only ||
-            isWholesale ||
-            wholesaleStatus === "pending"
+    const reducedMotion = useSyncExternalStore(
+        subscribeReducedMotion,
+        getReducedMotion,
+        getServerReducedMotion,
     );
 
-    const items: CarouselItem[] = [];
+    /*
+     * WHOLESALE ACCESS
+     */
 
-    let performanceIndex = 0;
+    const canSeeWholesaleOnly =
+        isWholesale ||
+        wholesaleStatus === "approved" ||
+        wholesaleStatus === "pending";
 
-    visibleProducts.forEach((product, index) => {
-        items.push({
-            id: `product-${product.id}`,
-            type: "product",
-            product,
-        });
+    const visibleProducts = products.filter(
+        (product) => {
+            if (product.stock <= 0) {
+                return false;
+            }
 
-        if (
-            (index + 1) % 3 === 0 &&
-            performanceIndex < performances.length
-        ) {
-            const performance =
-                performances[performanceIndex];
-
-            items.push({
-                id: `performance-${performance.id}`,
-                type: "performance",
-                performance,
-            });
-
-            performanceIndex += 1;
-        }
-    });
-
-    while (performanceIndex < performances.length) {
-        const performance =
-            performances[performanceIndex];
-
-        items.push({
-            id: `performance-${performance.id}`,
-            type: "performance",
-            performance,
-        });
-
-        performanceIndex += 1;
-    }
-
-    const itemCount = items.length;
-
-    const itemsKey = items
-        .map((item) => item.id)
-        .join("|");
-
-    function expandCard(key: string) {
-        expandedCardRef.current = key;
-        setExpandedCard(key);
-    }
-
-    function collapseCard(key: string) {
-        if (expandedCardRef.current !== key) {
-            return;
-        }
-
-        expandedCardRef.current = null;
-
-        resumeAtRef.current =
-            performance.now() + 500;
-
-        setExpandedCard(null);
-    }
-
-    function collapseAll() {
-        expandedCardRef.current = null;
-
-        resumeAtRef.current =
-            performance.now() + 500;
-
-        setExpandedCard(null);
-    }
-
-    function toggleCard(key: string) {
-        if (expandedCardRef.current === key) {
-            collapseCard(key);
-        } else {
-            expandCard(key);
-        }
-    }
-
-    useEffect(() => {
-        const mediaQuery = window.matchMedia(
-            "(prefers-reduced-motion: reduce)"
-        );
-
-        function updatePreference() {
-            setReducedMotion(mediaQuery.matches);
-        }
-
-        updatePreference();
-
-        mediaQuery.addEventListener(
-            "change",
-            updatePreference
-        );
-
-        return () => {
-            mediaQuery.removeEventListener(
-                "change",
-                updatePreference
-            );
-        };
-    }, []);
-
-    useEffect(() => {
-        isPlayingRef.current = isPlaying;
-    }, [isPlaying]);
-
-    useEffect(() => {
-        positionRef.current = 0;
-        expandedCardRef.current = null;
-        resumeAtRef.current = 0;
-
-        setExpandedCard(null);
-
-        if (trackRef.current) {
-            trackRef.current.style.transform =
-                "translate3d(0, 0, 0)";
-        }
-    }, [itemsKey, reducedMotion]);
-
-    useEffect(() => {
-        const viewport = viewportRef.current;
-        const group = groupRef.current;
-
-        if (!viewport || !group || !itemCount) {
-            return;
-        }
-
-        function measure() {
             if (
-                !viewport ||
-                !group ||
-                expandedCardRef.current !== null ||
-                performance.now() < resumeAtRef.current
+                product.wholesale_only &&
+                !canSeeWholesaleOnly
             ) {
-                return;
+                return false;
             }
 
-            const viewportWidth =
-                viewport.clientWidth;
+            return true;
+        },
+    );
 
-            const groupWidth =
-                group.getBoundingClientRect().width;
+    /*
+     * RECORD OF THE WEEK
+     */
 
-            if (!groupWidth) {
-                return;
-            }
+    const recordOfTheWeek =
+        visibleProducts.find(
+            (product) =>
+                product.is_record_of_the_week,
+        ) ?? null;
 
-            groupWidthRef.current = groupWidth;
+    /*
+     * FEATURED PRODUCTS
+     */
 
-            setRepeatCount(
-                Math.max(
-                    1,
-                    Math.ceil(viewportWidth / groupWidth)
-                )
-            );
-
-            positionRef.current =
-                positionRef.current % groupWidth;
-        }
-
-        measure();
-
-        const observer =
-            new ResizeObserver(measure);
-
-        observer.observe(viewport);
-        observer.observe(group);
-
-        const timeout = window.setTimeout(
-            measure,
-            550
+    const featuredProducts =
+        visibleProducts.filter(
+            (product) => product.is_featured,
         );
 
-        return () => {
-            observer.disconnect();
-            window.clearTimeout(timeout);
-        };
-    }, [
-        itemCount,
-        itemsKey,
-        expandedCard,
-        reducedMotion,
-    ]);
+    const itemCount = featuredProducts.length;
+
+    const currentIndex =
+        itemCount > 0
+            ? activeIndex % itemCount
+            : 0;
+
+    const currentProduct =
+        featuredProducts[currentIndex] ?? null;
+
+    /*
+     * WHOLESALE LOCK
+     */
+
+    function isProductLocked(
+        product: FeaturedProduct | null,
+    ) {
+        return (
+            Boolean(product?.wholesale_only) &&
+            wholesaleStatus === "pending" &&
+            !isWholesale
+        );
+    }
+
+    /*
+     * AUTOMATIC ROTATION
+     */
+
+    const shouldRotate =
+        expanded &&
+        isPlaying &&
+        !isHovered &&
+        !isFocused &&
+        !reducedMotion &&
+        itemCount > 1;
 
     useEffect(() => {
-        if (itemCount <= 1 || reducedMotion) {
+        if (!shouldRotate) {
             return;
         }
 
-        let frameId = 0;
-        let previousTime = 0;
-
-        function animate(currentTime: number) {
-            if (!previousTime) {
-                previousTime = currentTime;
-            }
-
-            const delta = Math.min(
-                (currentTime - previousTime) / 1000,
-                0.05
+        const timer = window.setTimeout(() => {
+            setActiveIndex(
+                (current) =>
+                    (current + 1) % itemCount,
             );
-
-            previousTime = currentTime;
-
-            const canAnimate =
-                isPlayingRef.current &&
-                !isHoveredRef.current &&
-                !isFocusedRef.current &&
-                expandedCardRef.current === null &&
-                currentTime >= resumeAtRef.current &&
-                groupWidthRef.current > 0;
-
-            if (canAnimate && trackRef.current) {
-                positionRef.current =
-                    (
-                        positionRef.current +
-                        SCROLL_SPEED * delta
-                    ) % groupWidthRef.current;
-
-                trackRef.current.style.transform =
-                    `translate3d(-${positionRef.current}px, 0, 0)`;
-            }
-
-            frameId =
-                requestAnimationFrame(animate);
-        }
-
-        frameId =
-            requestAnimationFrame(animate);
+        }, ROTATION_INTERVAL);
 
         return () => {
-            cancelAnimationFrame(frameId);
+            window.clearTimeout(timer);
         };
     }, [
+        shouldRotate,
+        currentIndex,
         itemCount,
-        itemsKey,
-        reducedMotion,
     ]);
 
-    if (!itemCount) {
+    function nextProduct() {
+        if (itemCount <= 1) {
+            return;
+        }
+
+        setActiveIndex(
+            (current) =>
+                (current + 1) % itemCount,
+        );
+    }
+
+    /*
+     * EMPTY STATE
+     */
+
+    if (
+        !recordOfTheWeek &&
+        itemCount === 0
+    ) {
         return null;
     }
 
-    const totalGroups =
-        itemCount > 1 && !reducedMotion
-            ? repeatCount + 1
-            : 1;
-
     return (
         <section
+            aria-label="Destaques Casa Elefante"
             className="
+                relative
                 w-full
                 min-w-0
                 overflow-hidden
-                pb-4
-                pt-2
+                rounded-xl
+                border
+                border-black
+                bg-[#FFFDE9]
+                text-black
+                shadow-[-5px_5px_0_0_#000]
             "
         >
             {/* HEADER */}
 
-            <div
+            <button
+                type="button"
+                aria-expanded={expanded}
+                onClick={() => {
+                    setExpanded(
+                        (current) => !current,
+                    );
+                }}
                 className="
                     flex
                     w-full
                     items-center
                     justify-between
-                    gap-4
-                    px-4
-                    md:px-6
+                    bg-[#D2232A]
+                    px-3
+                    py-3
+                    text-[#FFFDE9]
+                    transition-colors
+                    duration-200
+                    hover:bg-[#BE1F25]
+                    sm:px-5
                 "
             >
-                <h2
+                <span
                     className="
-                        text-[10px]
+                        text-xs
                         font-medium
                         uppercase
-                        tracking-[0.15em]
-                        text-black
+                        tracking-[0.12em]
+                        sm:text-sm
                     "
                 >
                     Destaques
-                </h2>
+                </span>
 
-                {itemCount > 1 && !reducedMotion && (
-                    <button
-                        type="button"
-                        onClick={() =>
-                            setIsPlaying((current) => !current)
-                        }
-                        aria-label={
-                            isPlaying
-                                ? "Pausar destaques"
-                                : "Reproduzir destaques"
-                        }
-                        className="
-                            flex
-                            h-7
-                            w-7
-                            items-center
-                            justify-center
-                            rounded-md
-                            border
-                            border-black
-                            bg-white
-                            text-black
-                            shadow-[-2px_2px_0_0_#000]
-                            transition-all
-                            duration-200
-                            hover:translate-x-0.5
-                            hover:-translate-y-0.5
-                            hover:shadow-[-4px_4px_0_0_#000]
-                        "
-                    >
-                        {isPlaying ? (
-                            <Pause size={13} />
-                        ) : (
-                            <Play size={13} />
-                        )}
-                    </button>
+                {expanded ? (
+                    <ChevronUp size={18} />
+                ) : (
+                    <ChevronDown size={18} />
                 )}
-            </div>
+            </button>
 
-            {/* CARROSSEL */}
+            {/* EXPANDABLE CONTENT */}
 
             <div
-                ref={viewportRef}
-                onMouseEnter={() => {
-                    isHoveredRef.current = true;
-                }}
-                onMouseLeave={() => {
-                    isHoveredRef.current = false;
-                    collapseAll();
-                }}
-                onFocusCapture={() => {
-                    isFocusedRef.current = true;
-                }}
-                onBlurCapture={(event) => {
-                    if (
-                        !event.currentTarget.contains(
-                            event.relatedTarget as Node | null
-                        )
-                    ) {
-                        isFocusedRef.current = false;
-                        collapseAll();
-                    }
-                }}
+                inert={!expanded}
                 className={`
-                    relative
-                    w-full
-                    min-w-0
-                    py-3
+                    grid
+                    transition-[grid-template-rows,opacity]
+                    duration-300
+                    ease-in-out
+                    motion-reduce:transition-none
 
                     ${
-                        reducedMotion || itemCount === 1
-                            ? "overflow-x-auto"
-                            : "overflow-hidden"
+                        expanded
+                            ? "grid-rows-[1fr] opacity-100"
+                            : "grid-rows-[0fr] opacity-0"
                     }
                 `}
             >
-                <div
-                    ref={trackRef}
-                    className="
-                        flex
-                        w-max
-                        items-start
-                        pl-4
-                        md:pl-6
-                    "
-                    style={{
-                        willChange:
-                            itemCount > 1 && !reducedMotion
-                                ? "transform"
-                                : undefined,
-                    }}
-                >
-                    {Array.from(
-                        { length: totalGroups },
-                        (_, groupIndex) => (
+                <div className="min-h-0 overflow-hidden">
+                    <div
+                        className="
+                            grid
+                            min-w-0
+                            grid-cols-[1.2fr_1fr]
+                            divide-x
+                            divide-black
+                            bg-white
+                            border-t
+                            border-black
+                            lg:grid-cols-[1.35fr_1fr]
+                        "
+                    >
+                        {/* RECORD OF THE WEEK */}
+
+                        <div
+                            className="
+                                flex
+                                min-w-0
+                                flex-col
+                                gap-3
+                                p-3
+                                sm:gap-4
+                                sm:p-5
+                            "
+                        >
+                            {/* SECTION TITLE */}
+
                             <div
-                                key={groupIndex}
-                                ref={
-                                    groupIndex === 0
-                                        ? groupRef
-                                        : undefined
-                                }
                                 className="
                                     flex
-                                    shrink-0
-                                    items-start
-                                    gap-4
-                                    pr-4
-                                    md:gap-5
-                                    md:pr-5
+                                    items-center
+                                    justify-between
+                                    gap-1
                                 "
                             >
-                                {items.map((item) => {
-                                    const cardKey =
-                                        `${groupIndex}-${item.id}`;
+                                <h2
+                                    className="
+                                        text-[9px]
+                                        font-medium
+                                        uppercase
+                                        tracking-[0.08em]
+                                        sm:text-xs
+                                    "
+                                >
+                                    Disco da Semana
+                                </h2>
 
-                                    return (
-                                        <FeaturedCard
-                                            key={cardKey}
-                                            item={item}
-                                            expanded={
-                                                expandedCard === cardKey
-                                            }
-                                            isWholesale={isWholesale}
-                                            wholesaleStatus={wholesaleStatus}
-                                            duplicate={groupIndex > 0}
-                                            onExpand={() =>
-                                                expandCard(cardKey)
-                                            }
-                                            onCollapse={() =>
-                                                collapseCard(cardKey)
-                                            }
-                                            onToggle={() =>
-                                                toggleCard(cardKey)
-                                            }
-                                        />
-                                    );
-                                })}
+                                <Star
+                                    size={14}
+                                    fill="currentColor"
+                                    className="shrink-0"
+                                />
                             </div>
-                        )
-                    )}
+
+                            {recordOfTheWeek ? (
+                                <>
+                                    {/* WEEKLY RECORD */}
+
+                                    <ProductPreview
+                                        product={recordOfTheWeek}
+                                        locked={isProductLocked(
+                                            recordOfTheWeek,
+                                        )}
+                                    />
+
+                                    {/* EDITORIAL COMMENT */}
+
+                                    <div
+                                        tabIndex={
+                                            recordOfTheWeek.editorial_comment
+                                                ? 0
+                                                : undefined
+                                        }
+                                        className="
+                                            max-h-[110px]
+                                            overflow-y-auto
+                                            overscroll-contain
+                                            break-words
+                                            pr-1
+                                            text-[10px]
+                                            leading-relaxed
+                                            sm:max-h-[130px]
+                                            sm:text-xs
+                                            lg:text-sm
+                                            [&::-webkit-scrollbar]:w-[2px]
+                                            [&::-webkit-scrollbar-thumb]:bg-black/30
+                                        "
+                                    >
+                                        <p className="whitespace-pre-line">
+                                            {recordOfTheWeek.editorial_comment ||
+                                                "Selecionado pela Casa Elefante."}
+                                        </p>
+                                    </div>
+
+                                    {/* WEEKLY FOOTER */}
+
+                                    <div
+                                        className="
+                                            mt-auto
+                                            flex
+                                            items-center
+                                            justify-between
+                                            gap-1
+                                            border-t
+                                            border-black/20
+                                            pt-2
+                                        "
+                                    >
+                                        <span
+                                            className="
+                                                truncate
+                                                text-[8px]
+                                                opacity-60
+                                                sm:text-[10px]
+                                            "
+                                        >
+                                            Seleção Casa Elefante
+                                        </span>
+
+                                        {!isProductLocked(
+                                            recordOfTheWeek,
+                                        ) && (
+                                            <Link
+                                                href={`/produtos/${recordOfTheWeek.slug}`}
+                                                aria-label={`Ver ${recordOfTheWeek.name}`}
+                                                className="
+                                                    shrink-0
+                                                    transition-transform
+                                                    hover:-translate-y-0.5
+                                                    hover:translate-x-0.5
+                                                "
+                                            >
+                                                <ArrowUpRight
+                                                    size={18}
+                                                />
+                                            </Link>
+                                        )}
+                                    </div>
+                                </>
+                            ) : (
+                                <div
+                                    className="
+                                        flex
+                                        min-h-[100px]
+                                        flex-1
+                                        flex-col
+                                        items-center
+                                        justify-center
+                                        gap-2
+                                        text-center
+                                    "
+                                >
+                                    <Disc3
+                                        size={30}
+                                        className="opacity-30"
+                                    />
+
+                                    <p className="text-[10px] opacity-60 sm:text-xs">
+                                        Nova seleção em breve.
+                                    </p>
+                                </div>
+                            )}
+                        </div>
+
+                        {/* ROTATING FEATURED PRODUCT */}
+
+                        <div
+                            onMouseEnter={() => {
+                                setIsHovered(true);
+                            }}
+                            onMouseLeave={() => {
+                                setIsHovered(false);
+                            }}
+                            onFocusCapture={() => {
+                                setIsFocused(true);
+                            }}
+                            onBlurCapture={(event) => {
+                                if (
+                                    !event.currentTarget.contains(
+                                        event.relatedTarget as Node | null,
+                                    )
+                                ) {
+                                    setIsFocused(false);
+                                }
+                            }}
+                            className="
+                                flex
+                                min-w-0
+                                flex-col
+                                gap-3
+                                p-3
+                                sm:gap-4
+                                sm:p-5
+                            "
+                        >
+                            {/* SECTION TITLE */}
+
+                            <div
+                                className="
+                                    flex
+                                    items-center
+                                    justify-between
+                                    gap-1
+                                "
+                            >
+                                <h2
+                                    className="
+                                        text-[9px]
+                                        font-medium
+                                        uppercase
+                                        tracking-[0.08em]
+                                        sm:text-xs
+                                    "
+                                >
+                                    Em Destaque
+                                </h2>
+
+                                {itemCount > 0 && (
+                                    <span
+                                        className="
+                                            shrink-0
+                                            whitespace-nowrap
+                                            text-[8px]
+                                            tabular-nums
+                                            opacity-60
+                                            sm:text-xs
+                                        "
+                                    >
+                                        {String(
+                                            currentIndex + 1,
+                                        ).padStart(2, "0")}
+                                        {" / "}
+                                        {String(
+                                            itemCount,
+                                        ).padStart(2, "0")}
+                                    </span>
+                                )}
+                            </div>
+
+                            {currentProduct ? (
+                                <>
+                                    {/* CURRENT PRODUCT */}
+
+                                    <div
+                                        key={currentProduct.id}
+                                        className="
+                                            min-w-0
+                                            flex-1
+                                            motion-safe:animate-[featured-enter_400ms_ease-out_both]
+                                        "
+                                    >
+                                        <ProductPreview
+                                            product={currentProduct}
+                                            locked={isProductLocked(
+                                                currentProduct,
+                                            )}
+                                            showPrice
+                                        />
+                                    </div>
+
+                                    {/* CAROUSEL CONTROLS */}
+
+                                    <div
+                                        className="
+                                            mt-auto
+                                            flex
+                                            min-w-0
+                                            items-center
+                                            justify-between
+                                            gap-2
+                                            border-t
+                                            border-black/20
+                                            pt-2
+                                        "
+                                    >
+                                        {/* DOTS */}
+
+                                        <div
+                                            className="
+                                                flex
+                                                min-w-0
+                                                flex-1
+                                                items-center
+                                                gap-1
+                                                overflow-x-auto
+                                                [&::-webkit-scrollbar]:hidden
+                                            "
+                                        >
+                                            {featuredProducts.map(
+                                                (product, index) => (
+                                                    <button
+                                                        key={product.id}
+                                                        type="button"
+                                                        aria-label={`Destaque ${index + 1}`}
+                                                        aria-pressed={
+                                                            currentIndex === index
+                                                        }
+                                                        onClick={() => {
+                                                            setActiveIndex(
+                                                                index,
+                                                            );
+                                                        }}
+                                                        className="
+                                                            flex
+                                                            h-5
+                                                            w-3
+                                                            shrink-0
+                                                            items-center
+                                                            justify-center
+                                                        "
+                                                    >
+                                                        <span
+                                                            className={`
+                                                                h-1.5
+                                                                w-1.5
+                                                                rounded-full
+                                                                border
+                                                                transition-colors
+                                                                duration-200
+
+                                                                ${
+                                                                    currentIndex === index
+                                                                        ? "border-[#D2232A] bg-[#D2232A]"
+                                                                        : "border-black bg-transparent"
+                                                                }
+                                                            `}
+                                                        />
+                                                    </button>
+                                                ),
+                                            )}
+                                        </div>
+
+                                        {/* PLAY / PAUSE */}
+
+                                        {itemCount > 1 && (
+                                            <div
+                                                className="
+                                                    flex
+                                                    shrink-0
+                                                    items-center
+                                                    gap-2
+                                                "
+                                            >
+                                                {!reducedMotion && (
+                                                    <button
+                                                        type="button"
+                                                        aria-label={
+                                                            isPlaying
+                                                                ? "Pausar destaques"
+                                                                : "Reproduzir destaques"
+                                                        }
+                                                        onClick={() => {
+                                                            setIsPlaying(
+                                                                (current) =>
+                                                                    !current,
+                                                            );
+                                                        }}
+                                                        className="
+                                                            transition-opacity
+                                                            hover:opacity-50
+                                                        "
+                                                    >
+                                                        {isPlaying ? (
+                                                            <Pause size={13} />
+                                                        ) : (
+                                                            <Play size={13} />
+                                                        )}
+                                                    </button>
+                                                )}
+
+                                                <button
+                                                    type="button"
+                                                    onClick={nextProduct}
+                                                    aria-label="Próximo destaque"
+                                                    className="
+                                                        transition-transform
+                                                        hover:translate-x-0.5
+                                                    "
+                                                >
+                                                    <ArrowRight
+                                                        size={18}
+                                                    />
+                                                </button>
+                                            </div>
+                                        )}
+                                    </div>
+                                </>
+                            ) : (
+                                <div
+                                    className="
+                                        flex
+                                        min-h-[100px]
+                                        flex-1
+                                        flex-col
+                                        items-center
+                                        justify-center
+                                        gap-2
+                                        text-center
+                                    "
+                                >
+                                    <Disc3
+                                        size={30}
+                                        className="opacity-30"
+                                    />
+
+                                    <p className="text-[10px] opacity-60 sm:text-xs">
+                                        Novos destaques em breve.
+                                    </p>
+                                </div>
+                            )}
+                        </div>
+                    </div>
                 </div>
             </div>
+
+            <style>{`
+                @keyframes featured-enter {
+                    from {
+                        opacity: 0;
+                        transform: translateY(12px);
+                    }
+
+                    to {
+                        opacity: 1;
+                        transform: translateY(0);
+                    }
+                }
+            `}</style>
         </section>
     );
 }

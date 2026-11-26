@@ -1,4 +1,3 @@
-
 import {
     Suspense,
 } from "react";
@@ -91,6 +90,7 @@ export default async function HomePage({
 
     /*
      * FEATURED PRODUCTS
+     * RECORD OF THE WEEK
      */
 
     let featuredQuery = supabase
@@ -105,11 +105,13 @@ export default async function HomePage({
             year,
             images,
             stock,
-            wholesale_only
+            wholesale_only,
+            is_featured,
+            is_record_of_the_week,
+            editorial_comment
         `)
-        .eq(
-            "is_featured",
-            true,
+        .or(
+            "is_featured.eq.true,is_record_of_the_week.eq.true",
         )
         .gt(
             "stock",
@@ -140,52 +142,8 @@ export default async function HomePage({
         );
     }
 
-    /*
-     * UPCOMING PERFORMANCES
-     */
-
-    const today = new Date()
-        .toISOString()
-        .split("T")[0];
-
-    const {
-        data: upcomingPerformances,
-        error: performancesError,
-    } = await supabase
-        .from("performances")
-        .select(`
-            id,
-            name,
-            slug,
-            performance_date,
-            cover_image,
-            location
-        `)
-        .eq(
-            "published",
-            true,
-        )
-        .gte(
-            "performance_date",
-            today,
-        )
-        .order(
-            "performance_date",
-            {
-                ascending: true,
-            },
-        );
-
-    if (performancesError) {
-        console.error(
-            "Erro ao buscar apresentações futuras:",
-            performancesError,
-        );
-    }
-
     const hasFeaturedContent =
-        (featuredProducts?.length ?? 0) > 0 ||
-        (upcomingPerformances?.length ?? 0) > 0;
+        (featuredProducts?.length ?? 0) > 0;
 
     return (
         <div
@@ -205,29 +163,7 @@ export default async function HomePage({
                     overflow-hidden
                 "
             >
-                {/* PAGE HEADER */}
-
                 <PageHeader title="Casa Elefante" />
-
-                {/* FEATURED CAROUSEL */}
-
-                {!hasActiveFilters &&
-                    hasFeaturedContent && (
-                        <div
-                            className="
-                                w-full
-                                min-w-0
-                            "
-                        >
-                            <FeaturedProductsCarousel
-                                products={featuredProducts ?? []}
-                                performances={upcomingPerformances ?? []}
-                                isWholesale={isWholesale || isAdmin}
-                                wholesaleStatus={wholesaleStatus}
-                            />
-                        </div>
-                    )}
-
             </section>
 
             {/* STORE CONTAINER */}
@@ -294,7 +230,7 @@ export default async function HomePage({
                         className="
                             relative
                             z-30
-                            mb-8
+                            mb-6
                             flex
                             w-full
                             min-w-0
@@ -338,6 +274,26 @@ export default async function HomePage({
                         </div>
 
                     </div>
+
+                    {/* FEATURED PRODUCTS */}
+
+                    {!hasActiveFilters &&
+                        hasFeaturedContent && (
+                            <div
+                                className="
+                                    relative
+                                    mb-8
+                                    w-full
+                                    min-w-0
+                                "
+                            >
+                                <FeaturedProductsCarousel
+                                    products={featuredProducts ?? []}
+                                    isWholesale={isWholesale || isAdmin}
+                                    wholesaleStatus={wholesaleStatus}
+                                />
+                            </div>
+                        )}
 
                     {/* PRODUCTS */}
 
