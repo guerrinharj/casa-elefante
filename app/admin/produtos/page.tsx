@@ -1,5 +1,6 @@
 
 import Link from "next/link";
+import { RecordOfTheWeek } from "@/components/admin/record-of-the-week";
 
 import {
     ArrowLeft,
@@ -63,13 +64,24 @@ export default async function AdminProductsPage({
         );
     }
 
-    const {
-        data: products,
-        error,
-    } = await query.range(
-        0,
-        PRODUCTS_PER_PAGE - 1,
-    );
+    const [
+        { data: products, error },
+        { data: currentRecord, error: recordError },
+    ] = await Promise.all([
+        query.range(0, PRODUCTS_PER_PAGE - 1),
+        supabase
+            .from("products")
+            .select("id, name, artist, format, stock, wholesale_only, editorial_comment")
+            .eq("is_record_of_the_week", true)
+            .order("created_at", { ascending: false })
+            .order("id", { ascending: false })
+            .limit(1)
+            .maybeSingle(),
+    ]);
+
+    if (recordError) {
+        console.error("Erro ao carregar Disco da Semana:", recordError);
+    }
 
     if (error) {
         console.error(
@@ -193,6 +205,11 @@ export default async function AdminProductsPage({
                         </Link>
                     </div>
                 </div>
+
+                <RecordOfTheWeek
+                    current={currentRecord}
+                    loadFailed={Boolean(recordError)}
+                />
 
                 {/* SEARCH */}
 

@@ -125,15 +125,26 @@ export default async function HomePage({
         );
     }
 
-    const {
-        data: featuredProducts,
-        error: featuredError,
-    } = await featuredQuery.order(
-        "created_at",
-        {
-            ascending: false,
-        },
-    );
+    const today = new Date().toISOString().slice(0, 10);
+
+    const [
+        { data: featuredProducts, error: featuredError },
+        { data: featuredPerformances, error: performancesError },
+    ] = await Promise.all([
+        featuredQuery.order("created_at", { ascending: false }),
+        supabase
+            .from("performances")
+            .select("id, name, slug, cover_image, location")
+            .eq("published", true)
+            .gte("performance_date", today)
+            .order("performance_date", { ascending: true })
+            .order("id")
+            .limit(6),
+    ]);
+
+    if (performancesError) {
+        console.error("Erro ao buscar apresentações para os destaques:", performancesError);
+    }
 
     if (featuredError) {
         console.error(
@@ -143,7 +154,8 @@ export default async function HomePage({
     }
 
     const hasFeaturedContent =
-        (featuredProducts?.length ?? 0) > 0;
+        (featuredProducts?.length ?? 0) > 0 ||
+        (featuredPerformances?.length ?? 0) > 0;
 
     return (
         <div
@@ -289,6 +301,7 @@ export default async function HomePage({
                             >
                                 <FeaturedProductsCarousel
                                     products={featuredProducts ?? []}
+                                    performances={featuredPerformances ?? []}
                                     isWholesale={isWholesale || isAdmin}
                                     wholesaleStatus={wholesaleStatus}
                                 />
