@@ -4,9 +4,12 @@ import {
     useEffect,
     useState,
     useSyncExternalStore,
+    type ReactNode,
 } from "react";
 
+import Image from "next/image";
 import Link from "next/link";
+import tttArtwork from "@/app/images/ttt-2.png";
 
 import {
     ArrowRight,
@@ -41,8 +44,21 @@ type FeaturedProduct = {
     editorial_comment: string | null;
 };
 
+type FeaturedPerformance = {
+    id: string;
+    name: string;
+    slug: string;
+    cover_image: string | null;
+    location: string | null;
+};
+
+type FeaturedItem =
+    | { kind: "product"; item: FeaturedProduct }
+    | { kind: "performance"; item: FeaturedPerformance };
+
 type FeaturedProductsCarouselProps = {
     products: FeaturedProduct[];
+    performances?: FeaturedPerformance[];
     isWholesale?: boolean;
     wholesaleStatus?: WholesaleStatus;
 };
@@ -78,14 +94,17 @@ function getServerReducedMotion() {
     return true;
 }
 
-function ProductImage({
-    product,
+function PreviewImage({
+    src,
+    alt,
+    fallback,
     locked = false,
 }: {
-    product: FeaturedProduct;
+    src?: string | null;
+    alt: string;
+    fallback?: ReactNode;
     locked?: boolean;
 }) {
-    const image = product.images?.[0];
 
     return (
         <div
@@ -105,11 +124,11 @@ function ProductImage({
                 }
             `}
         >
-            {image ? (
+            {src ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img
-                    src={image}
-                    alt={`${product.artist} — ${product.name}`}
+                    src={src}
+                    alt={alt}
                     className="
                         block
                         h-full
@@ -118,7 +137,7 @@ function ProductImage({
                     "
                     draggable={false}
                 />
-            ) : (
+            ) : fallback ?? (
                 <div
                     className="
                         flex
@@ -130,6 +149,7 @@ function ProductImage({
                     "
                 >
                     <Disc3
+                        aria-hidden="true"
                         size={28}
                         className="opacity-40"
                     />
@@ -183,7 +203,6 @@ function ProductInformation({
                 className="
                     line-clamp-3
                     break-words
-                    font-october
                     text-sm
                     uppercase
                     leading-[0.95]
@@ -269,8 +288,9 @@ function ProductPreview({
                     group-hover:-translate-y-0.5
                 "
             >
-                <ProductImage
-                    product={product}
+                <PreviewImage
+                    src={product.images?.[0]}
+                    alt={`${product.artist} — ${product.name}`}
                     locked={locked}
                 />
             </div>
@@ -301,8 +321,47 @@ function ProductPreview({
     );
 }
 
+function PerformancePreview({ performance }: { performance: FeaturedPerformance }) {
+    return (
+        <Link
+            href={`/toda-terca-tem/${performance.slug}`}
+            className="group flex min-w-0 items-start gap-2 sm:gap-3"
+        >
+            <div className="w-[38%] max-w-[130px] shrink-0 transition-transform duration-200 group-hover:-translate-y-0.5">
+                <PreviewImage
+                    src={performance.cover_image?.trim()}
+                    alt=""
+                    fallback={
+                        <div className="relative h-full w-full bg-[#D2232A]">
+                            <Image
+                                src={tttArtwork}
+                                alt=""
+                                fill
+                                sizes="130px"
+                                className="object-contain"
+                            />
+                        </div>
+                    }
+                />
+            </div>
+            <div className="min-w-0 flex-1 space-y-1">
+                <p className="text-[9px] uppercase leading-tight sm:text-xs">Toda Terça Tem</p>
+                <h3 className="line-clamp-3 break-words text-sm uppercase leading-[0.95] sm:text-xl lg:text-2xl">
+                    {performance.name}
+                </h3>
+                {performance.location && (
+                    <p className="break-words text-[9px] leading-tight opacity-60 sm:text-xs">
+                        {performance.location}
+                    </p>
+                )}
+            </div>
+        </Link>
+    );
+}
+
 export function FeaturedProductsCarousel({
     products,
+    performances = [],
     isWholesale = false,
     wholesaleStatus = null,
 }: FeaturedProductsCarouselProps) {
@@ -362,20 +421,17 @@ export function FeaturedProductsCarousel({
      * FEATURED PRODUCTS
      */
 
-    const featuredProducts =
-        visibleProducts.filter(
-            (product) => product.is_featured,
-        );
+    const featuredItems: FeaturedItem[] = visibleProducts
+        .filter((product) => product.is_featured)
+        .map((product) => ({ kind: "product", item: product }));
 
-    const itemCount = featuredProducts.length;
+    performances.forEach((performance, index) => {
+        featuredItems.splice(index * 2, 0, { kind: "performance", item: performance });
+    });
 
-    const currentIndex =
-        itemCount > 0
-            ? activeIndex % itemCount
-            : 0;
-
-    const currentProduct =
-        featuredProducts[currentIndex] ?? null;
+    const itemCount = featuredItems.length;
+    const currentIndex = itemCount > 0 ? activeIndex % itemCount : 0;
+    const currentItem = featuredItems[currentIndex];
 
     /*
      * WHOLESALE LOCK
@@ -615,8 +671,11 @@ export function FeaturedProductsCarousel({
                                         "
                                     >
                                         <p className="whitespace-pre-line">
-                                            {recordOfTheWeek.editorial_comment ||
-                                                "Selecionado pela Casa Elefante."}
+                                            {recordOfTheWeek.editorial_comment ? (
+                                                <em>“{recordOfTheWeek.editorial_comment}”</em>
+                                            ) : (
+                                                "Selecionado pela Casa Elefante."
+                                            )}
                                         </p>
                                     </div>
 
@@ -765,25 +824,27 @@ export function FeaturedProductsCarousel({
                                 )}
                             </div>
 
-                            {currentProduct ? (
+                            {currentItem ? (
                                 <>
                                     {/* CURRENT PRODUCT */}
 
                                     <div
-                                        key={currentProduct.id}
+                                        key={`${currentItem.kind}-${currentItem.item.id}`}
                                         className="
                                             min-w-0
                                             flex-1
                                             motion-safe:animate-[featured-enter_400ms_ease-out_both]
                                         "
                                     >
-                                        <ProductPreview
-                                            product={currentProduct}
-                                            locked={isProductLocked(
-                                                currentProduct,
-                                            )}
-                                            showPrice
-                                        />
+                                        {currentItem.kind === "performance" ? (
+                                            <PerformancePreview performance={currentItem.item} />
+                                        ) : (
+                                            <ProductPreview
+                                                product={currentItem.item}
+                                                locked={isProductLocked(currentItem.item)}
+                                                showPrice
+                                            />
+                                        )}
                                     </div>
 
                                     {/* CAROUSEL CONTROLS */}
@@ -814,12 +875,12 @@ export function FeaturedProductsCarousel({
                                                 [&::-webkit-scrollbar]:hidden
                                             "
                                         >
-                                            {featuredProducts.map(
-                                                (product, index) => (
+                                            {featuredItems.map(
+                                                ({ kind, item }, index) => (
                                                     <button
-                                                        key={product.id}
+                                                        key={`${kind}-${item.id}`}
                                                         type="button"
-                                                        aria-label={`Destaque ${index + 1}`}
+                                                        aria-label={`Destaque ${index + 1}: ${item.name}`}
                                                         aria-pressed={
                                                             currentIndex === index
                                                         }
