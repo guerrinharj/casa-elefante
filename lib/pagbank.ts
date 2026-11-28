@@ -198,3 +198,6 @@ export function getPagBankOrder(id: string) {
         "GET",
     );
 }
+export function getPagBankWebhookPublicKey() {
+    return request<{ public_key: string }>("/public-keys?type=webhook", "GET");
+}

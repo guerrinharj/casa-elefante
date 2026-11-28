@@ -719,8 +719,8 @@ string | undefined;
     return (
         <>
             <Script
-                src="https\://assets.pagseguro.com.br/checkout-sdk-js/rc/dist/browser/pagseguro.min.js"
-strategy="afterInteractive"
+                src="https://assets.pagseguro.com.br/checkout-sdk-js/rc/dist/browser/pagseguro.min.js"
+                strategy="afterInteractive"
                 onReady={() => setSdkReady(true)}
                 onError={() =>
                     setError(
