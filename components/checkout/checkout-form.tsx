@@ -43,6 +43,7 @@ export function CheckoutForm() {
         useRef<string | null>(null);
     const clearedRef =
         useRef(false);
+    const shippingRequestRef = useRef(0);
     const {
         items,
         subtotal,
@@ -302,7 +303,11 @@ value: string,
     ) {
         const formatted =
             formatPostalCode(value);
+        if (formatted === postalCode) return;
+
+        shippingRequestRef.current += 1;
         setPostalCode(formatted);
+        setCalculatingShipping(false);
         setShippingOptions([]);
         setSelectedShipping(null);
         setShippingError(null);
@@ -317,6 +322,7 @@ value: string,
     async function handleCalculateShipping() {
         setShippingError(null);
         setSelectedShipping(null);
+        setShippingOptions([]);
         const normalized =
             postalCode.replace(/\D/g, "");
         if (normalized.length !== 8) {
@@ -331,6 +337,7 @@ value: string,
             );
             return;
         }
+        const requestId = ++shippingRequestRef.current;
         setCalculatingShipping(true);
         try {
             const result =
@@ -341,17 +348,10 @@ value: string,
                         quantity: item.quantity,
                     })),
                 });
+            if (requestId !== shippingRequestRef.current) return;
+
             if (!result.success) {
-                if (
-                    result.error
-                        .toLowerCase()
-                        .includes("ainda está sendo processada")
-                ) {
-                    setError(null);
-                    setRecoveringPayment(true);
-                    return;
-                }
-                setError(result.error);
+                setShippingError(result.error);
                 return;
             }
             setShippingOptions(
@@ -364,8 +364,14 @@ value: string,
                     result.options[0],
                 );
             }
+        } catch {
+            if (requestId === shippingRequestRef.current) {
+                setShippingError("Não foi possível calcular o frete.");
+            }
         } finally {
-            setCalculatingShipping(false);
+            if (requestId === shippingRequestRef.current) {
+                setCalculatingShipping(false);
+            }
         }
     }
     async function handleSubmit(
@@ -941,25 +947,21 @@ string | undefined;
                             </label>
                         </div>
                         {shippingError && (
-                            <p className="text-sm text-red-600">
+                            <p role="alert" className="text-sm text-red-600">
                                 {shippingError}
                             </p>
                         )}
                         {shippingOptions.length > 0 && (
                             <div className="flex flex-col gap-3">
                                 {shippingOptions.map(
-                                    (option, index) => {
+                                    (option) => {
                                         const checked =
                                             selectedShipping?.id ===
                                             option.id;
                                         return (
                                             <label
                                                 key={option.id}
-                                                className="flex cursor-pointer items-center gap-4 rounded-xl border border-black bg-white p-4 opacity-0 shadow-[4px_4px_0_0_#000] transition-all duration-200 hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[6px_6px_0_0_#000]"
-                                                style={{
-                                                    animationDelay:
-                                                        `${index * 60}ms`,
-                                                }}
+                                                className="flex cursor-pointer items-center gap-4 rounded-xl border border-black bg-white p-4 shadow-[4px_4px_0_0_#000] transition-all duration-200 hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[6px_6px_0_0_#000]"
                                             >
                                                 <input
                                                     type="radio"
