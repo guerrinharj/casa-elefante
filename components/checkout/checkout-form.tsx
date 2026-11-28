@@ -566,7 +566,13 @@ string | undefined;
                 payment.status,
             );
         return (
-            <section className="mx-auto flex max-w-xl flex-col gap-5 rounded-xl border border-black bg-[#FFFDE9] p-6">
+            <section
+                className={`mx-auto flex max-w-xl flex-col gap-5 rounded-xl border border-black p-6 ${
+                    paid
+                        ? "bg-white text-black shadow-[-5px_5px_0_0_#000]"
+                        : "bg-[#FFFDE9]"
+                }`}
+            >
                 <h2 className="font-october text-2xl font-bold">
                     {paid
                         ? "Pagamento confirmado"
