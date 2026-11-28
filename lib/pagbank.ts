@@ -1,42 +1,39 @@
 import "server-only";
 
+export type PagBankCharge = {
+    id: string;
+    status: string;
+    qr_code?: {
+        id: string;
+        text: string;
+    };
+    links?: {
+        rel: string;
+        href: string;
+        media?: string;
+    }[];
+    payment_method?: {
+        type: string;
+        pix?: {
+            expiration_date?: string;
+        };
+    };
+    amount: {
+        value: number;
+        currency: string;
+        summary?: { paid: number; refunded: number };
+    };
+    payment_response?: {
+        code?: string;
+        message?: string;
+    };
+};
+
 export type PagBankOrder = {
     id: string;
     reference_id?: string;
 
-    charges?: {
-            id: string;
-            status: string;
-
-        qr_code?: {
-            id: string;
-            text: string;
-        };
-
-        links?: {
-            rel: string;
-            href: string;
-            media?: string;
-        }[];
-
-        payment_method?: {
-            type: string;
-
-        pix?: {
-            expiration_date?: string;
-        };
-        };
-
-        amount: {
-            value: number;
-            currency: string;
-        };
-
-        payment_response?: {
-            code?: string;
-            message?: string;
-        };
-    }[];
+    charges?: PagBankCharge[];
 
     qr_codes?: {
             id: string;
@@ -55,6 +52,7 @@ export class PagBankError extends Error {
     constructor(
         public readonly status: number,
         message: string,
+        public readonly providerCode?: string,
     ) {
         super(message);
     }
@@ -132,10 +130,11 @@ async function request<T>(
     ): Promise<T> {
     const { token, baseUrl } = getPagBankConfig();
 
+    const isChargeLookup = method === "GET" && path.startsWith("/charges/");
     const headers: Record<string, string> = {
         Authorization: `Bearer ${token}`,
-        Accept: "application/json",
-        "Content-Type": "application/json",
+        Accept: isChargeLookup ? "application/vnd.pagseguro.api.v1+json" : "application/json",
+        ...(body ? { "Content-Type": "application/json" } : {}),
     };
 
     if (key) {
@@ -163,9 +162,11 @@ async function request<T>(
         .catch(() => null);
 
     if (!response.ok) {
+        const code: unknown = data?.error_messages?.[0]?.code;
         throw new PagBankError(
-        response.status,
-        `PagBank retornou HTTP ${response.status}.`,
+            response.status,
+            `PagBank retornou HTTP ${response.status}.`,
+            typeof code === "string" && /^\d{4,8}$/.test(code) ? code : undefined,
         );
     }
 
@@ -200,4 +201,23 @@ export function getPagBankOrder(id: string) {
 }
 export function getPagBankWebhookPublicKey() {
     return request<{ public_key: string }>("/public-keys?type=webhook", "GET");
+}
+
+export function getPagBankCharge(id: string) {
+    if (!/^CHAR_[A-Za-z0-9-]+$/.test(id)) {
+        throw new Error("Cobrança PagBank inválida.");
+    }
+    return request<PagBankCharge>(`/charges/${encodeURIComponent(id)}`, "GET");
+}
+
+export function refundPagBankCharge(id: string, amount: number, requestId: string) {
+    if (!/^CHAR_[A-Za-z0-9-]+$/.test(id)) {
+        throw new Error("Cobrança PagBank inválida.");
+    }
+    return request<PagBankCharge>(
+        `/charges/${encodeURIComponent(id)}/cancel`,
+        "POST",
+        { amount: { value: amount } },
+        requestId,
+    );
 }

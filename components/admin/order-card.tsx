@@ -78,7 +78,9 @@ export function OrderCard({
 order,
 onShippedChange,
 }: OrderCardProps) {
-    const isPaid = order.status === "paid";
+    const [fullyRefunded, setFullyRefunded] = useState(false);
+    const [refundRequestId, setRefundRequestId] = useState("");
+    const isPaid = order.status === "paid" && !fullyRefunded;
     const [refundOpen, setRefundOpen] = useState(false);
     const [refundType, setRefundType] = useState<RefundType>("total");
     const [refundReason, setRefundReason] = useState<RefundReason>(
@@ -175,6 +177,7 @@ value?: string,
         if (!isPaid || totalCents <= 0) {
             return;
         }
+        setRefundRequestId(crypto.randomUUID());
         setRefundType("total");
         setRefundReason("customer_request");
         setRefundAmount("");
@@ -214,6 +217,7 @@ event: FormEvent<HTMLFormElement>,
                     },
                     body: JSON.stringify({
                         orderId: order.id,
+                        requestId: refundRequestId,
                         type: refundType,
                         amount: refundCents,
                         reason: refundReason,
@@ -229,9 +233,8 @@ event: FormEvent<HTMLFormElement>,
                 );
             }
             setRefundOpen(false);
-            alert(
-                "Solicitação de reembolso enviada.",
-            );
+            setFullyRefunded(data.remaining === 0);
+            alert(`Estorno de ${formatPrice(data.amount / 100)} confirmado pelo PagBank.`);
         } catch (error) {
             setRefundError(
                 error instanceof Error
@@ -266,7 +269,7 @@ event: FormEvent<HTMLFormElement>,
                             )}
                         </p>
                         <p className="text-xl  leading-none text-black/70">
-                            {order.status ||
+                            {(fullyRefunded ? "refunded" : order.status) ||
                                 "Pendente"}
                         </p>
                     </div>
@@ -655,10 +658,8 @@ event.target.value,
                                     Atenção
                                 </p>
                                 <p className="mt-2 text-black/70">
-                                    O sistema de reembolsos ainda
-                                    está em desenvolvimento.
-                                    Nenhum valor será estornado
-                                    nesta etapa.
+                                    Esta ação solicita um estorno no sandbox do PagBank.
+                                    O reembolso total devolve todo o saldo disponível da cobrança.
                                 </p>
                             </div>
                             <label className="flex cursor-pointer items-start gap-3 text-sm">
